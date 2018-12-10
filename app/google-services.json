@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "154589002303",
+    "firebase_url": "https://qdocs-37057.firebaseio.com",
+    "project_id": "qdocs-37057",
+    "storage_bucket": "qdocs-37057.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:154589002303:android:b92fd5b5d504982b",
+        "android_client_info": {
+          "package_name": "com.polimi.proj.qdocs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "154589002303-sb6h0ntc62v26mumph9jd3j8o6lg8rc3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.polimi.proj.qdocs",
+            "certificate_hash": "3a051e36bc17332e45bc503e54e1f88f92c79915"
+          }
+        },
+        {
+          "client_id": "154589002303-15l46ssoppot0hnbuh84i5spvppu39j6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVH1SPKOD-3l-uLCsqxaQRx-NHIffFkrI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "154589002303-15l46ssoppot0hnbuh84i5spvppu39j6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
