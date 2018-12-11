@@ -38,6 +38,8 @@ public class RegistrationActivity extends AppCompatActivity {
         registerButton = findViewById(R.id.submit_button);
         mAuth = FirebaseAuth.getInstance();
 
+        //TODO: implementare il tasto indietro per tornare al login
+
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
