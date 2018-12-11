@@ -8,12 +8,13 @@
 
 
     <EditText
-        android:id="@+id/emailText"
+        android:id="@+id/email_text"
         android:layout_height="50dp"
         android:layout_width="match_parent"
         android:ems="10"
         android:cursorVisible="true"
         android:textCursorDrawable="@null"
+        android:inputType="textEmailAddress"
         android:textSize="20sp"
         android:textColor="#333333"
         android:drawablePadding="25dp"
@@ -30,7 +31,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:id="@+id/passwordText"
+        android:id="@+id/password_text"
         android:inputType="textPassword"
         android:ems="10"
         android:textSize="20sp"
@@ -44,14 +45,14 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:paddingLeft="20dp"
-        android:layout_below="@+id/emailText"
+        android:layout_below="@+id/email_text"
         android:paddingStart="20dp" />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/submitButton"
-        android:layout_below="@+id/passwordText"
+        android:id="@+id/submit_button"
+        android:layout_below="@+id/password_text"
         android:layout_marginTop="30dp"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
@@ -63,10 +64,10 @@
         android:backgroundTint="@color/colorPrimary"
         />
     <Button
-        android:id="@+id/signUp"
+        android:id="@+id/sign_up"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/submitButton"
+        android:layout_below="@+id/submit_button"
         android:textAlignment="center"
         android:text="@string/sign_up"
         android:textSize="20sp"

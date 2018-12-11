@@ -34,13 +34,18 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        emailView = findViewById(R.id.emailText);
-        passwordView = findViewById(R.id.passwordText);
+        mAuth = FirebaseAuth.getInstance();
 
-        signInButton = findViewById(R.id.submitButton);
+        emailView = findViewById(R.id.email_text);
+        passwordView = findViewById(R.id.password_text);
+
+
+        signInButton = findViewById(R.id.submit_button);
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(TAG, "email: "+emailView.getText().toString());
+                Log.d(TAG, "psw: "+passwordView.getText().toString());
                 mAuth.signInWithEmailAndPassword(emailView.getText().toString(), passwordView.getText().toString())
                         .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
@@ -60,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        signUpButton = findViewById(R.id.signUp);
+        signUpButton = findViewById(R.id.sign_up);
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
