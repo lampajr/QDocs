@@ -81,6 +81,9 @@ public class LoginActivity extends AppCompatActivity {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
+                                    final Intent fil = new Intent(LoginActivity.this, FileActivity.class);
+                                    fil.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
+                                    startActivity(fil);
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.w(TAG, "signInWithEmail:failure", task.getException());
@@ -106,11 +109,15 @@ public class LoginActivity extends AppCompatActivity {
 
 
         facebookButton = findViewById(R.id.facebook_button);
+        facebookButton.setReadPermissions("email", "public_profile");
         facebookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
                 handleFacebookAccessToken(loginResult.getAccessToken());
+                final Intent fil = new Intent(LoginActivity.this, FileActivity.class);
+                fil.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(fil);
 
             }
 
@@ -188,6 +195,9 @@ public class LoginActivity extends AppCompatActivity {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
+                final Intent fil = new Intent(LoginActivity.this, FileActivity.class);
+                fil.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(fil);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e);
@@ -221,4 +231,17 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null){
+            final Intent fil = new Intent(LoginActivity.this, FileActivity.class);
+            fil.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(fil);
+        }
+    }
+
 }

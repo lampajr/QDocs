@@ -16,6 +16,8 @@
     <string name="error_auth">Authentication failed.</string>
     <string name="facebook_app_id">266538914039794</string>
     <string name="fb_login_protocol_scheme">fb266538914039794</string>
+    <string name="sign_out">Sign out</string>
+    <string name="add">+</string>
 
 
 </resources>
