@@ -71,7 +71,7 @@ public class FileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI), IMGPRV);
                 startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.INTERNAL_CONTENT_URI), AUD_PRV);
-
+                Log.d(TAG, "Click add button");
             }
         });
     }
@@ -110,12 +110,43 @@ public class FileActivity extends AppCompatActivity {
             }
         
             if(requestCode == AUD_PRV)
-                if (requestCode == Activity.RESULT_OK){
-                    uploadAudio(data);
+                if (resultCode == Activity.RESULT_OK){
+                    Log.d(TAG,"On result: audio");
+                    if (ContextCompat.checkSelfPermission(FileActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        Log.e(TAG,"Permission denied for external storage");
+                    }else {
+                        uploadAudio(data);
+
+                    }
                 }
     }
 
     private void uploadAudio(Intent data) {
+        Uri audioz = data.getData();
+        Context context = getBaseContext();
+        Cursor cursor = getContentResolver().query(audioz, null, null, null, null);
+        cursor.moveToFirst();
+        int idx = cursor.getColumnIndex(MediaStore.Audio.AudioColumns.DATA);
+        String absoluteFilePath = cursor.getString(idx);
+
+        Uri file = Uri.fromFile(new File(absoluteFilePath));
+        StorageReference imgRef = storageRef.child(file.getLastPathSegment());
+        UploadTask uploadTask = imgRef.putFile(file);
+
+        Log.d(TAG, "starting uploading");
+        // Register observers to listen for when the download is done or if it fails
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Log.e(TAG, exception.toString());
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Log.d(TAG, "Upload complete");
+            }
+        });
     }
 
     private void uploadImage(Intent data){
