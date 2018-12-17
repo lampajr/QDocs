@@ -18,6 +18,7 @@
     <string name="fb_login_protocol_scheme">fb266538914039794</string>
     <string name="sign_out">Sign out</string>
     <string name="add">+</string>
+    <string name="take_picture">TAKE PICTURE</string>
 
 
 </resources>

@@ -163,7 +163,14 @@ public class ScannerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scanner);
 
+        textureView = findViewById(R.id.texture);
+        assert textureView != null;
+        textureView.setSurfaceTextureListener(textureListener);
 
+        takePictureButton = findViewById(R.id.btn_takepicture);
+        setupTakePictureButton();
+
+        setSwipeListener();
     }
 
     /**
