@@ -153,8 +153,7 @@ public class ScannerActivity extends AppCompatActivity {
                                        @NonNull TotalCaptureResult result) {
             super.onCaptureCompleted(session, request, result);
 
-            //++++++++TO IMPLEMENT++++++++++//
-            // this method is called when the capture of the image goes well
+            createCameraPreview();
         }
     };
 
@@ -171,6 +170,8 @@ public class ScannerActivity extends AppCompatActivity {
         setupTakePictureButton();
 
         setSwipeListener();
+
+        startBackgroundThread();
     }
 
     /**
@@ -196,7 +197,7 @@ public class ScannerActivity extends AppCompatActivity {
                         x = event.getX();
                         y = event.getY();
                         Log.d(TAG, "SWIPE");
-                        if (x > previousX + 80.0 && (y < previousY +50 || y > previousY-50)) {
+                        if (x > previousX + 30.0 && (y < previousY +10 || y > previousY-50)) {
                             startLoginActivity();
                         }
                         break;
@@ -352,7 +353,7 @@ public class ScannerActivity extends AppCompatActivity {
                 height = jpegSize.getHeight();
             }
 
-            ImageReader imageReader = ImageReader.newInstance(width, height,
+            imageReader = ImageReader.newInstance(width, height,
                     ImageFormat.JPEG, 1);
 
             List<Surface> outputSurfaces = new ArrayList<>(2);
@@ -361,6 +362,9 @@ public class ScannerActivity extends AppCompatActivity {
 
             final CaptureRequest.Builder captureBuilder = cameraDevice.createCaptureRequest(
                     CameraDevice.TEMPLATE_STILL_CAPTURE);
+
+            captureBuilder.addTarget(imageReader.getSurface());
+            captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
 
             // orientation
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
@@ -406,6 +410,7 @@ public class ScannerActivity extends AppCompatActivity {
      */
     private void decodeImage(Image image) {
         // TODO
+        Log.d(TAG, "Latest image acquired!");
     }
 
     @Override
