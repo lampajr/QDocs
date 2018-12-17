@@ -109,7 +109,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onError(FacebookException exception) {
-                Log.d(TAG, "facebook:onError", exception);
+                Log.e(TAG, "facebook:onError", exception);
             }
         });
 
@@ -150,7 +150,7 @@ public class LoginActivity extends AppCompatActivity {
                             FirebaseUser user = mAuth.getCurrentUser();
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            Log.e(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -181,7 +181,7 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(fil);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
-                Log.w(TAG, "Google sign in failed", e);
+                Log.e(TAG, "Google sign in failed", e);
                 // ...
             }
         }
