@@ -7,13 +7,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -31,7 +30,10 @@ import java.io.File;
 public class FileActivity extends AppCompatActivity {
     private static final String TAG = "FILE_ACT";
     private static final int EX_PER = 10 ;
+
     private final int IMGPRV=100;
+    private static final int AUD_PRV = 200;
+
     private Button signOutButton;
     private Button addButton;
     private FirebaseStorage storage;
@@ -42,7 +44,7 @@ public class FileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file);
 
-        ActivityCompat.requestPermissions(FileActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, EX_PER);
+        getPermission();
 
         signOutButton = findViewById(R.id.sign_out_button);
         signOutButton.setOnClickListener(new View.OnClickListener() {
@@ -58,15 +60,24 @@ public class FileActivity extends AppCompatActivity {
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
 
+        storageRef.child("*");
+
 
         addButton = findViewById(R.id.add_button);
         addButton.setOnClickListener(new View.OnClickListener() {
+
+
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI), IMGPRV);
+                //startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI), IMGPRV);
+                startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.INTERNAL_CONTENT_URI), AUD_PRV);
 
             }
         });
+    }
+
+    private void getPermission() {
+        ActivityCompat.requestPermissions(FileActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, EX_PER);
     }
 
 
@@ -93,33 +104,44 @@ public class FileActivity extends AppCompatActivity {
                         != PackageManager.PERMISSION_GRANTED) {
                     Log.e(TAG,"Permission denied for external storage");
                 }else {
+                    uploadImage(data);
 
-                    Uri picturez = data.getData();
-                    Context context = getBaseContext();
-                    Cursor cursor = getContentResolver().query(picturez, null, null, null, null);
-                    cursor.moveToFirst();
-                    int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-                    String absoluteFilePath = cursor.getString(idx);
-
-                    Uri file = Uri.fromFile(new File(absoluteFilePath));
-                    StorageReference riversRef = storageRef.child("images/" + file.getLastPathSegment());
-                    UploadTask uploadTask = riversRef.putFile(file);
-
-                    // Register observers to listen for when the download is done or if it fails
-                    uploadTask.addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            // Handle unsuccessful uploads
-                        }
-                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                            // ...
-                        }
-                    });
                 }
             }
+        
+            if(requestCode == AUD_PRV)
+                if (requestCode == Activity.RESULT_OK){
+                    uploadAudio(data);
+                }
+    }
+
+    private void uploadAudio(Intent data) {
+    }
+
+    private void uploadImage(Intent data){
+        Uri picturez = data.getData();
+        Context context = getBaseContext();
+        Cursor cursor = getContentResolver().query(picturez, null, null, null, null);
+        cursor.moveToFirst();
+        int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+        String absoluteFilePath = cursor.getString(idx);
+
+        Uri file = Uri.fromFile(new File(absoluteFilePath));
+        StorageReference imgRef = storageRef.child(file.getLastPathSegment());
+        UploadTask uploadTask = imgRef.putFile(file);
+
+        // Register observers to listen for when the download is done or if it fails
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Log.e(TAG, exception.toString());
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Log.d(TAG, "Upload complete");
+            }
+        });
     }
 
 }

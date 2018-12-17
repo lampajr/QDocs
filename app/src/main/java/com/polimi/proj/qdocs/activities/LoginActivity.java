@@ -71,27 +71,8 @@ public class LoginActivity extends AppCompatActivity {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, "email: "+emailView.getText().toString());
-                Log.d(TAG, "psw: "+passwordView.getText().toString());
-                mAuth.signInWithEmailAndPassword(emailView.getText().toString(), passwordView.getText().toString())
-                        .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    // Sign in success, update UI with the signed-in user's information
-                                    Log.d(TAG, "signInWithEmail:success");
-                                    FirebaseUser user = mAuth.getCurrentUser();
-                                    final Intent fil = new Intent(LoginActivity.this, FileActivity.class);
-                                    fil.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
-                                    startActivity(fil);
-                                } else {
-                                    // If sign in fails, display a message to the user.
-                                    Log.w(TAG, "signInWithEmail:failure", task.getException());
-                                    Toast.makeText(LoginActivity.this, getString(R.string.error_auth),
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
+                CredentialLogin login = new CredentialLogin();
+                login.log();
             }
         });
 
@@ -223,7 +204,7 @@ public class LoginActivity extends AppCompatActivity {
                             FirebaseUser user = mAuth.getCurrentUser();
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            Log.e(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(LoginActivity.this, "failure", Toast.LENGTH_LONG);
                         }
 
@@ -244,4 +225,36 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+
+    private class CredentialLogin{
+        CredentialLogin(){
+            Log.d(TAG, "email: "+emailView.getText().toString());
+            Log.d(TAG, "psw: "+passwordView.getText().toString());
+        }
+
+        void log(){
+            mAuth.signInWithEmailAndPassword(emailView.getText().toString(), passwordView.getText().toString())
+                    .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d(TAG, "signInWithEmail:success");
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                final Intent fil = new Intent(LoginActivity.this, FileActivity.class);
+                                fil.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(fil);
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Log.w(TAG, "signInWithEmail:failure", task.getException());
+                                Toast.makeText(LoginActivity.this, getString(R.string.error_auth),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
+    }
+
 }
+
+
