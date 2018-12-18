@@ -2,8 +2,10 @@ package com.polimi.proj.qdocs.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
@@ -18,12 +20,13 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.renderscript.ScriptC;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -37,10 +40,8 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.services.QRCodeDetectionService;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +49,10 @@ import java.util.List;
 
 public class ScannerActivity extends AppCompatActivity {
 
+    /**
+     * SCANNER ACTIVITY that implements a custom camera that allows user
+     * to capture the image (qr code) and then decode it
+     */
 
 
     private static final String TAG = "SCANNER";
@@ -163,10 +168,13 @@ public class ScannerActivity extends AppCompatActivity {
 
 
     // tells whether the user is logged in or not
-    public static String ANONYMOUS_EXTRA = "EXTRA_ANONYMOUS";
+    public static String ANONYMOUS_EXTRA = "com.polimi.proj.qdocs.activities.EXTRA_ANONYMOUS";
     private boolean loggedInAnonymously = false;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser user;
+
+    // detection receiver
+    DetectorReceiver receiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,6 +191,20 @@ public class ScannerActivity extends AppCompatActivity {
         setupTakePictureButton();
 
         setSwipeListener();
+
+        setupDetectionReceiver();
+    }
+
+    /**
+     * setup the detection receiver that is in charge to handel the
+     * results provided by the intent service which will detect the
+     * QR code
+     */
+    private void setupDetectionReceiver() {
+        IntentFilter filter = new IntentFilter(DetectorReceiver.DETECTION_RECEIVER);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        receiver = new DetectorReceiver();
+        registerReceiver(receiver, filter);
     }
 
     /**
@@ -424,6 +446,16 @@ public class ScannerActivity extends AppCompatActivity {
         // TODO
         Log.d(TAG, "Latest image acquired!");
 
+        // generate the IntentService that will decode the image
+        //Intent decodeIntentService = new Intent(this, QRCodeDetectionService.class);
+        //ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+        //byte[] bytes = new byte[buffer.capacity()];
+        //buffer.get(bytes);
+
+        // pass to the Service the array of bytes composing the image
+        //decodeIntentService.putExtra(QRCodeDetectionService.IMAGE_TO_DECODE, bytes);
+        //startService(decodeIntentService);
+
     }
 
     /**
@@ -434,7 +466,8 @@ public class ScannerActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CAMERA_PERMISSION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -474,5 +507,23 @@ public class ScannerActivity extends AppCompatActivity {
         closeCamera();
         stopBackgroundThread();
         super.onPause();
+    }
+
+    public class DetectorReceiver extends BroadcastReceiver {
+
+        public static final String DETECTION_RECEIVER = "com.polimi.proj.qdocs.activities.DETECTION_RECEIVER";
+
+        public DetectorReceiver() {
+            super();
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // the result is the identifier of the file to open
+            String id = intent.getExtras().getString(QRCodeDetectionService.DETECTION_RESULT);
+
+            Toast.makeText(ScannerActivity.this, "" + id, Toast.LENGTH_SHORT).show();
+            // TODO : handle the download etc..
+        }
     }
 }
