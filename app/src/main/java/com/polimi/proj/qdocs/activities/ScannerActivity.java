@@ -34,6 +34,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.polimi.proj.qdocs.R;
 
 import java.io.FileOutputStream;
@@ -45,6 +47,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ScannerActivity extends AppCompatActivity {
+
+
 
     private static final String TAG = "SCANNER";
     private static final int REQUEST_CAMERA_PERMISSION = 2;
@@ -86,7 +90,7 @@ public class ScannerActivity extends AppCompatActivity {
 
         @Override
         public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-            // to implement
+            // TODO: non so cosa fare
         }
 
         @Override
@@ -96,7 +100,7 @@ public class ScannerActivity extends AppCompatActivity {
 
         @Override
         public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-            //to implement
+            // TODO: non so cosa fare
         }
     };
 
@@ -157,10 +161,19 @@ public class ScannerActivity extends AppCompatActivity {
         }
     };
 
+
+    // tells whether the user is logged in or not
+    public static String ANONYMOUS_EXTRA = "EXTRA_ANONYMOUS";
+    private boolean loggedInAnonymously = false;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser user;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scanner);
+
+        firebaseAuth = FirebaseAuth.getInstance();
 
         textureView = findViewById(R.id.texture);
         assert textureView != null;
@@ -170,8 +183,6 @@ public class ScannerActivity extends AppCompatActivity {
         setupTakePictureButton();
 
         setSwipeListener();
-
-        startBackgroundThread();
     }
 
     /**
@@ -212,6 +223,7 @@ public class ScannerActivity extends AppCompatActivity {
      */
     private void startLoginActivity() {
         Intent loginIntent = new Intent(this, LoginActivity.class);
+        loginIntent.putExtra(ScannerActivity.ANONYMOUS_EXTRA, loggedInAnonymously);
         startActivity(loginIntent);
     }
 
@@ -411,6 +423,14 @@ public class ScannerActivity extends AppCompatActivity {
     private void decodeImage(Image image) {
         // TODO
         Log.d(TAG, "Latest image acquired!");
+
+    }
+
+    /**
+     * checks whether the user is logged in or not
+     */
+    private boolean checkUser() {
+        return user != null;
     }
 
     @Override
@@ -432,11 +452,20 @@ public class ScannerActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "On Start");
+        startBackgroundThread();
+        user = firebaseAuth.getCurrentUser();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "On Resume");
         startBackgroundThread();
         if (textureView.isAvailable()) {openCamera();}
+        user = firebaseAuth.getCurrentUser();
     }
 
     @Override
