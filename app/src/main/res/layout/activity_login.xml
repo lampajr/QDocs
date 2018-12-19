@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:alpha="0.9"
-    android:backgroundTint="@color/colorAccent">
+    android:alpha="0.9">
 
     <android.support.v7.widget.AppCompatImageView
         android:layout_width="wrap_content"
@@ -37,7 +36,8 @@
         android:fontFamily="sans-serif"
         android:paddingLeft="10dp"
         android:background="@drawable/rounded_edittext"
-        android:layout_below="@+id/logo_image"/>
+        android:layout_below="@+id/logo_image"
+        android:drawableLeft="@drawable/email_img"/>
 
     <EditText
         android:layout_width="match_parent"
@@ -55,10 +55,11 @@
         android:layout_marginTop="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:paddingLeft="20dp"
+        android:paddingLeft="10dp"
         android:layout_below="@+id/email_text"
         android:background="@drawable/rounded_edittext"
-        android:paddingStart="20dp" />
+        android:paddingStart="10dp"
+        android:drawableLeft="@drawable/key_img"/>
 
     <Button
         android:layout_width="match_parent"
