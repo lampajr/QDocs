@@ -4,29 +4,25 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class User {
 
-    // modes
-    public static final String ANONYMOUS = "ANONYMOUS";
-    public static final String GOOGLE = "GOOGLE";
-    public static final String FACEBOOK = "FACEBOOK";
-    public static final String EMAIL = "EMAIL";
-    public static final String UNKNOWN = "UNKNOWN";
+    public enum LoginMode {ANONYMOUS, GOOGLE, FACEBOOK, EMAIL, UNKNOWN}
 
     // attributes
-    private String mode; // 'email, google, facebook, anonymous
     private String uid;
     private String email;
     private String username;
+    private LoginMode mode;
 
     private static User ourInstance = null;
 
-    public static void createUser(FirebaseUser user, String mode) {
+    /**
+     * create the user whether it is no yet created
+     * @param user FirebaseUser from which get information
+     * @param mode LoginMode how the user has been logged in
+     */
+    public static void createUser(FirebaseUser user, LoginMode mode) {
         if (ourInstance != null)
             return;
 
-        ourInstance = new User(user.getUid(), user.getEmail(), user.getDisplayName(), mode);
-    }
-
-    public static void updateUser(FirebaseUser user, String mode) {
         ourInstance = new User(user.getUid(), user.getEmail(), user.getDisplayName(), mode);
     }
 
@@ -34,9 +30,14 @@ public class User {
         return ourInstance;
     }
 
-    private User(String uid, String username, String email, String mode) {
+    private User(String uid, String username, String email, LoginMode mode) {
+        this.uid = uid;
         this.email = email;
         this.username = username;
         this.mode = mode;
+    }
+
+    public String getUid() {
+        return uid;
     }
 }

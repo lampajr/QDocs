@@ -18,6 +18,11 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.BeepManager;
@@ -45,16 +50,22 @@ public class ScannerActivity extends AppCompatActivity {
     private static final int REQUEST_LOGIN = 2;
 
     public static final String LOGIN_MODE_KEY = "com.polimi.proj.qdocs.activities.LOGIN_MODE_KEY";
+    public static final String FILENAME_KEY = "com.polimi.proj.qdocs.activities.FILENAME_KEY";
 
+    private static final String BASE_LINKAGE_REFERENCE = "linkage";
+
+    // scanner data
     private DecoratedBarcodeView barcodeView;
     private BeepManager beepManager;
     private String lastText;
 
+    // swipe data
     private double previousX=0.0, previousY=0.0;
     private double offset = 20;
 
+    // authentication
     private FirebaseAuth firebaseAuth;
-    private String loginMode = User.UNKNOWN;
+    private User.LoginMode loginMode = User.LoginMode.UNKNOWN;
 
     private BarcodeCallback barcodeCallback = new BarcodeCallback() {
         @Override
@@ -69,7 +80,7 @@ public class ScannerActivity extends AppCompatActivity {
 
             beepManager.playBeepSoundAndVibrate();
 
-            // TODO: to reimplement in according to our application
+            verifyKey(result.getText());
         }
 
         @Override
@@ -90,21 +101,9 @@ public class ScannerActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_widget);
         setSupportActionBar(toolbar);
 
-        setupSwipeListener();
-
-        setupAuthenticationListener();
-
+        setupSwipeListener();;
     }
 
-    private void setupAuthenticationListener() {
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                // TODO: react to login creating the user
-            }
-        });
-    }
 
     /**
      * set the swipe listener on the view such that the user
@@ -140,21 +139,22 @@ public class ScannerActivity extends AppCompatActivity {
         startActivityForResult(loginIntent, REQUEST_LOGIN);
     }
 
+    /**
+     * start the file Activity
+     */
     private void startFileActivity() {
         Intent filesIntent = new Intent(this, FileActivity.class);
         startActivity(filesIntent);
     }
 
     /**
-     * check to have the Camera permission
+     * start the FileViewer which will show the file
+     * @param filename name of the file to show
      */
-    private void checkPermission() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-        }
-        else {
-            startBarcodeScanner();
-        }
+    private void startFileViewer(String filename) {
+        Intent viewerIntent = new Intent(this, FileViewer.class);
+        viewerIntent.putExtra(FILENAME_KEY, filename);
+        startActivity(viewerIntent);
     }
 
     /**
@@ -168,6 +168,19 @@ public class ScannerActivity extends AppCompatActivity {
         barcodeView.decodeContinuous(barcodeCallback);
 
         beepManager = new BeepManager(this);
+    }
+
+    /**
+     * check to have the Camera permission
+     */
+    private void checkPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            // request the camera permission
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+        }
+        else {
+            startBarcodeScanner();
+        }
     }
 
     public void triggerScan(View view) {
@@ -189,6 +202,40 @@ public class ScannerActivity extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * check whether there is a filename associated with this key
+     * @param key key detected by the barcode scanner
+     */
+    private void verifyKey(String key) {
+        String reference = BASE_LINKAGE_REFERENCE + "/" + User.getUser().getUid() + "/" + key;
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(reference);
+        dbRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                String filename = (String) dataSnapshot.getValue();
+                if (filename == null) {
+                    // there are no files associated with this key
+                }
+                else {
+                    // launch FileViewer with the filename
+                    startFileViewer(filename);
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
+        });
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -229,6 +276,7 @@ public class ScannerActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CAMERA_PERMISSION && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // acquired the permission start the barcode scanner
             startBarcodeScanner();
         }
     }
@@ -242,7 +290,7 @@ public class ScannerActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == REQUEST_LOGIN) {
             // the user has been logged in
-            loginMode = data.getExtras().getString(LOGIN_MODE_KEY);
+            loginMode = (User.LoginMode) data.getExtras().get(LOGIN_MODE_KEY);
             User.createUser(firebaseAuth.getCurrentUser(), loginMode);
         }
         else{

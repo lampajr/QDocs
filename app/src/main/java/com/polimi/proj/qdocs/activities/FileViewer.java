@@ -11,6 +11,7 @@ public class FileViewer extends AppCompatActivity {
 
     private DatabaseReference dbRef;
     private Bundle bundle;
+    private String filename;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,7 +19,6 @@ public class FileViewer extends AppCompatActivity {
         setContentView(R.layout.activity_file_viewer);
 
         bundle = getIntent().getExtras();
+        filename = bundle.getString(ScannerActivity.FILENAME_KEY);
     }
-
-
 }
