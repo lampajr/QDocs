@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,16 +7,18 @@
     android:orientation="vertical"
     tools:context=".activities.ScannerActivity">
 
-    <include layout="@layout/toolbar_layout"/>
+    <include layout="@layout/toolbar_layout"
+        android:id="@+id/toolbar_widget"/>
 
     <com.journeyapps.barcodescanner.DecoratedBarcodeView
         android:id="@+id/barcode_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_widget"
         app:zxing_use_texture_view="false"
         app:zxing_preview_scaling_strategy='centerCrop'>
 
     </com.journeyapps.barcodescanner.DecoratedBarcodeView>
 
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>
