@@ -37,7 +37,7 @@ public class ScannerActivity extends AppCompatActivity {
 
     private static final String TAG = "SCANNER_ACTIVITY";
 
-    private static final String ANONYMOUS_EXTRA = "com.polimi.proj.qdocs.activities.ANONYMOUS_EXTRA";
+    public static final String ANONYMOUS_EXTRA = "com.polimi.proj.qdocs.activities.ANONYMOUS_EXTRA";
     private static final int REQUEST_CAMERA_PERMISSION = 50;
 
     private DecoratedBarcodeView barcodeView;

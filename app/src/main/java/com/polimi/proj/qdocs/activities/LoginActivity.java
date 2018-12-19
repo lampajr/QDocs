@@ -24,7 +24,6 @@ import com.polimi.proj.qdocs.R;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -53,11 +52,14 @@ public class LoginActivity extends AppCompatActivity {
     private CallbackManager callbackManager;
     private GoogleSignInClient mGoogleSignInClient;
     private SignInButton googleButton;
+    private boolean anonymous;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        anonymous = checkAnonymous(getIntent().getExtras());
 
         mAuth = FirebaseAuth.getInstance();
         callbackManager = CallbackManager.Factory.create();
@@ -133,6 +135,14 @@ public class LoginActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private boolean checkAnonymous(Bundle extras) {
+
+        if(extras != null)
+            return extras.getBoolean(ScannerActivity.ANONYMOUS_EXTRA);
+
+        return false;
     }
 
 
@@ -228,30 +238,45 @@ public class LoginActivity extends AppCompatActivity {
 
     private class CredentialLogin{
         CredentialLogin(){
-            Log.d(TAG, "email: "+emailView.getText().toString());
-            Log.d(TAG, "psw: "+passwordView.getText().toString());
+            if(emailView.getText() == null || passwordView.getText()  == null) {
+
+                Log.d(TAG, "email: null");
+                Log.d(TAG, "psw: null");
+            }
+            else{
+                Log.d(TAG, "email: "+emailView.getText().toString());
+                Log.d(TAG, "psw: "+passwordView.getText().toString());
+            }
         }
 
         void log(){
-            mAuth.signInWithEmailAndPassword(emailView.getText().toString(), passwordView.getText().toString())
-                    .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                Log.d(TAG, "signInWithEmail:success");
-                                FirebaseUser user = mAuth.getCurrentUser();
-                                final Intent fil = new Intent(LoginActivity.this, FileActivity.class);
-                                fil.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
-                                startActivity(fil);
-                            } else {
-                                // If sign in fails, display a message to the user.
-                                Log.w(TAG, "signInWithEmail:failure", task.getException());
-                                Toast.makeText(LoginActivity.this, getString(R.string.error_auth),
-                                        Toast.LENGTH_SHORT).show();
+            String email = emailView.getText().toString();
+            String password = passwordView.getText().toString();
+
+            if(email.equals("")  || password.equals("")){
+                Toast.makeText(LoginActivity.this, "Invalid email or password", Toast.LENGTH_LONG).show();
+
+            }else {
+                mAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    // Sign in success, update UI with the signed-in user's information
+                                    Log.d(TAG, "signInWithEmail:success");
+                                    FirebaseUser user = mAuth.getCurrentUser();
+                                    final Intent fil = new Intent(LoginActivity.this, FileActivity.class);
+                                    fil.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    startActivity(fil);
+                                } else {
+                                    // If sign in fails, display a message to the user.
+                                    Log.w(TAG, "signInWithEmail:failure", task.getException());
+                                    Toast.makeText(LoginActivity.this, getString(R.string.error_auth),
+                                            Toast.LENGTH_SHORT).show();
+                                }
                             }
-                        }
-                    });
+                        });
+            }
         }
     }
 

@@ -44,44 +44,49 @@ public class RegistrationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "start registration");
-                mAuth.createUserWithEmailAndPassword(emailText.getText().toString(), passwordText.getText().toString())
-                        .addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    // Sign in success, update UI with the signed-in user's information
-                                    Log.d(TAG, "createUserWithEmail:success");
-                                    FirebaseUser user = mAuth.getCurrentUser();
+                if(emailText.getText().toString().equals("") || passwordText.getText().toString().equals("")){
+                    Toast.makeText(RegistrationActivity.this, "Illegal email or password", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    mAuth.createUserWithEmailAndPassword(emailText.getText().toString(), passwordText.getText().toString())
+                            .addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        // Sign in success, update UI with the signed-in user's information
+                                        Log.d(TAG, "createUserWithEmail:success");
+                                        FirebaseUser user = mAuth.getCurrentUser();
 
-                                    Intent login = new Intent(RegistrationActivity.this, LoginActivity.class);
-                                    login.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                    startActivity(login);
+                                        Intent login = new Intent(RegistrationActivity.this, LoginActivity.class);
+                                        login.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        startActivity(login);
 
-                                } else {
-                                    try {
-                                        throw task.getException();
-                                    } catch(FirebaseAuthWeakPasswordException e) {
-                                        Toast.makeText(RegistrationActivity.this, "The password must be at least 6 characters",
-                                                Toast.LENGTH_LONG).show();
+                                    } else {
+                                        try {
+                                            throw task.getException();
+                                        } catch (FirebaseAuthWeakPasswordException e) {
+                                            Toast.makeText(RegistrationActivity.this, "The password must be at least 6 characters",
+                                                    Toast.LENGTH_LONG).show();
 
-                                    } catch(FirebaseAuthInvalidCredentialsException e) {
-                                        Toast.makeText(RegistrationActivity.this, "invalid email format",
-                                                Toast.LENGTH_LONG).show();
-                                    } catch(FirebaseAuthUserCollisionException e) {
-                                        Toast.makeText(RegistrationActivity.this, "This email is alredy in use",
-                                                Toast.LENGTH_LONG).show();
-                                    } catch (Exception e) {
-                                        Toast.makeText(RegistrationActivity.this, "An error is occurred",
-                                                Toast.LENGTH_LONG).show();
-                                        Log.e(TAG, e.getMessage());
+                                        } catch (FirebaseAuthInvalidCredentialsException e) {
+                                            Toast.makeText(RegistrationActivity.this, "invalid email format",
+                                                    Toast.LENGTH_LONG).show();
+                                        } catch (FirebaseAuthUserCollisionException e) {
+                                            Toast.makeText(RegistrationActivity.this, "This email is alredy in use",
+                                                    Toast.LENGTH_LONG).show();
+                                        } catch (Exception e) {
+                                            Toast.makeText(RegistrationActivity.this, "An error is occurred",
+                                                    Toast.LENGTH_LONG).show();
+                                            Log.e(TAG, e.getMessage());
+                                        }
+                                        // If sign in fails, display a message to the user.
+                                        Log.w(TAG, "createUserWithEmail:failure", task.getException());
                                     }
-                                    // If sign in fails, display a message to the user.
-                                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                }
 
-                                // ...
-                            }
-                        });
+                                    // ...
+                                }
+                            });
+                }
             }
         });
 

@@ -14,8 +14,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,8 +35,9 @@ public class FileActivity extends AppCompatActivity {
     private static final String TAG = "FILE_ACT";
     private static final int EX_PER = 10 ;
 
-    private final int IMGPRV=100;
+    private static final int IMG_PRV=100;
     private static final int AUD_PRV = 200;
+    private static final int VID_PRV = 300;
 
     private Button signOutButton;
     private Button addButton;
@@ -43,6 +48,7 @@ public class FileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file);
+
 
         getPermission();
 
@@ -69,11 +75,40 @@ public class FileActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                //startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI), IMGPRV);
-                startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.INTERNAL_CONTENT_URI), AUD_PRV);
                 Log.d(TAG, "Click add button");
+                startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI), IMG_PRV);
+                //startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.INTERNAL_CONTENT_URI), AUD_PRV);
+                //startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.INTERNAL_CONTENT_URI), VID_PRV);
+
             }
         });
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        Log.d(TAG, "Creazione menu");
+        MenuInflater inflater=getMenuInflater();
+        inflater.inflate(R.menu.file_menu_layout, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        int id=item.getItemId();
+        switch(id)
+        {
+            case R.id.logout_menu:
+                FirebaseAuth.getInstance().signOut();
+                final Intent login = new Intent(FileActivity.this, LoginActivity.class);
+                login.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(login);
+                break;
+        }
+        return false;
     }
 
     private void getPermission() {
@@ -98,7 +133,8 @@ public class FileActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == IMGPRV)
+        if (requestCode == IMG_PRV){
+            Log.d(TAG, "On result: image");
             if (resultCode == Activity.RESULT_OK) {
                 if (ContextCompat.checkSelfPermission(FileActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
@@ -108,18 +144,62 @@ public class FileActivity extends AppCompatActivity {
 
                 }
             }
+        }
         
-            if(requestCode == AUD_PRV)
-                if (resultCode == Activity.RESULT_OK){
-                    Log.d(TAG,"On result: audio");
-                    if (ContextCompat.checkSelfPermission(FileActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        Log.e(TAG,"Permission denied for external storage");
-                    }else {
-                        uploadAudio(data);
+        if(requestCode == AUD_PRV) {
+            if (resultCode == Activity.RESULT_OK) {
+                Log.d(TAG, "On result: audio");
+                if (ContextCompat.checkSelfPermission(FileActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    Log.e(TAG, "Permission denied for external storage");
+                } else {
+                    uploadAudio(data);
 
-                    }
                 }
+            }
+        }
+
+        if(requestCode == VID_PRV) {
+            if (resultCode == Activity.RESULT_OK) {
+                Log.d(TAG, "On result: video");
+                if (ContextCompat.checkSelfPermission(FileActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    Log.e(TAG, "Permission denied for external storage");
+                } else {
+                    uploadVideo(data);
+
+                }
+            }
+        }
+
+
+    }
+
+    private void uploadVideo(Intent data) {
+        Uri videoz = data.getData();
+        Context context = getBaseContext();
+        Cursor cursor = getContentResolver().query(videoz, null, null, null, null);
+        cursor.moveToFirst();
+        int idx = cursor.getColumnIndex(MediaStore.Video.VideoColumns.DATA);
+        String absoluteFilePath = cursor.getString(idx);
+
+        Uri file = Uri.fromFile(new File(absoluteFilePath));
+        StorageReference imgRef = storageRef.child(file.getLastPathSegment());
+        UploadTask uploadTask = imgRef.putFile(file);
+
+        Log.d(TAG, "starting uploading");
+        // Register observers to listen for when the download is done or if it fails
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Log.e(TAG, exception.toString());
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Log.d(TAG, "Upload complete");
+            }
+        });
     }
 
     private void uploadAudio(Intent data) {
@@ -174,5 +254,6 @@ public class FileActivity extends AppCompatActivity {
             }
         });
     }
+
 
 }
