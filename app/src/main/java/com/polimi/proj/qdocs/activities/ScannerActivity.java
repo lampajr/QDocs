@@ -9,8 +9,11 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -38,6 +41,7 @@ public class ScannerActivity extends AppCompatActivity {
     private static final String TAG = "SCANNER_ACTIVITY";
 
     public static final String ANONYMOUS_EXTRA = "com.polimi.proj.qdocs.activities.ANONYMOUS_EXTRA";
+
     private static final int REQUEST_CAMERA_PERMISSION = 50;
 
     private DecoratedBarcodeView barcodeView;
@@ -48,6 +52,8 @@ public class ScannerActivity extends AppCompatActivity {
     private double offset = 20;
 
     private boolean loggedInAnonymously = false;
+
+    private Toolbar toolbar;
 
     private BarcodeCallback barcodeCallback = new BarcodeCallback() {
         @Override
@@ -61,10 +67,6 @@ public class ScannerActivity extends AppCompatActivity {
             barcodeView.setStatusText(result.getText());
 
             beepManager.playBeepSoundAndVibrate();
-
-            //Added preview of scanned barcode
-            ImageView imageView = (ImageView) findViewById(R.id.barcode_preview);
-            imageView.setImageBitmap(result.getBitmapWithResultPoints(Color.YELLOW));
 
             // TODO: to reimplement in according to our application
         }
@@ -80,7 +82,12 @@ public class ScannerActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_scanner);
 
+        // get the barcode view
         barcodeView = (DecoratedBarcodeView) findViewById(R.id.barcode_view);
+
+        //setup toolbar
+        toolbar = (Toolbar) findViewById(R.id.toolbar_widget);
+        setSupportActionBar(toolbar);
 
         setupSwipeListener();
 
@@ -147,24 +154,21 @@ public class ScannerActivity extends AppCompatActivity {
         beepManager = new BeepManager(this);
     }
 
-    /**
-     * put barcode view on pause
-     * @param view Pause button
-     */
-    public void pause(View view) {
-        barcodeView.pause();
-    }
-
-    /**
-     * resume the barcode view
-     * @param view Resume button
-     */
-    public void resume(View view) {
-        barcodeView.resume();
-    }
-
     public void triggerScan(View view) {
         barcodeView.decodeSingle(barcodeCallback);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.file_menu_layout, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+        // TODO: to implement
     }
 
     @Override

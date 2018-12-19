@@ -1,55 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".activities.ScannerActivity">
+
+    <include layout="@layout/toolbar_layout"/>
 
     <com.journeyapps.barcodescanner.DecoratedBarcodeView
         android:id="@+id/barcode_view"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_above="@+id/buttons_layout"
-        android:layout_alignParentTop="true">
+        android:layout_height="wrap_content"
+        app:zxing_use_texture_view="false"
+        app:zxing_preview_scaling_strategy='centerCrop'>
 
     </com.journeyapps.barcodescanner.DecoratedBarcodeView>
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:id="@+id/buttons_layout"
-        android:layout_toStartOf="@+id/centerHorizont">
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Pause"
-            android:onClick="pause" />
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Resume"
-            android:onClick="resume" />
-    </LinearLayout>
-
-    <View
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/centerHorizont" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/centerHorizont"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@id/buttons_layout"
-        android:id="@+id/barcode_preview" />
-
-
-</RelativeLayout>
+</LinearLayout>
