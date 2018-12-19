@@ -4,8 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,13 +16,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
 
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.BeepManager;
@@ -33,6 +26,7 @@ import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.support.User;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,9 +41,10 @@ public class ScannerActivity extends AppCompatActivity {
 
     private static final String TAG = "SCANNER_ACTIVITY";
 
-    public static final String ANONYMOUS_EXTRA = "com.polimi.proj.qdocs.activities.ANONYMOUS_EXTRA";
+    private static final int REQUEST_CAMERA_PERMISSION = 1;
+    private static final int REQUEST_LOGIN = 2;
 
-    private static final int REQUEST_CAMERA_PERMISSION = 50;
+    public static final String LOGIN_MODE_KEY = "com.polimi.proj.qdocs.activities.LOGIN_MODE_KEY";
 
     private DecoratedBarcodeView barcodeView;
     private BeepManager beepManager;
@@ -58,9 +53,8 @@ public class ScannerActivity extends AppCompatActivity {
     private double previousX=0.0, previousY=0.0;
     private double offset = 20;
 
-    private boolean loggedInAnonymously = false;
-
-    private Toolbar toolbar;
+    private FirebaseAuth firebaseAuth;
+    private String loginMode = User.UNKNOWN;
 
     private BarcodeCallback barcodeCallback = new BarcodeCallback() {
         @Override
@@ -93,12 +87,23 @@ public class ScannerActivity extends AppCompatActivity {
         barcodeView = (DecoratedBarcodeView) findViewById(R.id.barcode_view);
 
         //setup toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar_widget);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_widget);
         setSupportActionBar(toolbar);
 
         setupSwipeListener();
 
-        checkPermission();
+        setupAuthenticationListener();
+
+    }
+
+    private void setupAuthenticationListener() {
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                // TODO: react to login creating the user
+            }
+        });
     }
 
     /**
@@ -119,7 +124,7 @@ public class ScannerActivity extends AppCompatActivity {
                     double currentX = event.getX();
                     double currentY = event.getY();
                     if (previousX > currentX + offset) {
-                        startLoginActivity();
+                        startFileActivity();
                     }
                 }
                 return true;
@@ -132,8 +137,12 @@ public class ScannerActivity extends AppCompatActivity {
      */
     private void startLoginActivity() {
         Intent loginIntent = new Intent(this, LoginActivity.class);
-        loginIntent.putExtra(ANONYMOUS_EXTRA, loggedInAnonymously);
-        startActivity(loginIntent);
+        startActivityForResult(loginIntent, REQUEST_LOGIN);
+    }
+
+    private void startFileActivity() {
+        Intent filesIntent = new Intent(this, FileActivity.class);
+        startActivity(filesIntent);
     }
 
     /**
@@ -165,6 +174,21 @@ public class ScannerActivity extends AppCompatActivity {
         barcodeView.decodeSingle(barcodeCallback);
     }
 
+    /**
+     * check the status of the user, if it is not logged in
+     * force it to do so
+     */
+    private void checkUserStatus() {
+        if (firebaseAuth.getCurrentUser() == null) {
+            // you must login
+            startLoginActivity();
+        }
+        else {
+            // user already logged in
+            User.createUser(firebaseAuth.getCurrentUser(), loginMode);
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -179,11 +203,19 @@ public class ScannerActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        checkPermission();
+        checkUserStatus();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "On Resume!");
         barcodeView.resume();
         checkPermission();
+        checkUserStatus();
     }
 
     @Override
@@ -204,6 +236,18 @@ public class ScannerActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return barcodeView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == REQUEST_LOGIN) {
+            // the user has been logged in
+            loginMode = data.getExtras().getString(LOGIN_MODE_KEY);
+            User.createUser(firebaseAuth.getCurrentUser(), loginMode);
+        }
+        else{
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 }
 
