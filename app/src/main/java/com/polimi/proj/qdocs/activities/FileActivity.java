@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -39,8 +40,7 @@ public class FileActivity extends AppCompatActivity {
     private static final int AUD_PRV = 200;
     private static final int VID_PRV = 300;
 
-    private Button signOutButton;
-    private Button addButton;
+    private FloatingActionButton addButton;
     private FirebaseStorage storage;
     private StorageReference storageRef;
 
@@ -49,19 +49,7 @@ public class FileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file);
 
-
         getPermission();
-
-        signOutButton = findViewById(R.id.sign_out_button);
-        signOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                final Intent login = new Intent(FileActivity.this, LoginActivity.class);
-                login.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(login);
-            }
-        });
 
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
@@ -82,6 +70,9 @@ public class FileActivity extends AppCompatActivity {
 
             }
         });
+
+        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolbar_widget);
+        setSupportActionBar(toolbar);
     }
 
 
