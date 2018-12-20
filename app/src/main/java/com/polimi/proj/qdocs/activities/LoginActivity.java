@@ -38,7 +38,6 @@ import android.widget.Toast;
 
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
-import com.polimi.proj.qdocs.support.User;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -151,7 +150,7 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            goToScannerActivity(User.LoginMode.FACEBOOK);
+                            goToScannerActivity();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.e(TAG, "signInWithCredential:failure", task.getException());
@@ -180,13 +179,11 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                Log.d(TAG, "firebaseAuthWithGoogle");
                 firebaseAuthWithGoogle(account);
-                Log.d(TAG, "sign in with google ok");
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.e(TAG, "Google sign in failed", e);
-                // ...
+                // TODO: printa tost
             }
         }
         else{
@@ -208,7 +205,7 @@ public class LoginActivity extends AppCompatActivity {
                             Log.d(TAG, "signInWithCredential:success with google");
                             FirebaseUser user = mAuth.getCurrentUser();
                             Log.d(TAG, "user "+mAuth.getCurrentUser());
-                            goToScannerActivity(User.LoginMode.GOOGLE);
+                            goToScannerActivity();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.e(TAG, "signInWithCredential:failure", task.getException());
@@ -224,6 +221,8 @@ public class LoginActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         Log.d(TAG, "On Start");
+        if(mAuth.getCurrentUser() != null)
+            finish();
 
     }
 
@@ -248,9 +247,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    private void goToScannerActivity(User.LoginMode loginMode){
-
-        User.createUser(mAuth.getCurrentUser(), loginMode);
+    private void goToScannerActivity(){
         Log.d(TAG, "End login Activity");
         onBackPressed();
     }
@@ -285,7 +282,7 @@ public class LoginActivity extends AppCompatActivity {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
-                                    goToScannerActivity(User.LoginMode.EMAIL);
+                                    goToScannerActivity();
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.w(TAG, "signInWithEmail:failure", task.getException());
