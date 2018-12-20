@@ -2,6 +2,7 @@ package com.polimi.proj.qdocs.activities;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -20,6 +21,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -31,6 +34,8 @@ import com.google.firebase.storage.UploadTask;
 import com.polimi.proj.qdocs.R;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileActivity extends AppCompatActivity {
     private static final String TAG = "FILE_ACT";
@@ -43,6 +48,7 @@ public class FileActivity extends AppCompatActivity {
     private FloatingActionButton addButton;
     private FirebaseStorage storage;
     private StorageReference storageRef;
+    private List<String> files;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +60,8 @@ public class FileActivity extends AppCompatActivity {
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
 
-        storageRef.child("*");
+        getFiles();
+        showFiles();
 
 
         addButton = findViewById(R.id.add_button);
@@ -64,15 +71,63 @@ public class FileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Click add button");
-                startActivityForResult(new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI), IMG_PRV);
-                //startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.INTERNAL_CONTENT_URI), AUD_PRV);
-                //startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.INTERNAL_CONTENT_URI), VID_PRV);
+                final Dialog d=new Dialog(FileActivity.this);
+                d.setTitle("Login");
+                d.setCancelable(true);
+                d.setContentView(R.layout.chooser_file_type_dialog);
 
+                ImageView gallery_img = d.findViewById(R.id.image_image);
+                gallery_img.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View arg0)
+                    {
+                        startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.INTERNAL_CONTENT_URI), VID_PRV);
+                        d.dismiss();
+                    }
+                });
+
+                ImageView audio_img = d.findViewById(R.id.audio_image);
+                audio_img.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View arg0)
+                    {
+                        startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.INTERNAL_CONTENT_URI), AUD_PRV);
+                        d.dismiss();
+                    }
+                });
+
+                ImageView file_img = d.findViewById(R.id.file_image);
+                file_img.setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View arg0)
+                    {
+                        Toast.makeText(FileActivity.this, "To implement", Toast.LENGTH_LONG).show();
+                        d.dismiss();
+                    }
+                });
+                d.show();
             }
         });
 
         android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolbar_widget);
         setSupportActionBar(toolbar);
+    }
+
+    private void showFiles() {
+        /*
+        TODO: show list of files
+            filename.split("\\.")[1]  --> estensione file
+        */
+    }
+
+    private void getFiles() {
+        /*
+        TODO: read files from database
+        */
+        files = new ArrayList<>();
     }
 
 
@@ -177,7 +232,8 @@ public class FileActivity extends AppCompatActivity {
         String absoluteFilePath = cursor.getString(idx);
 
         Uri file = Uri.fromFile(new File(absoluteFilePath));
-        StorageReference imgRef = storageRef.child(file.getLastPathSegment());
+        String userPath = ""+FirebaseAuth.getInstance().getCurrentUser().getUid();
+        StorageReference imgRef = storageRef.child(userPath+"/"+file.getLastPathSegment());
         UploadTask uploadTask = imgRef.putFile(file);
 
         Log.d(TAG, "starting uploading");
@@ -204,7 +260,8 @@ public class FileActivity extends AppCompatActivity {
         String absoluteFilePath = cursor.getString(idx);
 
         Uri file = Uri.fromFile(new File(absoluteFilePath));
-        StorageReference imgRef = storageRef.child(file.getLastPathSegment());
+        String userPath = ""+FirebaseAuth.getInstance().getCurrentUser().getUid();
+        StorageReference imgRef = storageRef.child(userPath+"/"+file.getLastPathSegment());
         UploadTask uploadTask = imgRef.putFile(file);
 
         Log.d(TAG, "starting uploading");
@@ -231,7 +288,8 @@ public class FileActivity extends AppCompatActivity {
         String absoluteFilePath = cursor.getString(idx);
 
         Uri file = Uri.fromFile(new File(absoluteFilePath));
-        StorageReference imgRef = storageRef.child(file.getLastPathSegment());
+        String userPath = ""+FirebaseAuth.getInstance().getCurrentUser().getUid();
+        StorageReference imgRef = storageRef.child(userPath+"/"+file.getLastPathSegment());
         UploadTask uploadTask = imgRef.putFile(file);
 
         // Register observers to listen for when the download is done or if it fails

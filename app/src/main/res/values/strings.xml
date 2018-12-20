@@ -21,6 +21,9 @@
 
     <!-- String related to scanner -->
     <string name="take_picture">TAKE PICTURE</string>
+    <string name="invalid_password_registration">The password must be at least 6 characters</string>
+    <string name="invalid_email_format">Invalid email format</string>
+    <string name="email_already_used">email already in use</string>
 
 
 </resources>

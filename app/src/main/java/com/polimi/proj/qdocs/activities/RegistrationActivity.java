@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -27,6 +28,7 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText passwordText;
     private Button registerButton;
     private FirebaseAuth mAuth;
+    private TextView labelError;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,7 @@ public class RegistrationActivity extends AppCompatActivity {
         passwordText = findViewById(R.id.password_text);
         registerButton = findViewById(R.id.submit_button);
         mAuth = FirebaseAuth.getInstance();
+        labelError = findViewById(R.id.label_error);
 
         //TODO: implementare il tasto indietro per tornare al login
 
@@ -65,15 +68,17 @@ public class RegistrationActivity extends AppCompatActivity {
                                         try {
                                             throw task.getException();
                                         } catch (FirebaseAuthWeakPasswordException e) {
-                                            Toast.makeText(RegistrationActivity.this, "The password must be at least 6 characters",
-                                                    Toast.LENGTH_LONG).show();
+
+                                            labelError.setText(getString(R.string.invalid_password_registration));
 
                                         } catch (FirebaseAuthInvalidCredentialsException e) {
-                                            Toast.makeText(RegistrationActivity.this, "invalid email format",
-                                                    Toast.LENGTH_LONG).show();
+
+                                            labelError.setText(getString(R.string.invalid_email_format));
+
                                         } catch (FirebaseAuthUserCollisionException e) {
-                                            Toast.makeText(RegistrationActivity.this, "This email is alredy in use",
-                                                    Toast.LENGTH_LONG).show();
+
+                                            labelError.setText(getString(R.string.email_already_used));
+
                                         } catch (Exception e) {
                                             Toast.makeText(RegistrationActivity.this, "An error is occurred",
                                                     Toast.LENGTH_LONG).show();
