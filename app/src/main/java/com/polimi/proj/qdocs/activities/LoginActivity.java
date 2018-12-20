@@ -34,7 +34,7 @@ import android.widget.Toast;
 
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
-
+import com.polimi.proj.qdocs.support.User;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -58,8 +58,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        anonymous = checkAnonymous(getIntent().getExtras());
 
         mAuth = FirebaseAuth.getInstance();
         callbackManager = CallbackManager.Factory.create();
@@ -98,9 +96,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
                 handleFacebookAccessToken(loginResult.getAccessToken());
-                final Intent fil = new Intent(LoginActivity.this, FileActivity.class);
-                fil.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(fil);
+                goToScannerActivity(User.LoginMode.FACEBOOK);
 
             }
 
@@ -137,13 +133,6 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private boolean checkAnonymous(Bundle extras) {
-
-        if(extras != null)
-            return extras.getBoolean(ScannerActivity.ANONYMOUS_EXTRA);
-
-        return false;
-    }
 
 
     private void handleFacebookAccessToken(AccessToken token) {
@@ -186,9 +175,7 @@ public class LoginActivity extends AppCompatActivity {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
-                final Intent fil = new Intent(LoginActivity.this, FileActivity.class);
-                fil.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(fil);
+                goToScannerActivity(User.LoginMode.GOOGLE);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.e(TAG, "Google sign in failed", e);
@@ -229,10 +216,19 @@ public class LoginActivity extends AppCompatActivity {
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
-            final Intent fil = new Intent(LoginActivity.this, FileActivity.class);
+            final Intent fil = new Intent(LoginActivity.this, ScannerActivity.class);
             fil.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(fil);
         }
+    }
+
+    private void goToScannerActivity(User.LoginMode loginMode){
+
+        Intent i = new Intent();
+        i.putExtra(ScannerActivity.LOGIN_MODE_KEY, loginMode);
+        setResult(ScannerActivity.RESULT_OK, i);
+        finish();
+
     }
 
 
@@ -265,9 +261,7 @@ public class LoginActivity extends AppCompatActivity {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
-                                    final Intent fil = new Intent(LoginActivity.this, FileActivity.class);
-                                    fil.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                    startActivity(fil);
+                                    goToScannerActivity(User.LoginMode.EMAIL);
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.w(TAG, "signInWithEmail:failure", task.getException());
