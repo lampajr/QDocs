@@ -183,7 +183,6 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "firebaseAuthWithGoogle");
                 firebaseAuthWithGoogle(account);
                 Log.d(TAG, "sign in with google ok");
-                goToScannerActivity(User.LoginMode.GOOGLE);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Log.e(TAG, "Google sign in failed", e);
@@ -208,6 +207,8 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success with google");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            Log.d(TAG, "user "+mAuth.getCurrentUser());
+                            goToScannerActivity(User.LoginMode.GOOGLE);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.e(TAG, "signInWithCredential:failure", task.getException());
@@ -249,7 +250,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private void goToScannerActivity(User.LoginMode loginMode){
 
-        Intent i = new Intent();
         User.createUser(mAuth.getCurrentUser(), loginMode);
         Log.d(TAG, "End login Activity");
         onBackPressed();
