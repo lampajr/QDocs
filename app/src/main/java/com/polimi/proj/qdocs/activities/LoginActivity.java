@@ -96,7 +96,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
                 handleFacebookAccessToken(loginResult.getAccessToken());
-                goToScannerActivity(User.LoginMode.FACEBOOK);
 
             }
 
@@ -147,6 +146,7 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            goToScannerActivity(User.LoginMode.FACEBOOK);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.e(TAG, "signInWithCredential:failure", task.getException());
@@ -183,6 +183,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
         else{
+            Log.d(TAG, "On result: facebook");
             callbackManager.onActivityResult(requestCode, resultCode, data);
         }
     }
