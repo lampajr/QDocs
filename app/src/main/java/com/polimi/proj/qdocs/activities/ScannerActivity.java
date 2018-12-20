@@ -67,6 +67,7 @@ public class ScannerActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private User.LoginMode loginMode = User.LoginMode.UNKNOWN;
 
+    // callback on the barcode, listening on results
     private BarcodeCallback barcodeCallback = new BarcodeCallback() {
         @Override
         public void barcodeResult(BarcodeResult result) {
@@ -97,11 +98,13 @@ public class ScannerActivity extends AppCompatActivity {
         // get the barcode view
         barcodeView = (DecoratedBarcodeView) findViewById(R.id.barcode_view);
 
+        firebaseAuth = FirebaseAuth.getInstance();
+
         //setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_widget);
         setSupportActionBar(toolbar);
 
-        setupSwipeListener();;
+        setupSwipeListener();
     }
 
 
@@ -245,8 +248,15 @@ public class ScannerActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
-        // TODO: to implement
+        int id=item.getItemId();
+        switch(id)
+        {
+            case R.id.logout_menu:
+                FirebaseAuth.getInstance().signOut();
+                startLoginActivity();
+                break;
+        }
+        return false;
     }
 
     @Override
@@ -290,8 +300,16 @@ public class ScannerActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == REQUEST_LOGIN) {
             // the user has been logged in
-            loginMode = (User.LoginMode) data.getExtras().get(LOGIN_MODE_KEY);
-            User.createUser(firebaseAuth.getCurrentUser(), loginMode);
+            if (data != null) {
+                loginMode = (User.LoginMode) data.getExtras().get(LOGIN_MODE_KEY);
+                User.createUser(firebaseAuth.getCurrentUser(), loginMode);
+            }
+            else {
+                // the user was get back without logging in
+                // finish the app
+                Log.d(TAG, "Close the app!");
+                finish();
+            }
         }
         else{
             super.onActivityResult(requestCode, resultCode, data);

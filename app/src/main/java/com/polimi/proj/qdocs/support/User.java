@@ -40,4 +40,16 @@ public class User {
     public String getUid() {
         return uid;
     }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public LoginMode getMode() {
+        return mode;
+    }
 }
