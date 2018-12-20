@@ -251,7 +251,7 @@ public class ScannerActivity extends AppCompatActivity {
         switch(id)
         {
             case R.id.logout_menu:
-                FirebaseAuth.getInstance().signOut();
+                LoginActivity.logout();
                 startLoginActivity();
                 break;
         }
