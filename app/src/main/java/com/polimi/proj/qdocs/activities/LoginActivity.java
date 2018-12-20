@@ -229,7 +229,6 @@ public class LoginActivity extends AppCompatActivity {
         setResult(ScannerActivity.RESULT_OK, i);
         Log.d(TAG, "End login Activity");
         finish();
-
     }
 
 

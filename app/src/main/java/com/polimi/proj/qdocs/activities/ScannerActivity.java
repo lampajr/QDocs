@@ -262,6 +262,7 @@ public class ScannerActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d(TAG, "On Start!");
         checkPermission();
         checkUserStatus();
     }
@@ -301,6 +302,7 @@ public class ScannerActivity extends AppCompatActivity {
         if (requestCode == REQUEST_LOGIN) {
             // the user has been logged in
             if (data != null) {
+                Log.d(TAG, "User has been logged in");
                 loginMode = (User.LoginMode) data.getExtras().get(LOGIN_MODE_KEY);
                 User.createUser(firebaseAuth.getCurrentUser(), loginMode);
             }
