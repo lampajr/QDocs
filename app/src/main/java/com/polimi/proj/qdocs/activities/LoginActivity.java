@@ -213,6 +213,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        Log.d(TAG, "On Start");
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
@@ -226,7 +227,7 @@ public class LoginActivity extends AppCompatActivity {
         Intent i = new Intent();
         i.putExtra(ScannerActivity.LOGIN_MODE_KEY, loginMode);
         setResult(ScannerActivity.RESULT_OK, i);
-        Log.d(TAG, "Fine login Activity");
+        Log.d(TAG, "End login Activity");
         finish();
 
     }
