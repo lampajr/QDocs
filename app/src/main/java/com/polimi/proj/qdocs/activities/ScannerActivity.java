@@ -18,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,7 +32,6 @@ import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 import com.polimi.proj.qdocs.R;
-import com.polimi.proj.qdocs.support.User;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -65,7 +65,7 @@ public class ScannerActivity extends AppCompatActivity {
 
     // authentication
     private FirebaseAuth firebaseAuth;
-    private User.LoginMode loginMode = User.LoginMode.UNKNOWN;
+    private FirebaseUser user;
 
     // callback on the barcode, listening on results
     private BarcodeCallback barcodeCallback = new BarcodeCallback() {
@@ -195,7 +195,8 @@ public class ScannerActivity extends AppCompatActivity {
      * force it to do so
      */
     private void checkUserStatus() {
-        if (firebaseAuth.getCurrentUser() == null) {
+        user = firebaseAuth.getCurrentUser();
+        if (user == null) {
             // you must login
             startLoginActivity();
         }
@@ -209,18 +210,19 @@ public class ScannerActivity extends AppCompatActivity {
      * check whether there is a filename associated with this key
      * @param key key detected by the barcode scanner
      */
-    private void verifyKey(String key) {
-        String reference = BASE_LINKAGE_REFERENCE + "/" + User.getUser().getUid() + "/" + key;
-        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(reference);
+    private void verifyKey(final String key) {
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child(BASE_LINKAGE_REFERENCE)
+                .child(user.getUid());
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 String filename = (String) dataSnapshot.getValue();
-                if (filename == null) {
-                    // there are no files associated with this key
-                }
-                else {
+                // TODO: remove http...
+                String keyValue = "http://" + dataSnapshot.getKey();
+                Log.d(TAG, "filename: " + filename + " keyValue: " + keyValue + " key: " + key);
+                if (filename != null && keyValue.equals(key)) {
                     // launch FileViewer with the filename
+                    Log.d(TAG, "filename found! : " + filename);
                     startFileViewer(filename);
                 }
             }
