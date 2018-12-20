@@ -93,8 +93,9 @@ public class FileActivity extends AppCompatActivity {
         switch(id)
         {
             case R.id.logout_menu:
-                FirebaseAuth.getInstance().signOut();
+                LoginActivity.logout();
                 Log.d(TAG, "Log out");
+
                 final Intent scanner = new Intent(FileActivity.this, ScannerActivity.class);
                 scanner.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(scanner);
