@@ -139,7 +139,7 @@ public class ScannerActivity extends AppCompatActivity {
      */
     private void startLoginActivity() {
         Intent loginIntent = new Intent(this, LoginActivity.class);
-        startActivityForResult(loginIntent, REQUEST_LOGIN);
+        startActivity(loginIntent);
     }
 
     /**
@@ -200,8 +200,7 @@ public class ScannerActivity extends AppCompatActivity {
             startLoginActivity();
         }
         else {
-            // user already logged in
-            User.createUser(firebaseAuth.getCurrentUser(), loginMode);
+            // TODO: in case of no login
         }
     }
 
@@ -272,8 +271,6 @@ public class ScannerActivity extends AppCompatActivity {
         super.onResume();
         Log.d(TAG, "On Resume!");
         barcodeView.resume();
-        checkPermission();
-        checkUserStatus();
     }
 
     @Override
@@ -295,27 +292,6 @@ public class ScannerActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return barcodeView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == REQUEST_LOGIN) {
-            // the user has been logged in
-            if (data != null) {
-                Log.d(TAG, "User has been logged in");
-                loginMode = (User.LoginMode) data.getExtras().get(LOGIN_MODE_KEY);
-                User.createUser(firebaseAuth.getCurrentUser(), loginMode);
-            }
-            else {
-                // the user was get back without logging in
-                // finish the app
-                Log.d(TAG, "Close the app!");
-                finish();
-            }
-        }
-        else{
-            super.onActivityResult(requestCode, resultCode, data);
-        }
     }
 }
 
