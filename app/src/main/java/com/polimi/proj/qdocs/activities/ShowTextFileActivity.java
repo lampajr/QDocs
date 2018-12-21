@@ -5,11 +5,11 @@ import android.os.Bundle;
 
 import com.polimi.proj.qdocs.R;
 
-public class ShowPDFActivity extends AppCompatActivity {
+public class ShowTextFileActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_show_pdf);
+        setContentView(R.layout.activity_show_text_file);
     }
 }

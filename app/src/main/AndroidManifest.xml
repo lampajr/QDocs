@@ -24,6 +24,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+
+        <!-- FILE PROVIDER -->
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.polimi.proj.qdocs.fileprovider"
@@ -34,6 +36,7 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
+        <!-- MAIN ACTIVITY: SCANNER -->
         <activity android:name=".activities.ScannerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,6 +48,7 @@
         <activity android:name=".activities.RegistrationActivity" />
         <activity android:name=".activities.FileActivity" />
 
+        <!-- FACEBOOK -->
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
@@ -65,13 +69,17 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+
+        <!-- SHOW FILES ACTIVITIES -->
         <activity android:name=".activities.ShowImageActivity" />
         <activity android:name=".activities.PlayAudioActivity" />
-        <activity android:name=".activities.ShowPDFActivity" />
+        <activity android:name=".activities.ShowTextFileActivity" />
 
+        <!-- DOWNLOAD FILE INTENT SERVICE -->
         <service
             android:name=".services.DownloadFileService"
-            android:exported="false"></service>
+            android:exported="false"
+            android:stopWithTask="true"/>
     </application>
 
 </manifest>

@@ -52,7 +52,7 @@ import java.util.List;
  * @see com.journeyapps.barcodescanner.BarcodeView
  * @see PlayAudioActivity
  * @see ShowImageActivity
- * @see ShowPDFActivity
+ * @see ShowTextFileActivity
  */
 
 public class ScannerActivity extends AppCompatActivity {
@@ -65,10 +65,6 @@ public class ScannerActivity extends AppCompatActivity {
     private static final String TAG = "SCANNER_ACTIVITY";
 
     private static final int REQUEST_CAMERA_PERMISSION = 1;
-    private static final int REQUEST_LOGIN = 2;
-
-    public static final String LOGIN_MODE_KEY = "com.polimi.proj.qdocs.activities.LOGIN_MODE_KEY";
-    public static final String FILENAME_KEY = "com.polimi.proj.qdocs.activities.FILENAME_KEY";
 
     private static final String BASE_LINKAGE_REFERENCE = "linkage";
 

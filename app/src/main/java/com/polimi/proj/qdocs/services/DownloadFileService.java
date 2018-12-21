@@ -74,7 +74,7 @@ public class DownloadFileService extends IntentService {
                 final String filename = intent.getStringExtra(EXTRA_PARAM_FILENAME);
                 getFileFromFilename(filename);
             } else {
-                // TODO: handle wrong action passed
+                Log.e(TAG, "Action CODE wrong, get: " + action);
             }
         }
     }
@@ -84,37 +84,51 @@ public class DownloadFileService extends IntentService {
      * @param filename name of the file
      */
     private void getFileFromFilename(final String filename) {
-        Log.d(TAG, "Starting download of the following file: " + filename);
+        Log.d(TAG, "Downloading of the following file: " + filename);
+
         String[] elements = filename.split("\\.");
         final String name = elements[0];  // name of the file without extension
         final String extension = elements[1]; // get the extension from the whole filename
 
         try {
+            // TODO: handle FirebaseStorage exceptions
+
             StorageReference storageRef = FirebaseStorage.getInstance().getReference()
                     .child(user.getUid()).child(filename);
             localFile = File.createTempFile(name, extension, getCacheDir());
 
-            if (localFile != null) Log.d(TAG, "Local file created");
+            if (localFile != null) {
+                Log.d(TAG, "Local file created");
 
-            // download file
-            storageRef.getFile(localFile).addOnSuccessListener(
-                    new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    Log.d(TAG, "File downloaded successfully");
-                    getBackResults(extension);
-                }
-            }).addOnCanceledListener(new OnCanceledListener() {
-                @Override
-                public void onCanceled() {
-                    Log.e(TAG, "Error occurred during download of " + filename);
-                }
-            });
+                // download file
+                storageRef.getFile(localFile).addOnSuccessListener(
+                        new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                Log.d(TAG, "File downloaded successfully");
+                                getBackResults(extension);
+                            }
+                        }).addOnCanceledListener(new OnCanceledListener() {
+                    @Override
+                    public void onCanceled() {
+                        Log.e(TAG, "Error occurred during download of " + filename);
+                    }
+                });
+            }
+            else {
+                Log.e(TAG, "Temporary file didn't created!");
+                sendError();
+            }
+
         }
         catch (IOException e) {
             Log.e(TAG, "Error occurred accessing the Firebase Storage: " + e.getMessage());
-            receiver.send(DOWNLOAD_ERROR, null);
+            sendError();
         }
+    }
+
+    private void sendError() {
+        receiver.send(DOWNLOAD_ERROR, null);
     }
 
     /**
