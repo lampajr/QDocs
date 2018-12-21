@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -32,7 +33,8 @@ import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 import com.polimi.proj.qdocs.R;
-import com.polimi.proj.qdocs.services.RetrieveFileService;
+import com.polimi.proj.qdocs.services.DownloadFileReceiver;
+import com.polimi.proj.qdocs.services.DownloadFileService;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -171,9 +173,14 @@ public class ScannerActivity extends AppCompatActivity {
      * @param filename name of the file to show
      */
     private void startRetrieveFileService(String filename) {
-        Intent viewerIntentService = new Intent(this, RetrieveFileService.class);
-        viewerIntentService.setAction(RetrieveFileService.ACTION_GET_FILE_FROM_FILENAME);
-        viewerIntentService.putExtra(RetrieveFileService.EXTRA_PARAM_FILENAME, filename);
+        Intent viewerIntentService = new Intent(this, DownloadFileService.class);
+
+        viewerIntentService.setAction(DownloadFileService.ACTION_GET_FILE_FROM_FILENAME);
+
+        // create the result receiver for the IntentService
+        DownloadFileReceiver receiver = new DownloadFileReceiver(this, new Handler());
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
         startService(viewerIntentService);
     }
 
@@ -203,10 +210,6 @@ public class ScannerActivity extends AppCompatActivity {
         }
     }
 
-    public void triggerScan(View view) {
-        barcodeView.decodeSingle(barcodeCallback);
-    }
-
     /**
      * check the status of the user, if it is not logged in
      * force it to do so
@@ -217,9 +220,6 @@ public class ScannerActivity extends AppCompatActivity {
             // you must login
             startLoginActivity();
         }
-        else {
-            // TODO: in case of no login
-        }
     }
 
 
@@ -227,7 +227,7 @@ public class ScannerActivity extends AppCompatActivity {
      * check whether there is a filename associated with this key
      * @param key key detected by the barcode scanner
      */
-    private void verifyKey(final String key) {
+    private void verifyKey(@NonNull final String key) {
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child(BASE_LINKAGE_REFERENCE)
                 .child(user.getUid());
         dbRef.addChildEventListener(new ChildEventListener() {
@@ -312,7 +312,5 @@ public class ScannerActivity extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return barcodeView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
     }
-
-    // TODO: Implement ResultReceiver for handle RetrieveFileService results!!
 }
 

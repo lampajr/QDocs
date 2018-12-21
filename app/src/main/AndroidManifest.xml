@@ -70,7 +70,7 @@
         <activity android:name=".activities.ShowPDFActivity" />
 
         <service
-            android:name=".services.RetrieveFileService"
+            android:name=".services.DownloadFileService"
             android:exported="false"></service>
     </application>
 
