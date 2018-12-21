@@ -65,15 +65,13 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.FileViewer" />
         <activity android:name=".activities.ShowImageActivity" />
         <activity android:name=".activities.PlayAudioActivity" />
         <activity android:name=".activities.ShowPDFActivity" />
 
         <service
             android:name=".services.RetrieveFileService"
-            android:enabled="true"
-            android:exported="true"></service>
+            android:exported="false"></service>
     </application>
 
 </manifest>

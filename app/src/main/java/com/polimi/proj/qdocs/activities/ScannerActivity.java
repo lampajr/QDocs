@@ -32,10 +32,26 @@ import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.services.RetrieveFileService;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
+/**
+ * @author Andrea Lamparelli
+ *
+ * Activity that provide a custom QR-code detector that for each key detected from qrcode checks
+ * whether the current user has a file (on the storage) associated with this key, if yes it calls
+ * an IntentService that will be in charge to download it and provide its Uri, then this activity
+ * after get back the result has to invoke the appropriate activity that will show the file.
+ *
+ * @see android.app.Activity
+ * @see com.journeyapps.barcodescanner.BarcodeView
+ * @see PlayAudioActivity
+ * @see ShowImageActivity
+ * @see ShowPDFActivity
+ */
 
 public class ScannerActivity extends AppCompatActivity {
 
@@ -154,10 +170,11 @@ public class ScannerActivity extends AppCompatActivity {
      * start the FileViewer which will show the file
      * @param filename name of the file to show
      */
-    private void startFileViewer(String filename) {
-        Intent viewerIntent = new Intent(this, FileViewer.class);
-        viewerIntent.putExtra(FILENAME_KEY, filename);
-        startActivity(viewerIntent);
+    private void startRetrieveFileService(String filename) {
+        Intent viewerIntentService = new Intent(this, RetrieveFileService.class);
+        viewerIntentService.setAction(RetrieveFileService.ACTION_GET_FILE_FROM_FILENAME);
+        viewerIntentService.putExtra(RetrieveFileService.EXTRA_PARAM_FILENAME, filename);
+        startService(viewerIntentService);
     }
 
     /**
@@ -223,7 +240,7 @@ public class ScannerActivity extends AppCompatActivity {
                 if (filename != null && keyValue.equals(key)) {
                     // launch FileViewer with the filename
                     Log.d(TAG, "filename found! : " + filename);
-                    startFileViewer(filename);
+                    startRetrieveFileService(filename);
                 }
             }
 
@@ -295,5 +312,7 @@ public class ScannerActivity extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return barcodeView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
     }
+
+    // TODO: Implement ResultReceiver for handle RetrieveFileService results!!
 }
 
