@@ -1,14 +1,14 @@
 package com.polimi.proj.qdocs.services;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.activities.ShowFileFragmentActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +18,7 @@ import java.util.List;
  * @author Andrea Lamparelli
  *
  * ResultReceiver that has to receive the results provided by the DownloadFile Service
- * and in according to the results has to dispatch the correct activity in order to show the
+ * and in according to the results has to triggerShowFile the correct activity in order to show the
  * download file.
  *
  * @see ResultReceiver
@@ -70,8 +70,8 @@ public class DownloadFileReceiver extends ResultReceiver {
             Log.d(TAG, "EXTENSION received: " + mimeType);
 
 
-            // TODO: implement dispatcher in according to the extension
-            dispatch(fileUri, mimeType);
+            // trigger the ShowFileFragmentActivity
+            triggerShowFile(fileUri, mimeType);
         }
         else {
             // something goes wrong: resultCode == DOWNLOAD_ERROR
@@ -88,21 +88,11 @@ public class DownloadFileReceiver extends ResultReceiver {
      * @param fileUri uri of the file, has to be passed to next activity
      * @param mimeType extension in mimeType format
      */
-    private void dispatch(Uri fileUri, String mimeType) {
-        String type = mimeType.split("/")[0];
-        if (AUDIO_FORMATS.contains(mimeType)) {
-            // TODO: starting play audio activity
-        }
-        else if (IMAGE_FORMATS.contains(mimeType)) {
-            // TODO: starting show image activity
-        }
-        else if (TEXT_FORMATS.contains(mimeType)) {
-            // TODO: startinf show text file activity
-        }
-        else {
-            Log.e(TAG, "File format handling not yet implemented!!");
-            Toast.makeText(context, context.getString(R.string.format_not_recognized),
-                    Toast.LENGTH_SHORT).show();
-        }
+    private void triggerShowFile(Uri fileUri, String mimeType) {
+        Intent showFileIntent = new Intent(context, ShowFileFragmentActivity.class);
+        showFileIntent.putExtra(DownloadFileService.RESULT_KEY_URI, fileUri);
+        showFileIntent.putExtra(DownloadFileService.RESULT_KEY_EXTENSION, mimeType);
+
+        context.startActivity(showFileIntent);
     }
 }
