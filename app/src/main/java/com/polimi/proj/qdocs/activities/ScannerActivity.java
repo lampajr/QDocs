@@ -50,9 +50,9 @@ import java.util.List;
  *
  * @see android.app.Activity
  * @see com.journeyapps.barcodescanner.BarcodeView
- * @see PlayAudioActivity
- * @see ShowImageActivity
- * @see ShowTextFileActivity
+ * @see com.polimi.proj.qdocs.fragments.PlayAudioFragment
+ * @see com.polimi.proj.qdocs.fragments.ShowImageFragment
+ * @see com.polimi.proj.qdocs.fragments.ShowTextFragment
  */
 
 public class ScannerActivity extends AppCompatActivity {
