@@ -52,7 +52,7 @@ public class DownloadFileReceiver extends ResultReceiver {
      *
      * @param parentContext context of the activity that call this result receiver
      * @param handler  {@link #onReceiveResult} method will be called from the thread
-     *                 running handler if given, or an arbitrary one otherwise
+     *                 running handler if given, or from an arbitrary one if null
      */
     public DownloadFileReceiver(Context parentContext, Handler handler) {
         super(handler);

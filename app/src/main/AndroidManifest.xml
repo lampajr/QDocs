@@ -71,15 +71,14 @@
         </activity>
 
         <!-- SHOW FILES ACTIVITIES -->
-        <activity android:name=".activities.ShowImageActivity" />
-        <activity android:name=".activities.PlayAudioActivity" />
-        <activity android:name=".activities.ShowTextFileActivity" />
 
         <!-- DOWNLOAD FILE INTENT SERVICE -->
         <service
             android:name=".services.DownloadFileService"
             android:exported="false"
-            android:stopWithTask="true"/>
+            android:stopWithTask="true" />
+
+        <activity android:name=".activities.ShowFileFragmentActivity"></activity>
     </application>
 
 </manifest>
