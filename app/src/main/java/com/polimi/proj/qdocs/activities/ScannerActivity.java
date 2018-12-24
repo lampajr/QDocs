@@ -66,7 +66,8 @@ public class ScannerActivity extends AppCompatActivity {
 
     private static final int REQUEST_CAMERA_PERMISSION = 1;
 
-    private static final String BASE_LINKAGE_REFERENCE = "linkage";
+    private static final String BASE_REFERENCE = "files";
+    private static final String FILENAME_KEY = "filename";
 
     // scanner data
     private DecoratedBarcodeView barcodeView;
@@ -160,7 +161,7 @@ public class ScannerActivity extends AppCompatActivity {
      * start the file Activity
      */
     private void startFileActivity() {
-        Intent filesIntent = new Intent(this, FileActivity.class);
+        Intent filesIntent = new Intent(this, FilesListActivity.class);
         startActivity(filesIntent);
     }
 
@@ -224,17 +225,16 @@ public class ScannerActivity extends AppCompatActivity {
      * @param key key detected by the barcode scanner
      */
     private void verifyKey(@NonNull final String key) {
-        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child(BASE_LINKAGE_REFERENCE)
-                .child(user.getUid());
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child(BASE_REFERENCE)
+                .child(user.getUid()).child(key);
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                String filename = (String) dataSnapshot.getValue();
-                // TODO: remove http...
-                String keyValue = "http://" + dataSnapshot.getKey();
-                Log.d(TAG, "filename: " + filename + " keyValue: " + keyValue + " key: " + key);
-                if (filename != null && keyValue.equals(key)) {
-                    // launch FileViewer with the filename
+                Object value = dataSnapshot.getValue();
+                String key_field = dataSnapshot.getKey();
+                assert key_field != null;
+                if (key_field.equals(FILENAME_KEY)) {
+                    String filename = (String) value;
                     Log.d(TAG, "filename found! : " + filename);
                     startRetrieveFileService(filename);
                 }

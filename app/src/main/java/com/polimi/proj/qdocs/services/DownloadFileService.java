@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.polimi.proj.qdocs.activities.FilesListActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,12 +30,12 @@ import java.io.IOException;
  *
  * @see android.app.IntentService
  * @see com.polimi.proj.qdocs.activities.ScannerActivity
- * @see com.polimi.proj.qdocs.activities.FileActivity
+ * @see FilesListActivity
  */
 
 public class DownloadFileService extends IntentService {
 
-    private final static String TAG ="RETRIEVE_FILE_SERVICE";
+    private final static String TAG ="DOWNLOAD_FILE_SERVICE";
 
     // Actions that can be performed by this service
     public static final String ACTION_GET_FILE_FROM_FILENAME =
@@ -84,7 +85,7 @@ public class DownloadFileService extends IntentService {
      * @param filename name of the file
      */
     private void getFileFromFilename(final String filename) {
-        Log.d(TAG, "Downloading of the following file: " + filename);
+        Log.d(TAG, "Downloading file: " + filename);
 
         String[] elements = filename.split("\\.");
         final String name = elements[0];  // name of the file without extension
@@ -105,7 +106,7 @@ public class DownloadFileService extends IntentService {
                         new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                Log.d(TAG, "File downloaded successfully");
+                                Log.d(TAG, "MyFile downloaded successfully");
                                 getBackResults(extension);
                             }
                         }).addOnCanceledListener(new OnCanceledListener() {

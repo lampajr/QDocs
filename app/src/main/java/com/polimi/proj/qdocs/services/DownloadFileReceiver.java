@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Log;
 
+import com.polimi.proj.qdocs.activities.FilesListActivity;
 import com.polimi.proj.qdocs.activities.ShowFileFragmentActivity;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ import java.util.List;
  *
  * @see ResultReceiver
  * @see com.polimi.proj.qdocs.activities.ScannerActivity
- * @see com.polimi.proj.qdocs.activities.FileActivity
+ * @see FilesListActivity
  * @see DownloadFileService
  */
 

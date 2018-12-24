@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -20,35 +21,49 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.support.MyFile;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-public class FileActivity extends AppCompatActivity {
-    private static final String TAG = "FILE_ACT";
+public class FilesListActivity extends AppCompatActivity {
+
+    private static final String TAG = "FILES_LIST_ACTIVITY";
+
+    private static final String BASE_REFERENCE = "files";
+    private static final String FILENAME_KEY = "filename";
+    private static final String SIZE_KEY = "size";
+    private static final String FORMAT_KEY = "format";
+
     private static final int EX_PER = 10 ;
 
-    private static final int IMG_PRV=100;
+    private static final int IMG_PRV = 100;
     private static final int AUD_PRV = 200;
     private static final int VID_PRV = 300;
 
     private FloatingActionButton addButton;
-    private FirebaseStorage storage;
     private StorageReference storageRef;
-    private List<String> files;
+    private List<MyFile> files;
+
+    private FirebaseUser user;
+    private DatabaseReference dbRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +72,9 @@ public class FileActivity extends AppCompatActivity {
 
         getPermission();
 
-        storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReference();
+        user = FirebaseAuth.getInstance().getCurrentUser();
 
-        getFiles();
+        loadFiles();
         showFiles();
 
 
@@ -71,7 +85,7 @@ public class FileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "Click add button");
-                final Dialog d=new Dialog(FileActivity.this);
+                final Dialog d=new Dialog(FilesListActivity.this);
                 d.setTitle("Login");
                 d.setCancelable(true);
                 d.setContentView(R.layout.chooser_file_type_dialog);
@@ -104,7 +118,7 @@ public class FileActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View arg0)
                     {
-                        Toast.makeText(FileActivity.this, "To implement", Toast.LENGTH_LONG).show();
+                        Toast.makeText(FilesListActivity.this, "To implement", Toast.LENGTH_LONG).show();
                         d.dismiss();
                     }
                 });
@@ -116,18 +130,55 @@ public class FileActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
     }
 
+    /**
+     * show the list of all personal files
+     */
     private void showFiles() {
-        /*
-        TODO: show list of files
-            filename.split("\\.")[1]  --> estensione file
-        */
+        //TODO: show list of files
     }
 
-    private void getFiles() {
-        /*
-        TODO: read files from database
-        */
+    /**
+     * load all the files from the Firebase Realtime Database
+     */
+    private void loadFiles() {
         files = new ArrayList<>();
+        dbRef = FirebaseDatabase.getInstance().getReference()
+                .child(BASE_REFERENCE).child(user.getUid());
+        dbRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                MyFile file = dataSnapshot.getValue(MyFile.class);
+                if (file != null) {
+                    Log.d(TAG, "found file: " + file.getFilename() + "; " + file.getSize() + "; " + file.getFormat());
+                    files.add(file);
+                }
+
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                MyFile file = dataSnapshot.getValue(MyFile.class);
+                assert file != null;
+                Log.d(TAG, "removed file: " + file.getFilename());
+                files.remove(file);
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e(TAG, "database error occurred: onCanceled");
+            }
+        });
+
     }
 
 
@@ -151,7 +202,7 @@ public class FileActivity extends AppCompatActivity {
                 LoginActivity.logout();
                 Log.d(TAG, "Log out");
 
-                final Intent scanner = new Intent(FileActivity.this, ScannerActivity.class);
+                final Intent scanner = new Intent(FilesListActivity.this, ScannerActivity.class);
                 scanner.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(scanner);
                 break;
@@ -160,7 +211,7 @@ public class FileActivity extends AppCompatActivity {
     }
 
     private void getPermission() {
-        ActivityCompat.requestPermissions(FileActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, EX_PER);
+        ActivityCompat.requestPermissions(FilesListActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, EX_PER);
     }
 
 
@@ -184,7 +235,7 @@ public class FileActivity extends AppCompatActivity {
         if (requestCode == IMG_PRV){
             Log.d(TAG, "On result: image");
             if (resultCode == Activity.RESULT_OK) {
-                if (ContextCompat.checkSelfPermission(FileActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                if (ContextCompat.checkSelfPermission(FilesListActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
                     Log.e(TAG,"Permission denied for external storage");
                 }else {
@@ -197,7 +248,7 @@ public class FileActivity extends AppCompatActivity {
         if(requestCode == AUD_PRV) {
             if (resultCode == Activity.RESULT_OK) {
                 Log.d(TAG, "On result: audio");
-                if (ContextCompat.checkSelfPermission(FileActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                if (ContextCompat.checkSelfPermission(FilesListActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
                     Log.e(TAG, "Permission denied for external storage");
                 } else {
@@ -210,7 +261,7 @@ public class FileActivity extends AppCompatActivity {
         if(requestCode == VID_PRV) {
             if (resultCode == Activity.RESULT_OK) {
                 Log.d(TAG, "On result: video");
-                if (ContextCompat.checkSelfPermission(FileActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                if (ContextCompat.checkSelfPermission(FilesListActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
                     Log.e(TAG, "Permission denied for external storage");
                 } else {
@@ -306,5 +357,5 @@ public class FileActivity extends AppCompatActivity {
         });
     }
 
-
+    // TODO: create personalized ADAPTER for showing the files of the user
 }
