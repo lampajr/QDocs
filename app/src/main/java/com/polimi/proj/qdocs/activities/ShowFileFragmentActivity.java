@@ -32,6 +32,7 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
     private Uri fileUri;
     private String mimeType;
     private Fragment fragment;
+    private BitmapDrawable bitmapDrawable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +59,7 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
 
             case IMAGE:
                 Log.d(TAG, "Insantiating 'show image' fragment...");
-                fragment = ShowImageFragment.newInstance(fileUri);
+                fragment = ShowImageFragment.newInstance();
                 displayFragment(fragment);
                 onShowImageFragmentInteraction(fileUri);
         }
@@ -116,18 +117,19 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
     @Override
     public void onShowImageFragmentInteraction(Uri uri) {
 
-        //MyFile file = new MyFile(uri.getPath());
+        //File file = new File(uri.getPath());
         try {
-            //ImageView imageView = fragment.onCreateView(/*TODO: set patameter*//).findViewById(R.id.image_view);
 
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
             Log.d(TAG, "bitmap created");
-
-            BitmapDrawable bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
-            //imageView.setImageDrawable(bitmapDrawable);
+            bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
 
         } catch (IOException e) {
             Log.e(TAG, "Error in showing the image");
         }
+    }
+
+    public BitmapDrawable getImageResult(){
+        return bitmapDrawable;
     }
 }

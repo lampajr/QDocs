@@ -1,15 +1,18 @@
 package com.polimi.proj.qdocs.fragments;
 
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.activities.ShowFileFragmentActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -24,6 +27,8 @@ public class ShowImageFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "IMAGE FRAGMENT";
+    private BitmapDrawable bitmapDrowalbe = null;
 
     // TODO: Rename and change types of parameters
     private Uri imageUri;
@@ -41,31 +46,40 @@ public class ShowImageFragment extends Fragment {
      * @return A new instance of fragment ShowImageFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ShowImageFragment newInstance(Uri uri) {
+    public static ShowImageFragment newInstance() {
         ShowImageFragment fragment = new ShowImageFragment();
-        Bundle args = new Bundle();
-
-        args.putString(ARG_PARAM1, uri.toString());
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
+        bitmapDrowalbe = ((ShowFileFragmentActivity) getActivity()).getImageResult();
+        checkbitmap(bitmapDrowalbe);
+        Log.d(TAG, "bitmap received");
 
+
+    }
+
+    private void checkbitmap(BitmapDrawable b) {
+        if(b == null) {
+            Log.d(TAG,"Bitmap is null");
+            getActivity().getSupportFragmentManager().popBackStack();
         }
+
+
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView method");
 
-        ImageView imageView = inflater.inflate(R.layout.fragment_show_image, container, false).findViewById(R.id.image_view);
-
-        return inflater.inflate(R.layout.fragment_show_image, container, false);
+        View view = inflater.inflate(R.layout.fragment_show_image, container, false);
+        ImageView imageView = view.findViewById(R.id.image_view);
+        imageView.setImageDrawable(bitmapDrowalbe);
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
