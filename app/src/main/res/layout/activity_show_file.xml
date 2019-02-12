@@ -5,10 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.ShowFileFragmentActivity">
-
+    <android.widget.Toolbar
+        android:layout_width="match_parent"
+        android:id="@+id/toolbar_widget"
+        android:layout_height="30dp" />
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/fragment_container"/>
+        android:id="@+id/fragment_container"
+        android:paddingTop="20dp"/>
 
 </android.support.constraint.ConstraintLayout>
