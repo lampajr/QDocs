@@ -4,6 +4,7 @@ package com.polimi.proj.qdocs.activities;
  * The fragment take care about showing the file
  */
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -15,6 +16,9 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.polimi.proj.qdocs.R;
@@ -38,6 +42,9 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_file);
+
+        android.widget.Toolbar toolbar = findViewById(R.id.toolbar_widget);
+        this.setActionBar(toolbar);
 
         Bundle bundle = getIntent().getExtras();
         fileUri = (Uri) bundle.get(DownloadFileService.RESULT_KEY_URI);
@@ -131,5 +138,33 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
 
     public BitmapDrawable getImageResult(){
         return bitmapDrawable;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        Log.d(TAG, "Creazione menu");
+        MenuInflater inflater=getMenuInflater();
+        inflater.inflate(R.menu.file_menu_layout, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        int id=item.getItemId();
+        switch(id)
+        {
+            case R.id.logout_menu:
+                LoginActivity.logout();
+                Log.d(TAG, "Log out");
+
+                final Intent scanner = new Intent(ShowFileFragmentActivity.this, ScannerActivity.class);
+                scanner.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(scanner);
+                break;
+        }
+        return false;
     }
 }
