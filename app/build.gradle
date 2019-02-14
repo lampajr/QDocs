@@ -47,6 +47,9 @@ dependencies {
     //zxing
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
+    //tuchview
+    implementation 'com.github.MikeOrtiz:TouchImageView:1.4.0'
+
 
 }
 

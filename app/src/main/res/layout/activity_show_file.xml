@@ -5,15 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.ShowFileFragmentActivity">
+
     <android.widget.Toolbar
-        android:layout_width="match_parent"
         android:id="@+id/toolbar_widget"
-        android:layout_height="30dp"
-        app:layout_constraintBottom_toTopOf="@id/fragment_container"/>
-    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="60dp"
+        app:layout_constraintBottom_toTopOf="@+id/fragment_container" />
+
+    <FrameLayout
         android:id="@+id/fragment_container"
-        android:paddingTop="20dp"/>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_widget"
+        android:backgroundTint="#c0c0c0"/>
 
 </android.support.constraint.ConstraintLayout>

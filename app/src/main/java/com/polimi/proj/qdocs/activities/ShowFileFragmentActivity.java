@@ -19,7 +19,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.fragments.ShowImageFragment;
@@ -45,6 +47,17 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
 
         android.widget.Toolbar toolbar = findViewById(R.id.toolbar_widget);
         this.setActionBar(toolbar);
+
+        toolbar.setNavigationIcon(R.mipmap.ic_toolbar_arrow);
+        toolbar.setNavigationOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        finish();
+                    }
+                }
+
+        );
 
         Bundle bundle = getIntent().getExtras();
         fileUri = (Uri) bundle.get(DownloadFileService.RESULT_KEY_URI);

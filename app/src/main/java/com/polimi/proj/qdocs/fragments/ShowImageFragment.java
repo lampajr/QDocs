@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.ortiz.touchview.TouchImageView;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.ShowFileFragmentActivity;
 
@@ -23,10 +24,7 @@ import com.polimi.proj.qdocs.activities.ShowFileFragmentActivity;
  * create an instance of this fragment.
  */
 public class ShowImageFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+
     private static final String TAG = "IMAGE FRAGMENT";
     private BitmapDrawable bitmapDrowalbe = null;
 
@@ -77,8 +75,9 @@ public class ShowImageFragment extends Fragment {
         Log.d(TAG, "onCreateView method");
 
         View view = inflater.inflate(R.layout.fragment_show_image, container, false);
-        ImageView imageView = view.findViewById(R.id.image_view);
-        imageView.setImageDrawable(bitmapDrowalbe);
+        TouchImageView tuchImageView = view.findViewById(R.id.touch_image);
+        tuchImageView.setImageDrawable(bitmapDrowalbe);
+        
         return view;
     }
 
