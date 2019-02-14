@@ -16,12 +16,19 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -40,7 +47,6 @@ import com.polimi.proj.qdocs.support.MyFile;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class FilesListActivity extends AppCompatActivity {
@@ -61,6 +67,7 @@ public class FilesListActivity extends AppCompatActivity {
     private FloatingActionButton addButton;
     private StorageReference storageRef;
     private List<MyFile> files;
+    private FilesAdapter filesAdapter;
 
     private FirebaseUser user;
     private DatabaseReference dbRef;
@@ -73,11 +80,19 @@ public class FilesListActivity extends AppCompatActivity {
         getPermission();
 
         user = FirebaseAuth.getInstance().getCurrentUser();
-
         loadFiles();
-        showFiles();
+        initFilesList();
 
+        initAddFileButton();
 
+        Toolbar toolbar = findViewById(R.id.toolbar_widget);
+        setSupportActionBar(toolbar);
+    }
+
+    /**
+     * initialize the add file button (+)
+     */
+    private void initAddFileButton() {
         addButton = findViewById(R.id.add_button);
         addButton.setOnClickListener(new View.OnClickListener() {
 
@@ -125,34 +140,41 @@ public class FilesListActivity extends AppCompatActivity {
                 d.show();
             }
         });
-
-        android.support.v7.widget.Toolbar toolbar = findViewById(R.id.toolbar_widget);
-        setSupportActionBar(toolbar);
     }
 
     /**
-     * show the list of all personal files
+     * initialize the List View that will show the list of all user's files stored in the Firebase
+     * Storage, it will add the listener on the items
      */
-    private void showFiles() {
-        //TODO: show list of files
+    private void initFilesList() {
+        Log.d(TAG, "creating adapter");
+        ListView listView = findViewById(R.id.list_view);
+        // TODO: add event listener on the item of the list view
+        filesAdapter = new FilesAdapter(this, R.layout.item_file, files);
+        listView.setAdapter(filesAdapter);
     }
 
     /**
      * load all the files from the Firebase Realtime Database
+     * and store them intp the files attribute.
      */
     private void loadFiles() {
         files = new ArrayList<>();
+
+        // get firebase database reference
         dbRef = FirebaseDatabase.getInstance().getReference()
                 .child(BASE_REFERENCE).child(user.getUid());
+        // retrieve
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 MyFile file = dataSnapshot.getValue(MyFile.class);
                 if (file != null) {
-                    Log.d(TAG, "found file: " + file.getFilename() + "; " + file.getSize() + "; " + file.getFormat());
+                    Log.d(TAG, "found new file: " + file.getFilename() + "; " + file.getSize() +
+                            "; " + file.getFormat());
                     files.add(file);
+                    filesAdapter.notifyDataSetChanged();
                 }
-
             }
 
             @Override
@@ -166,6 +188,7 @@ public class FilesListActivity extends AppCompatActivity {
                 assert file != null;
                 Log.d(TAG, "removed file: " + file.getFilename());
                 files.remove(file);
+                filesAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -210,6 +233,9 @@ public class FilesListActivity extends AppCompatActivity {
         return false;
     }
 
+    /**
+     * retrieve the permission for reading external storage
+     */
     private void getPermission() {
         ActivityCompat.requestPermissions(FilesListActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, EX_PER);
     }
@@ -274,6 +300,10 @@ public class FilesListActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * upload into the Cloud Storage a video file
+     * @param data
+     */
     private void uploadVideo(Intent data) {
         Uri videoz = data.getData();
         Context context = getBaseContext();
@@ -302,6 +332,10 @@ public class FilesListActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * upload into the Cloud Storage an audio file
+     * @param data
+     */
     private void uploadAudio(Intent data) {
         Uri audioz = data.getData();
         Context context = getBaseContext();
@@ -330,6 +364,10 @@ public class FilesListActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * upload into the Cloud Storage an image file
+     * @param data
+     */
     private void uploadImage(Intent data){
         Uri picturez = data.getData();
         Context context = getBaseContext();
@@ -357,5 +395,59 @@ public class FilesListActivity extends AppCompatActivity {
         });
     }
 
-    // TODO: create personalized ADAPTER for showing the files of the user
+    // TODO: improve the quality of the adapter
+    // TODO: improve the quality of the xml related to the single item
+    private class FilesAdapter extends ArrayAdapter<MyFile> {
+
+        public FilesAdapter(@NonNull Context context, int textViewResourceId, @NonNull List<MyFile> objects) {
+            super(context, textViewResourceId, objects);
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) getContext()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            Log.d(TAG, "showing file");
+
+            // load the view of a single row (a single file)
+            convertView = inflater.inflate(R.layout.item_file, null);
+
+
+            final TextView filename = convertView.findViewById(R.id.filename);
+            TextView fileDescription = convertView.findViewById(R.id.file_description);
+
+            MyFile f = getItem(position);
+
+            final String name = f.getFilename();
+            filename.setText(name);
+            String format = f.getFormat();
+            fileDescription.setText(format);
+            ImageView imageView = convertView.findViewById(R.id.file_image);
+            imageView.setImageResource(R.drawable.file_image);
+
+            Button downloadButton = convertView.findViewById(R.id.download_button);
+            downloadButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "download file " + name);
+                    Toast.makeText(FilesListActivity.this, getString(R.string.no_operation), Toast.LENGTH_SHORT).show();
+                    //TODO: implement downlaod event
+                }
+            });
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "showing file " + name);
+                    Toast.makeText(FilesListActivity.this, getString(R.string.no_operation), Toast.LENGTH_SHORT).show();
+                    //TODO: implement show file event
+                }
+            });
+
+            //TODO: add delete file button
+
+            return convertView;
+        }
+    }
 }

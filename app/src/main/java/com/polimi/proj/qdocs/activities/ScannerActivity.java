@@ -42,6 +42,7 @@ import java.util.List;
 
 /**
  * @author Andrea Lamparelli
+ * @author Pietro Chittò
  *
  * Activity that provide a custom QR-code detector that for each key detected from qrcode checks
  * whether the current user has a file (on the storage) associated with this key, if yes it calls
