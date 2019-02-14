@@ -420,7 +420,7 @@ public class FilesListActivity extends AppCompatActivity {
 
             MyFile f = getItem(position);
 
-            String name = f.getFilename();
+            final String name = f.getFilename();
             filename.setText(name);
             String format = f.getFormat();
             fileDescription.setText(format);
@@ -431,17 +431,21 @@ public class FilesListActivity extends AppCompatActivity {
             downloadButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "download file " + filename);
+                    Log.d(TAG, "download file " + name);
                     Toast.makeText(FilesListActivity.this, getString(R.string.no_operation), Toast.LENGTH_SHORT).show();
+                    //TODO: implement downlaod event
                 }
             });
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "showing file " + filename);
+                    Log.d(TAG, "showing file " + name);
                     Toast.makeText(FilesListActivity.this, getString(R.string.no_operation), Toast.LENGTH_SHORT).show();
+                    //TODO: implement show file event
                 }
             });
+
+            //TODO: add delete file button
 
             return convertView;
         }
