@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -82,7 +83,16 @@ public class FilesListActivity extends AppCompatActivity {
         loadFiles();
         initFilesList();
 
+        initAddFileButton();
 
+        Toolbar toolbar = findViewById(R.id.toolbar_widget);
+        setSupportActionBar(toolbar);
+    }
+
+    /**
+     * initialize the add file button (+)
+     */
+    private void initAddFileButton() {
         addButton = findViewById(R.id.add_button);
         addButton.setOnClickListener(new View.OnClickListener() {
 
@@ -130,9 +140,6 @@ public class FilesListActivity extends AppCompatActivity {
                 d.show();
             }
         });
-
-        Toolbar toolbar = findViewById(R.id.toolbar_widget);
-        setSupportActionBar(toolbar);
     }
 
     /**
@@ -143,7 +150,7 @@ public class FilesListActivity extends AppCompatActivity {
         Log.d(TAG, "creating adapter");
         ListView listView = findViewById(R.id.list_view);
         // TODO: add event listener on the item of the list view
-        filesAdapter = new FilesAdapter(this, R.layout.row_file, files);
+        filesAdapter = new FilesAdapter(this, R.layout.item_file, files);
         listView.setAdapter(filesAdapter);
     }
 
@@ -405,18 +412,36 @@ public class FilesListActivity extends AppCompatActivity {
             Log.d(TAG, "showing file");
 
             // load the view of a single row (a single file)
-            convertView = inflater.inflate(R.layout.row_file, null);
+            convertView = inflater.inflate(R.layout.item_file, null);
 
 
-            TextView filename = convertView.findViewById(R.id.filename);
+            final TextView filename = convertView.findViewById(R.id.filename);
             TextView fileDescription = convertView.findViewById(R.id.file_description);
 
             MyFile f = getItem(position);
 
             String name = f.getFilename();
             filename.setText(name);
-            String description = "format: " + f.getFormat() + " -- size: " + f.getSize();
-            fileDescription.setText(description);
+            String format = f.getFormat();
+            fileDescription.setText(format);
+            ImageView imageView = convertView.findViewById(R.id.file_image);
+            imageView.setImageResource(R.drawable.file_image);
+
+            Button downloadButton = convertView.findViewById(R.id.download_button);
+            downloadButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "download file " + filename);
+                    Toast.makeText(FilesListActivity.this, getString(R.string.no_operation), Toast.LENGTH_SHORT).show();
+                }
+            });
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "showing file " + filename);
+                    Toast.makeText(FilesListActivity.this, getString(R.string.no_operation), Toast.LENGTH_SHORT).show();
+                }
+            });
 
             return convertView;
         }

@@ -9,7 +9,7 @@
     <include layout="@layout/toolbar_layout"
         android:id="@+id/toolbar_widget"/>
 
-    <android.widget.ListView
+    <ListView
         android:id="@+id/list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,6 +26,5 @@
         android:backgroundTint="#a6a6a6"
 
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintEnd_toEndOf="parent"/>
 </android.support.constraint.ConstraintLayout>

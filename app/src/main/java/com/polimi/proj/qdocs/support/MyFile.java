@@ -4,6 +4,7 @@ import com.google.firebase.database.IgnoreExtraProperties;
 
 /**
  * @author Andrea Lamparelli
+ * @author Pietro Chittò
  *
  * Stores all the information about a single file
  * loaded from the Firebase Realtime Database
