@@ -24,16 +24,18 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.fragments.PlayAudioFragment;
 import com.polimi.proj.qdocs.fragments.ShowImageFragment;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 
 import java.io.File;
 import java.io.IOException;
 
-public class ShowFileFragmentActivity extends FragmentActivity implements ShowImageFragment.OnFragmentInteractionListener {
+public class ShowFileFragmentActivity extends FragmentActivity implements ShowImageFragment.OnFragmentInteractionListener, PlayAudioFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "SHOW_FILE_FRAG_ACT";
     private static final String IMAGE = "image";
+    private static final String AUDIO = "audio";
 
     private Uri fileUri;
     private String mimeType;
@@ -62,6 +64,9 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
         Bundle bundle = getIntent().getExtras();
         fileUri = (Uri) bundle.get(DownloadFileService.RESULT_KEY_URI);
         mimeType = bundle.getString(DownloadFileService.RESULT_KEY_EXTENSION);
+
+        Log.d(TAG, "file uri: " + fileUri);
+        Log.d(TAG, "mimeType: " + mimeType);
         
         checkParameter();
 
@@ -82,6 +87,14 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
                 fragment = ShowImageFragment.newInstance();
                 displayFragment(fragment);
                 onShowImageFragmentInteraction(fileUri);
+                break;
+
+            case AUDIO:
+                Log.d(TAG, "Insantiating 'play audio' fragment...");
+                fragment = PlayAudioFragment.newInstance();
+                displayFragment(fragment);
+                onShowImageFragmentInteraction(fileUri);
+                break;
         }
 
     }
@@ -179,5 +192,15 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
                 break;
         }
         return false;
+    }
+
+    @Override
+    public void onBackPressed(){
+        finish();
+    }
+
+    @Override
+    public void onPlayAudioFragmentInteraction(Uri uri) {
+
     }
 }

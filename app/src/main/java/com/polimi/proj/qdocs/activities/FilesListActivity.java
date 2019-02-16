@@ -115,7 +115,7 @@ public class FilesListActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View arg0)
                     {
-                        startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.INTERNAL_CONTENT_URI), VID_PRV);
+                        startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.INTERNAL_CONTENT_URI), IMG_PRV);
                         d.dismiss();
                     }
                 });
