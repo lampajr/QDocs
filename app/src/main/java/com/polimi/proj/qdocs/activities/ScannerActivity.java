@@ -280,6 +280,7 @@ public class ScannerActivity extends AppCompatActivity {
         Log.d(TAG, "On Start!");
         checkPermission();
         checkUserStatus();
+        lastText = "";
     }
 
     @Override
