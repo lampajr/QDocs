@@ -41,6 +41,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.polimi.proj.qdocs.R;
@@ -84,6 +85,8 @@ public class FilesListActivity extends AppCompatActivity {
         getPermission();
 
         user = FirebaseAuth.getInstance().getCurrentUser();
+        storageRef = FirebaseStorage.getInstance().getReference();
+
         loadFiles();
         initFilesList();
 
@@ -105,7 +108,7 @@ public class FilesListActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d(TAG, "Click add button");
                 final Dialog d=new Dialog(FilesListActivity.this);
-                d.setTitle("Login");
+                d.setTitle("Add new file");
                 d.setCancelable(true);
                 d.setContentView(R.layout.chooser_file_type_dialog);
 
@@ -151,7 +154,7 @@ public class FilesListActivity extends AppCompatActivity {
      * Storage, it will add the listener on the items
      */
     private void initFilesList() {
-        Log.d(TAG, "creating adapter");
+        Log.d(TAG, "Creating files adapter");
         ListView listView = findViewById(R.id.list_view);
         // TODO: add event listener on the item of the list view
         filesAdapter = new FilesAdapter(this, R.layout.item_file, files);
@@ -160,7 +163,9 @@ public class FilesListActivity extends AppCompatActivity {
 
     /**
      * load all the files from the Firebase Realtime Database
-     * and store them intp the files attribute.
+     * and store them into the files attribute.
+     * implements the callback method from the realtime database
+     * in order to react in case of db operation.
      */
     private void loadFiles() {
         files = new ArrayList<>();
@@ -174,7 +179,7 @@ public class FilesListActivity extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 MyFile file = dataSnapshot.getValue(MyFile.class);
                 if (file != null) {
-                    Log.d(TAG, "found new file: " + file.getFilename() + "; " + file.getSize() +
+                    Log.d(TAG, "Found new file: " + file.getFilename() + "; " + file.getSize() +
                             "; " + file.getFormat());
                     files.add(file);
                     filesAdapter.notifyDataSetChanged();
@@ -183,7 +188,13 @@ public class FilesListActivity extends AppCompatActivity {
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                MyFile file = dataSnapshot.getValue(MyFile.class);
+                if (file != null) {
+                    Log.d(TAG, "Found new updated file: " + file.getFilename() + "; " + file.getSize() +
+                            "; " + file.getFormat());
+                    files.add(file);
+                    filesAdapter.notifyDataSetChanged();
+                }
             }
 
             @Override
@@ -244,7 +255,6 @@ public class FilesListActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(FilesListActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, EX_PER);
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -274,7 +284,7 @@ public class FilesListActivity extends AppCompatActivity {
                 }
             }
         }
-        
+
         if(requestCode == AUD_PRV) {
             if (resultCode == Activity.RESULT_OK) {
                 Log.d(TAG, "On result: audio");
@@ -300,8 +310,31 @@ public class FilesListActivity extends AppCompatActivity {
                 }
             }
         }
+    }
 
+    /**
+     * Add a new item on the db, it generates a qrocode image, it saves that
+     * and then add the corresponding element on the Firebase Database
+     * @param filename name of the file
+     */
+    private void addFileOnDb(final String filename, final String format, Long size) {
+        Log.d(TAG, "Adding new file on the firebase database..");
+        String code = encode(filename); // find the new code
 
+        //TODO: generate the qrcode and show/save it
+
+        MyFile f = new MyFile(filename, format, size);
+        dbRef.child(code).setValue(f);
+        Log.d(TAG, "New file added");
+    }
+
+    /**
+     * Encode a new code for the given filename
+     * @param filename name
+     * @return the code
+     */
+    private String encode(final String filename) {
+        return "utxcvlbkj";
     }
 
     /**
@@ -380,7 +413,7 @@ public class FilesListActivity extends AppCompatActivity {
         int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
         String absoluteFilePath = cursor.getString(idx);
 
-        Uri file = Uri.fromFile(new File(absoluteFilePath));
+        final Uri file = Uri.fromFile(new File(absoluteFilePath));
         String userPath = ""+FirebaseAuth.getInstance().getCurrentUser().getUid();
         StorageReference imgRef = storageRef.child(userPath+"/"+file.getLastPathSegment());
         UploadTask uploadTask = imgRef.putFile(file);
@@ -395,6 +428,7 @@ public class FilesListActivity extends AppCompatActivity {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Log.d(TAG, "Upload complete");
+                addFileOnDb(file.getLastPathSegment(), "image", 256L);
             }
         });
     }
@@ -403,7 +437,7 @@ public class FilesListActivity extends AppCompatActivity {
      * start the FileViewer which will show the file
      * @param filename name of the file to show
      */
-    private void startRetrieveFileService(String filename) {
+    private void startDownloadTmpFileService(String filename) {
         Intent viewerIntentService = new Intent(this, DownloadFileService.class);
 
         viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
@@ -415,7 +449,7 @@ public class FilesListActivity extends AppCompatActivity {
         startService(viewerIntentService);
     }
 
-    private void startSaveFileService(String filename) {
+    private void startDownloadStorageFileService(String filename) {
         Intent viewerIntentService = new Intent(this, DownloadFileService.class);
 
         viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLAOD_SAVE_FILE);
@@ -466,7 +500,7 @@ public class FilesListActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Log.d(TAG, "saving file " + name);
-                    startSaveFileService(name);
+                    startDownloadStorageFileService(name);
                     //TODO: implement downlaod event
                 }
             });
@@ -474,7 +508,7 @@ public class FilesListActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Log.d(TAG, "showing file " + name);
-                    startRetrieveFileService(name);
+                    startDownloadTmpFileService(name);
                     //TODO: implement show file event
                 }
             });
