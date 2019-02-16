@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -43,6 +44,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.services.DownloadStorageFileReceiver;
+import com.polimi.proj.qdocs.services.DownloadTmpFileReceiver;
+import com.polimi.proj.qdocs.services.DownloadFileService;
 import com.polimi.proj.qdocs.support.MyFile;
 
 import java.io.File;
@@ -237,7 +241,7 @@ public class FilesListActivity extends AppCompatActivity {
      * retrieve the permission for reading external storage
      */
     private void getPermission() {
-        ActivityCompat.requestPermissions(FilesListActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, EX_PER);
+        ActivityCompat.requestPermissions(FilesListActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, EX_PER);
     }
 
 
@@ -246,11 +250,11 @@ public class FilesListActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(requestCode==EX_PER){
             if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                Log.d(TAG, "permission read external storage ok");
+                Log.d(TAG, "permissions read/write external storage ok");
             }
             else{
 
-                Log.d(TAG, "permission read external storage denied");
+                Log.d(TAG, "permissions read/write external storage denied");
             }
         }
     }
@@ -395,6 +399,34 @@ public class FilesListActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * start the FileViewer which will show the file
+     * @param filename name of the file to show
+     */
+    private void startRetrieveFileService(String filename) {
+        Intent viewerIntentService = new Intent(this, DownloadFileService.class);
+
+        viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
+
+        // create the result receiver for the IntentService
+        DownloadTmpFileReceiver receiver = new DownloadTmpFileReceiver(this, new Handler());
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
+        startService(viewerIntentService);
+    }
+
+    private void startSaveFileService(String filename) {
+        Intent viewerIntentService = new Intent(this, DownloadFileService.class);
+
+        viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLAOD_SAVE_FILE);
+
+        // create the result receiver for the IntentService
+        DownloadStorageFileReceiver receiver = new DownloadStorageFileReceiver(this, new Handler());
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
+        startService(viewerIntentService);
+    }
+
     // TODO: improve the quality of the adapter
     // TODO: improve the quality of the xml related to the single item
     private class FilesAdapter extends ArrayAdapter<MyFile> {
@@ -422,17 +454,19 @@ public class FilesListActivity extends AppCompatActivity {
 
             final String name = f.getFilename();
             filename.setText(name);
+
             String format = f.getFormat();
             fileDescription.setText(format);
+
             ImageView imageView = convertView.findViewById(R.id.file_image);
             imageView.setImageResource(R.drawable.file_image);
 
-            Button downloadButton = convertView.findViewById(R.id.download_button);
-            downloadButton.setOnClickListener(new View.OnClickListener() {
+            Button saveButton = convertView.findViewById(R.id.save_button);
+            saveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "download file " + name);
-                    Toast.makeText(FilesListActivity.this, getString(R.string.no_operation), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "saving file " + name);
+                    startSaveFileService(name);
                     //TODO: implement downlaod event
                 }
             });
@@ -440,7 +474,7 @@ public class FilesListActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Log.d(TAG, "showing file " + name);
-                    Toast.makeText(FilesListActivity.this, getString(R.string.no_operation), Toast.LENGTH_SHORT).show();
+                    startRetrieveFileService(name);
                     //TODO: implement show file event
                 }
             });

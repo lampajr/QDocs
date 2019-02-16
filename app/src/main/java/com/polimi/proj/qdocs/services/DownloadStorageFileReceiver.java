@@ -28,7 +28,7 @@ import java.util.List;
  * @see DownloadFileService
  */
 
-public class DownloadFileReceiver extends ResultReceiver {
+public class DownloadStorageFileReceiver extends ResultReceiver {
 
     private static final String TAG = "DOWNLOAD_FILE_RECEIVER";
 
@@ -55,7 +55,7 @@ public class DownloadFileReceiver extends ResultReceiver {
      * @param handler  {@link #onReceiveResult} method will be called from the thread
      *                 running handler if given, or from an arbitrary one if null
      */
-    public DownloadFileReceiver(Context parentContext, Handler handler) {
+    public DownloadStorageFileReceiver(Context parentContext, Handler handler) {
         super(handler);
         this.context = parentContext;
     }
@@ -70,7 +70,7 @@ public class DownloadFileReceiver extends ResultReceiver {
             String mimeType = resultData.getString(DownloadFileService.RESULT_KEY_EXTENSION);
             Log.d(TAG, "EXTENSION received: " + mimeType);
 
-
+            // TODO: implement dialog to tell whther user want to see the file or not
             // trigger the ShowFileFragmentActivity
             triggerShowFile(fileUri, mimeType);
         }
@@ -84,8 +84,7 @@ public class DownloadFileReceiver extends ResultReceiver {
     }
 
     /**
-     * Activities dispatcher, in according to the extension (mimeType)
-     * starts the appropriate activity
+     * Trigger the activity that will show the file in the correct way
      * @param fileUri uri of the file, has to be passed to next activity
      * @param mimeType extension in mimeType format
      */
@@ -97,3 +96,4 @@ public class DownloadFileReceiver extends ResultReceiver {
         context.startActivity(showFileIntent);
     }
 }
+
