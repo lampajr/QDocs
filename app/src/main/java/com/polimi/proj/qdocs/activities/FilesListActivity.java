@@ -561,10 +561,11 @@ public class FilesListActivity extends AppCompatActivity {
                 }
             });
 
-            Button getQrcodeButton = findViewById(R.id.get_qrcode_button);
+            Button getQrcodeButton = convertView.findViewById(R.id.get_qrcode_button);
             getQrcodeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Log.d(TAG, "getting qrcode");
                     MyFile f = retrieveFileByName(name);
                     //TODO: generate qrcode from f.getKey()
                 }
