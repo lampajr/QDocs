@@ -56,6 +56,8 @@ public class DownloadFileService extends IntentService {
             "com.polimi.proj.qdocs.services.extra.RESULT_KEY_URI";
     public static final String RESULT_KEY_EXTENSION =
             "com.polimi.proj.qdocs.services.extra.RESULT_KEY_EXTENSION";
+    public static final String RESULT_KEY_FILENAME =
+            "com.polimi.proj.qdocs.services.extra.RESULT_KEY_FILENAME";
 
     // results
     public static final int DOWNLOAD_OK = 1;
@@ -154,7 +156,7 @@ public class DownloadFileService extends IntentService {
                         @Override
                         public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                             Log.d(TAG, "MyFile downloaded successfully");
-                            getBackResults(extension);
+                            getBackResults(filename, extension);
                         }
                     }).addOnCanceledListener(new OnCanceledListener() {
                 @Override
@@ -179,7 +181,7 @@ public class DownloadFileService extends IntentService {
      * @param extension of the file created
      * result -> fileUri uri of the temporary file created and its MimeType extension
      */
-    private void getBackResults(final String extension) {
+    private void getBackResults(final String filename, final String extension) {
         Uri fileUri = FileProvider.getUriForFile(getApplicationContext(),
                 "com.polimi.proj.qdocs.fileprovider",
                 localFile);
@@ -192,6 +194,7 @@ public class DownloadFileService extends IntentService {
 
         Bundle resultBundle = new Bundle();
         resultBundle.putParcelable(RESULT_KEY_URI, fileUri);
+        resultBundle.putString(RESULT_KEY_FILENAME, filename);
         resultBundle.putString(RESULT_KEY_EXTENSION, mimeType);
 
         // call the Result Receiver

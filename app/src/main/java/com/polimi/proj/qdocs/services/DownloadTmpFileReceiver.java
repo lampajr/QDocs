@@ -67,12 +67,14 @@ public class DownloadTmpFileReceiver extends ResultReceiver {
             Log.d(TAG, "Results received from DownloadFileService: OK");
             Uri fileUri = (Uri) resultData.get(DownloadFileService.RESULT_KEY_URI);
             Log.d(TAG, "URI received: " + fileUri.toString());
+            String filename = resultData.getString(DownloadFileService.RESULT_KEY_FILENAME);
+            Log.d(TAG, "FILENAME received: " + filename);
             String mimeType = resultData.getString(DownloadFileService.RESULT_KEY_EXTENSION);
             Log.d(TAG, "EXTENSION received: " + mimeType);
 
 
             // trigger the ShowFileFragmentActivity
-            triggerShowFile(fileUri, mimeType);
+            triggerShowFile(fileUri, filename, mimeType);
         }
         else {
             // something goes wrong: resultCode == DOWNLOAD_ERROR
@@ -88,11 +90,11 @@ public class DownloadTmpFileReceiver extends ResultReceiver {
      * @param fileUri uri of the file, has to be passed to next activity
      * @param mimeType extension in mimeType format
      */
-    private void triggerShowFile(Uri fileUri, String mimeType) {
+    private void triggerShowFile(Uri fileUri, String filename, String mimeType) {
         Intent showFileIntent = new Intent(context, ShowFileFragmentActivity.class);
         showFileIntent.putExtra(DownloadFileService.RESULT_KEY_URI, fileUri);
         showFileIntent.putExtra(DownloadFileService.RESULT_KEY_EXTENSION, mimeType);
-
+        showFileIntent.putExtra(DownloadFileService.RESULT_KEY_FILENAME, filename);
         context.startActivity(showFileIntent);
     }
 }

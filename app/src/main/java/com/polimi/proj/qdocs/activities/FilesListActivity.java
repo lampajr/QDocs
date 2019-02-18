@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -48,6 +49,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.services.DownloadStorageFileReceiver;
 import com.polimi.proj.qdocs.services.DownloadTmpFileReceiver;
@@ -413,6 +417,19 @@ public class FilesListActivity extends AppCompatActivity {
         return code;
     }
 
+    private Bitmap generateQrCode(String key) {
+        try {
+            Log.d(TAG, "encoding " + key + " into a new QR Code");
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            Bitmap bitmapQrCode = barcodeEncoder.encodeBitmap(key, BarcodeFormat.QR_CODE, 400, 400);
+            Log.d(TAG, "QR Code generated!");
+            return bitmapQrCode;
+        } catch (WriterException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /**
      * Retrieve a MyFile object matching the filename passed as paramater
      * @param filename name of the file to retrieve
@@ -505,15 +522,14 @@ public class FilesListActivity extends AppCompatActivity {
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
         startService(viewerIntentService);
     }
-
     // TODO: improve the quality of the adapter
     // TODO: improve the quality of the xml related to the single item
     private class FilesAdapter extends ArrayAdapter<MyFile> {
 
+
         FilesAdapter(@NonNull Context context, int textViewResourceId, @NonNull List<MyFile> objects) {
             super(context, textViewResourceId, objects);
         }
-
         @NonNull
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
@@ -567,7 +583,10 @@ public class FilesListActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     Log.d(TAG, "getting qrcode");
                     MyFile f = retrieveFileByName(name);
-                    //TODO: generate qrcode from f.getKey()
+                    Bitmap qrCode = generateQrCode(f.getKey());
+                    if (qrCode != null) {
+                        //TODO: save/show the qrcode generated
+                    }
                 }
             });
 
@@ -582,5 +601,6 @@ public class FilesListActivity extends AppCompatActivity {
 
             return convertView;
         }
+
     }
 }
