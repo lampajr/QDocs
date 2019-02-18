@@ -39,6 +39,7 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
 
     private Uri fileUri;
     private String mimeType;
+    private String fileName;
     private Fragment fragment;
     private BitmapDrawable bitmapDrawable;
     private Uri audioUri;
@@ -65,6 +66,7 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
         Bundle bundle = getIntent().getExtras();
         fileUri = (Uri) bundle.get(DownloadFileService.RESULT_KEY_URI);
         mimeType = bundle.getString(DownloadFileService.RESULT_KEY_EXTENSION);
+        fileName = bundle.getString(DownloadFileService.RESULT_KEY_FILENAME);
 
         Log.d(TAG, "file uri: " + fileUri);
         Log.d(TAG, "mimeType: " + mimeType);
@@ -168,6 +170,8 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
     }
 
     public Uri getAudioUri() {return audioUri;}
+
+    public String getFileName() {return fileName;}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)

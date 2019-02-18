@@ -30,6 +30,8 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="image_viewer_description">IMAGE VIEWER</string>
     <string name="no_operation">operation not yet implemented</string>
+    <string name="play_string">Play</string>
+    <string name="pause_string">Pause</string>
 
 
 </resources>
