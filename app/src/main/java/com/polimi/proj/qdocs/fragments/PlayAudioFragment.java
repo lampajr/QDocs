@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,7 +63,8 @@ public class PlayAudioFragment extends Fragment {
         if (getArguments() != null) {
         }
 
-        Uri myUri = ((ShowFileFragmentActivity) getActivity()).getAudioUri();; // initialize Uri here
+        Uri myUri = ((ShowFileFragmentActivity) getActivity()).getAudioUri();
+        Log.d(TAG, "audio uri: "+myUri);
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
@@ -78,21 +80,28 @@ public class PlayAudioFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        Log.d(TAG, "On create view");
         View view = inflater.inflate(R.layout.fragment_play_audio, container, false);
         final Button playButton = view.findViewById(R.id.btn_play);
         playButton.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
+                Log.d(TAG,"Button play clicked");
                 if(isPlay){
                     mediaPlayer.stop();
-                    playButton.setText("Stop");
+                    Log.d(TAG,"music stop");
+                    isPlay = false;
                 }
                 else{
                     mediaPlayer.start();
+                    Log.d(TAG,"music start");
+                    playButton.setText("Stop");
+                    isPlay=true;
                 }
             }
         });
-        return inflater.inflate(R.layout.fragment_play_audio, container, false);
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

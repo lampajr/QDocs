@@ -92,10 +92,9 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
 
             case AUDIO:
                 Log.d(TAG, "Insantiating 'play audio' fragment...");
-                audioUri = fileUri;
                 fragment = PlayAudioFragment.newInstance();
                 displayFragment(fragment);
-                onShowImageFragmentInteraction(fileUri);
+                onPlayAudioFragmentInteraction(fileUri);
                 break;
         }
 
@@ -155,8 +154,8 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
         //File file = new File(uri.getPath());
         try {
 
+
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-            Log.d(TAG, "bitmap created");
             bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
 
         } catch (IOException e) {
@@ -205,6 +204,6 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
 
     @Override
     public void onPlayAudioFragmentInteraction(Uri uri) {
-
+        audioUri = fileUri;
     }
 }
