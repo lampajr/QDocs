@@ -57,6 +57,24 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * @author Andrea Lamparelli
+ * @author Pietro Chittò
+ *
+ * This activity represents the main page of the user, can be seen as folder of all the documents
+ * owned by the current user.
+ * The activity shows the list of all files and allow the user to interact with them:
+ *      - show file
+ *      - delete file
+ *      - save file
+ * the user can also upload new files on the storage
+ *
+ * @see AppCompatActivity
+ * @see DownloadStorageFileReceiver
+ * @see DownloadTmpFileReceiver
+ * @see DownloadFileService
+ */
+
 public class FilesListActivity extends AppCompatActivity {
 
     private static final String TAG = "FILES_LIST_ACTIVITY";
