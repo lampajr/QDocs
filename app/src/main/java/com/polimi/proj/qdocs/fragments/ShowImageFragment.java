@@ -28,9 +28,6 @@ public class ShowImageFragment extends Fragment {
     private static final String TAG = "IMAGE FRAGMENT";
     private BitmapDrawable bitmapDrowalbe = null;
 
-    // TODO: Rename and change types of parameters
-    private Uri imageUri;
-
     private OnFragmentInteractionListener mListener;
 
     public ShowImageFragment() {

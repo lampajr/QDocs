@@ -41,6 +41,7 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
     private String mimeType;
     private Fragment fragment;
     private BitmapDrawable bitmapDrawable;
+    private Uri audioUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +92,7 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
 
             case AUDIO:
                 Log.d(TAG, "Insantiating 'play audio' fragment...");
+                audioUri = fileUri;
                 fragment = PlayAudioFragment.newInstance();
                 displayFragment(fragment);
                 onShowImageFragmentInteraction(fileUri);
@@ -165,6 +167,8 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
     public BitmapDrawable getImageResult(){
         return bitmapDrawable;
     }
+
+    public Uri getAudioUri() {return audioUri;}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)

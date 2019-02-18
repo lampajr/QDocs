@@ -1,14 +1,22 @@
 package com.polimi.proj.qdocs.fragments;
 
 import android.content.Context;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.activities.ShowFileFragmentActivity;
+
+import java.io.IOException;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -20,11 +28,12 @@ import com.polimi.proj.qdocs.R;
  */
 public class PlayAudioFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
+    private static final String TAG = "AUDIO FRAGMENT";
+    private MediaPlayer mediaPlayer = null;
+    private boolean isPlay = false;
+
+
 
 
     private OnFragmentInteractionListener mListener;
@@ -52,12 +61,37 @@ public class PlayAudioFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
+
+        Uri myUri = ((ShowFileFragmentActivity) getActivity()).getAudioUri();; // initialize Uri here
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+            mediaPlayer.setDataSource(getApplicationContext(), myUri);
+            mediaPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_show_image, container, false);
+        final Button playButton = view.findViewById(R.id.btn_play);
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isPlay){
+                    mediaPlayer.stop();
+                    playButton.setText("Stop");
+                }
+                else{
+                    mediaPlayer.start();
+                }
+            }
+        });
         return inflater.inflate(R.layout.fragment_play_audio, container, false);
     }
 
