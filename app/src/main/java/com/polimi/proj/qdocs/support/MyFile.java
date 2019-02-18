@@ -1,5 +1,6 @@
 package com.polimi.proj.qdocs.support;
 
+import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 /**
@@ -13,9 +14,10 @@ import com.google.firebase.database.IgnoreExtraProperties;
 @IgnoreExtraProperties
 public class MyFile {
 
+    private String key;
     private String filename;
     private String format;
-    private Long size;
+    private long size;
 
     public MyFile() {}
 
@@ -24,6 +26,13 @@ public class MyFile {
         this.format = format;
         this.size = size;
     }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    @Exclude
+    public String getKey() {return  key;}
 
     public String getFilename() {
         return filename;

@@ -39,6 +39,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -52,7 +53,9 @@ import com.polimi.proj.qdocs.support.MyFile;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 
 public class FilesListActivity extends AppCompatActivity {
 
@@ -179,7 +182,8 @@ public class FilesListActivity extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 MyFile file = dataSnapshot.getValue(MyFile.class);
                 if (file != null) {
-                    Log.d(TAG, "Found new file: " + file.getFilename() + "; " + file.getSize() +
+                    file.setKey(dataSnapshot.getKey());
+                    Log.d(TAG, "Found new file: " + file.getKey() + "; " + file.getFilename() + "; " + file.getSize() +
                             "; " + file.getFormat());
                     files.add(file);
                     filesAdapter.notifyDataSetChanged();
@@ -199,7 +203,7 @@ public class FilesListActivity extends AppCompatActivity {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                MyFile file = dataSnapshot.getValue(MyFile.class);
+                MyFile file = retrieveFileByKey(dataSnapshot.getKey());
                 assert file != null;
                 Log.d(TAG, "removed file: " + file.getFilename());
                 files.remove(file);
@@ -223,7 +227,7 @@ public class FilesListActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        Log.d(TAG, "Creazione menu");
+        Log.d(TAG, "Creating menu");
         MenuInflater inflater=getMenuInflater();
         inflater.inflate(R.menu.file_menu_layout, menu);
 
@@ -279,8 +283,7 @@ public class FilesListActivity extends AppCompatActivity {
                         != PackageManager.PERMISSION_GRANTED) {
                     Log.e(TAG,"Permission denied for external storage");
                 }else {
-                    uploadImage(data);
-
+                    uploadFile(data, MediaStore.Images.ImageColumns.DATA, "image");
                 }
             }
         }
@@ -292,8 +295,7 @@ public class FilesListActivity extends AppCompatActivity {
                         != PackageManager.PERMISSION_GRANTED) {
                     Log.e(TAG, "Permission denied for external storage");
                 } else {
-                    uploadAudio(data);
-
+                    uploadFile(data, MediaStore.Audio.AudioColumns.DATA, "audio");
                 }
             }
         }
@@ -305,8 +307,7 @@ public class FilesListActivity extends AppCompatActivity {
                         != PackageManager.PERMISSION_GRANTED) {
                     Log.e(TAG, "Permission denied for external storage");
                 } else {
-                    uploadVideo(data);
-
+                    uploadFile(data, MediaStore.Video.VideoColumns.DATA, "image");
                 }
             }
         }
@@ -317,107 +318,81 @@ public class FilesListActivity extends AppCompatActivity {
      * and then add the corresponding element on the Firebase Database
      * @param filename name of the file
      */
-    private void addFileOnDb(final String filename, final String format, Long size) {
-        Log.d(TAG, "Adding new file on the firebase database..");
-        String code = encode(filename); // find the new code
+    private void addFileOnDb(final String filename, final String format, long size) {
+        Log.d(TAG, "Adding new file on the realtime firebase database..");
+        String code = generateCode(); // generate a new code
 
         //TODO: generate the qrcode and show/save it
 
         MyFile f = new MyFile(filename, format, size);
-        dbRef.child(code).setValue(f);
-        Log.d(TAG, "New file added");
+        f.setKey(code);
+        try {
+            dbRef.child(code).setValue(f);
+            Log.d(TAG, "New file added");
+        }
+        catch (DatabaseException ex) {
+            Toast.makeText(this, "Invalid name: Firebase Database paths must not contain '.', '#', '$', '[', or ']'", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "Database path incorrect -> file wasn't added");
+        }
     }
 
     /**
-     * Encode a new code for the given filename
-     * @param filename name
+     * Generate a new code from which provide a new qrcode to
+     * associate to a new file
      * @return the code
      */
-    private String encode(final String filename) {
-        return "utxcvlbkj";
+    private String generateCode() {
+        long time = Calendar.getInstance().getTimeInMillis();
+        String code = time + "" + new Random().nextLong();
+        Log.d(TAG, "new code: " + code);
+        return code;
     }
 
     /**
-     * upload into the Cloud Storage a video file
-     * @param data
+     * Retrieve a MyFile object matching the filename passed as paramater
+     * @param filename name of the file to retrieve
+     * @return the MyFile instance if exists, null otherwise
      */
-    private void uploadVideo(Intent data) {
-        Uri videoz = data.getData();
-        Context context = getBaseContext();
-        Cursor cursor = getContentResolver().query(videoz, null, null, null, null);
-        cursor.moveToFirst();
-        int idx = cursor.getColumnIndex(MediaStore.Video.VideoColumns.DATA);
-        String absoluteFilePath = cursor.getString(idx);
-
-        Uri file = Uri.fromFile(new File(absoluteFilePath));
-        String userPath = ""+FirebaseAuth.getInstance().getCurrentUser().getUid();
-        StorageReference imgRef = storageRef.child(userPath+"/"+file.getLastPathSegment());
-        UploadTask uploadTask = imgRef.putFile(file);
-
-        Log.d(TAG, "starting uploading");
-        // Register observers to listen for when the download is done or if it fails
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Log.e(TAG, exception.toString());
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Log.d(TAG, "Upload complete");
-            }
-        });
+    public MyFile retrieveFileByName(String filename) {
+        for(MyFile f : files) {
+            if (f.getFilename().equals(filename)) return f;
+        }
+        return null;
     }
 
     /**
-     * upload into the Cloud Storage an audio file
-     * @param data
+     * Retrieve a MyFile object matching the key passed as paramater
+     * @param key key of the file to retrieve
+     * @return the MyFile instance if exists, null otherwise
      */
-    private void uploadAudio(Intent data) {
-        Uri audioz = data.getData();
-        Context context = getBaseContext();
-        Cursor cursor = getContentResolver().query(audioz, null, null, null, null);
-        cursor.moveToFirst();
-        int idx = cursor.getColumnIndex(MediaStore.Audio.AudioColumns.DATA);
-        String absoluteFilePath = cursor.getString(idx);
-
-        Uri file = Uri.fromFile(new File(absoluteFilePath));
-        String userPath = ""+FirebaseAuth.getInstance().getCurrentUser().getUid();
-        StorageReference imgRef = storageRef.child(userPath+"/"+file.getLastPathSegment());
-        UploadTask uploadTask = imgRef.putFile(file);
-
-        Log.d(TAG, "starting uploading");
-        // Register observers to listen for when the download is done or if it fails
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Log.e(TAG, exception.toString());
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Log.d(TAG, "Upload complete");
-            }
-        });
+    public MyFile retrieveFileByKey(String key) {
+        for(MyFile f : files) {
+            if (f.getKey().equals(key)) return f;
+        }
+        return null;
     }
 
     /**
-     * upload into the Cloud Storage an image file
-     * @param data
+     * Upload a new file on the FirebaseStorage given the Uri provided by external Activities
+     * @param data data of the file to upload
+     * @param mediaStoreData MediaStore index
+     * @param format format of the file: image, text, audio, video.
      */
-    private void uploadImage(Intent data){
-        Uri picturez = data.getData();
-        Context context = getBaseContext();
-        Cursor cursor = getContentResolver().query(picturez, null, null, null, null);
+    private void uploadFile(Intent data, String mediaStoreData, final String format) {
+        Uri fileUri = data.getData();
+        Cursor cursor = getContentResolver().query(fileUri, null, null, null, null);
         cursor.moveToFirst();
-        int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+        int idx = cursor.getColumnIndex(mediaStoreData);
         String absoluteFilePath = cursor.getString(idx);
 
         final Uri file = Uri.fromFile(new File(absoluteFilePath));
-        String userPath = ""+FirebaseAuth.getInstance().getCurrentUser().getUid();
-        StorageReference imgRef = storageRef.child(userPath+"/"+file.getLastPathSegment());
-        UploadTask uploadTask = imgRef.putFile(file);
+        StorageReference fileRef = storageRef.child(user.getUid()).child(file.getLastPathSegment());
 
+        UploadTask uploadTask = fileRef.putFile(file);
+
+        final long size = 0L; //TODO: retrieve true size of file
+
+        Log.d(TAG, "starting uploading");
         // Register observers to listen for when the download is done or if it fails
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
@@ -428,10 +403,11 @@ public class FilesListActivity extends AppCompatActivity {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Log.d(TAG, "Upload complete");
-                addFileOnDb(file.getLastPathSegment(), "image", 256L);
+                addFileOnDb(file.getLastPathSegment(), format, size);
             }
         });
     }
+
 
     /**
      * start the FileViewer which will show the file
@@ -449,6 +425,10 @@ public class FilesListActivity extends AppCompatActivity {
         startService(viewerIntentService);
     }
 
+    /**
+     * Start the service that will store the file on the public storage
+     * @param filename name of the file
+     */
     private void startDownloadStorageFileService(String filename) {
         Intent viewerIntentService = new Intent(this, DownloadFileService.class);
 
@@ -465,7 +445,7 @@ public class FilesListActivity extends AppCompatActivity {
     // TODO: improve the quality of the xml related to the single item
     private class FilesAdapter extends ArrayAdapter<MyFile> {
 
-        public FilesAdapter(@NonNull Context context, int textViewResourceId, @NonNull List<MyFile> objects) {
+        FilesAdapter(@NonNull Context context, int textViewResourceId, @NonNull List<MyFile> objects) {
             super(context, textViewResourceId, objects);
         }
 
@@ -501,9 +481,21 @@ public class FilesListActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     Log.d(TAG, "saving file " + name);
                     startDownloadStorageFileService(name);
-                    //TODO: implement downlaod event
+                    //TODO: implement download event
                 }
             });
+
+            Button deleteButton = convertView.findViewById(R.id.delete_button);
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "deleting file: " + name);
+                    MyFile fileToDelete = retrieveFileByName(name);
+                    dbRef.child(fileToDelete.getKey()).removeValue();
+                    // TODO: implement "are you sure" dialog
+                }
+            });
+
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -512,8 +504,6 @@ public class FilesListActivity extends AppCompatActivity {
                     //TODO: implement show file event
                 }
             });
-
-            //TODO: add delete file button
 
             return convertView;
         }
