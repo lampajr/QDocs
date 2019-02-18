@@ -145,7 +145,7 @@ public class FilesListActivity extends AppCompatActivity {
                 else if (event.getAction() == MotionEvent.ACTION_UP) {
                     double currentX = event.getX();
                     double currentY = event.getY();
-                    if (previousX < currentX + offset) {
+                    if (previousX < currentX - offset) {
                         startScannerActivity();
                     }
                 }
@@ -557,7 +557,16 @@ public class FilesListActivity extends AppCompatActivity {
                     Log.d(TAG, "deleting file: " + name);
                     MyFile fileToDelete = retrieveFileByName(name);
                     dbRef.child(fileToDelete.getKey()).removeValue();
-                    // TODO: implement "are you sure" dialog
+                    // TODO: implement "are you sure?" dialog
+                }
+            });
+
+            Button getQrcodeButton = findViewById(R.id.get_qrcode_button);
+            getQrcodeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    MyFile f = retrieveFileByName(name);
+                    //TODO: generate qrcode from f.getKey()
                 }
             });
 
