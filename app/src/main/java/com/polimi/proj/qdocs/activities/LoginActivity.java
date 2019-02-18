@@ -132,12 +132,12 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
-
     }
 
-
-
+    /**
+     * Handle the facebook access token signing in the user by its credential
+     * @param token facebook access token
+     */
     private void handleFacebookAccessToken(AccessToken token) {
         Log.d(TAG, "handleFacebookAccessToken:" + token);
 
@@ -223,7 +223,6 @@ public class LoginActivity extends AppCompatActivity {
         Log.d(TAG, "On Start");
         if(mAuth.getCurrentUser() != null)
             finish();
-
     }
 
     public static void logout(){

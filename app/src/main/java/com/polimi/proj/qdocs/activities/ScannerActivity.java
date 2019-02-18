@@ -97,7 +97,7 @@ public class ScannerActivity extends AppCompatActivity {
 
             beepManager.playBeepSoundAndVibrate();
 
-            verifyKey(result.getText());
+            verifyCode(result.getText());
         }
 
         @Override
@@ -222,12 +222,12 @@ public class ScannerActivity extends AppCompatActivity {
 
 
     /**
-     * check whether there is a filename associated with this key
-     * @param key key detected by the barcode scanner
+     * check whether there is a filename associated with this code
+     * @param code code detected by the barcode scanner
      */
-    private void verifyKey(@NonNull final String key) {
+    private void verifyCode(@NonNull final String code) {
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child(BASE_REFERENCE)
-                .child(user.getUid()).child(key);
+                .child(user.getUid()).child(code);
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {

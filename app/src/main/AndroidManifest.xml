@@ -37,16 +37,16 @@
         </provider>
 
         <!-- MAIN ACTIVITY: SCANNER -->
-        <activity android:name=".activities.ScannerActivity">
+        <activity android:name=".activities.ScannerActivity" android:noHistory="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.LoginActivity" />
+        <activity android:name=".activities.LoginActivity"/>
         <activity android:name=".activities.RegistrationActivity" />
-        <activity android:name=".activities.FilesListActivity" />
+        <activity android:name=".activities.FilesListActivity" android:noHistory="true" />
 
         <!-- FACEBOOK -->
         <meta-data

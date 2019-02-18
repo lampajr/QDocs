@@ -1,6 +1,7 @@
 package com.polimi.proj.qdocs.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -13,6 +14,7 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -23,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -98,6 +101,10 @@ public class FilesListActivity extends AppCompatActivity {
     private FirebaseUser user;
     private DatabaseReference dbRef;
 
+    // swipe data
+    private double previousX=0.0, previousY=0.0;
+    private double offset = 20;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,6 +122,44 @@ public class FilesListActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar_widget);
         setSupportActionBar(toolbar);
+
+        setupSwipeListener();
+    }
+
+
+    /**
+     * set the swipe listener on the view such that the user
+     * swiping from right to left can access the login activity
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    private void setupSwipeListener() {
+        ConstraintLayout mainLayout = findViewById(R.id.files_main_layout);
+        mainLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    previousX = event.getX();
+                    previousY = event.getY();
+                    Log.d(TAG, previousX + " " + previousY);
+                }
+                else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    double currentX = event.getX();
+                    double currentY = event.getY();
+                    if (previousX < currentX + offset) {
+                        startScannerActivity();
+                    }
+                }
+                return true;
+            }
+        });
+    }
+
+    /**
+     * Start the ScannerActivity
+     */
+    private void startScannerActivity() {
+        Intent scannerIntent = new Intent(this, ScannerActivity.class);
+        startActivity(scannerIntent);
     }
 
     /**
