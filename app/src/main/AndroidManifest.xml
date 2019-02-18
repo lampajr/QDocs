@@ -46,7 +46,7 @@
         </activity>
         <activity android:name=".activities.LoginActivity"/>
         <activity android:name=".activities.RegistrationActivity" />
-        <activity android:name=".activities.FilesListActivity" android:noHistory="true" />
+        <activity android:name=".activities.FilesListActivity" />
 
         <!-- FACEBOOK -->
         <meta-data
