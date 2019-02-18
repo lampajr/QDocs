@@ -78,7 +78,7 @@ public class PlayAudioFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_show_image, container, false);
+        View view = inflater.inflate(R.layout.fragment_play_audio, container, false);
         final Button playButton = view.findViewById(R.id.btn_play);
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
