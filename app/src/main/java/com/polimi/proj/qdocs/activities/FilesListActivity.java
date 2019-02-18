@@ -159,7 +159,9 @@ public class FilesListActivity extends AppCompatActivity {
      */
     private void startScannerActivity() {
         Intent scannerIntent = new Intent(this, ScannerActivity.class);
+        finish();
         startActivity(scannerIntent);
+        overridePendingTransition(R.anim.left_to_right, R.anim.exit_l2r);
     }
 
     /**

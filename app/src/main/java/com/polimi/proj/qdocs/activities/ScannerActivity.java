@@ -164,6 +164,7 @@ public class ScannerActivity extends AppCompatActivity {
     private void startFileActivity() {
         Intent filesIntent = new Intent(this, FilesListActivity.class);
         startActivity(filesIntent);
+        overridePendingTransition(R.anim.right_to_left, R.anim.exit_r2l);
     }
 
     /**
