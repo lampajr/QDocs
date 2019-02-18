@@ -536,8 +536,6 @@ public class FilesListActivity extends AppCompatActivity {
             LayoutInflater inflater = (LayoutInflater) getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            Log.d(TAG, "showing file");
-
             // load the view of a single row (a single file)
             convertView = inflater.inflate(R.layout.item_file, null);
 
@@ -595,7 +593,6 @@ public class FilesListActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     Log.d(TAG, "showing file " + name);
                     startDownloadTmpFileService(name);
-                    //TODO: implement show file event
                 }
             });
 

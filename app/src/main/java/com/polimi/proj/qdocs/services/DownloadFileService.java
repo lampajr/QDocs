@@ -185,6 +185,7 @@ public class DownloadFileService extends IntentService {
         Uri fileUri = FileProvider.getUriForFile(getApplicationContext(),
                 "com.polimi.proj.qdocs.fileprovider",
                 localFile);
+
         // grant the permission
         grantUriPermission("com.polimi.proj.qdocs", fileUri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION);
