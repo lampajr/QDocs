@@ -110,7 +110,6 @@ public class DownloadFileService extends IntentService {
             localFile = storageFile;
             getBackResults(filename, extension);
         }
-
     }
 
     /**

@@ -33,6 +33,8 @@
     <string name="play_string">Play</string>
     <string name="pause_string">Pause</string>
     <string name="file_already_stored">File already stored</string>
+    <string name="upload_new_file">Upload new file</string>
+    <string name="pathname_chooser">pathname chooser</string>
 
 
 </resources>
