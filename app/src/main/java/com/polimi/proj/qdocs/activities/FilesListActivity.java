@@ -53,8 +53,8 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.polimi.proj.qdocs.R;
-import com.polimi.proj.qdocs.services.DownloadStorageFileReceiver;
-import com.polimi.proj.qdocs.services.DownloadTmpFileReceiver;
+import com.polimi.proj.qdocs.services.SaveFileReceiver;
+import com.polimi.proj.qdocs.services.ShowFileReceiver;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 import com.polimi.proj.qdocs.support.MyFile;
 
@@ -77,8 +77,8 @@ import java.util.Random;
  * the user can also upload new files on the storage
  *
  * @see AppCompatActivity
- * @see DownloadStorageFileReceiver
- * @see DownloadTmpFileReceiver
+ * @see SaveFileReceiver
+ * @see ShowFileReceiver
  * @see DownloadFileService
  */
 
@@ -496,12 +496,13 @@ public class FilesListActivity extends AppCompatActivity {
      * @param filename name of the file to show
      */
     private void startDownloadTmpFileService(String filename) {
+        Log.d(TAG, "showing file " + filename);
         Intent viewerIntentService = new Intent(this, DownloadFileService.class);
 
         viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
 
         // create the result receiver for the IntentService
-        DownloadTmpFileReceiver receiver = new DownloadTmpFileReceiver(this, new Handler());
+        ShowFileReceiver receiver = new ShowFileReceiver(this, new Handler());
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
         startService(viewerIntentService);
@@ -511,17 +512,40 @@ public class FilesListActivity extends AppCompatActivity {
      * Start the service that will store the file on the public storage
      * @param filename name of the file
      */
-    private void startDownloadStorageFileService(String filename) {
+    private void startingSavingFileService(String filename) {
         Intent viewerIntentService = new Intent(this, DownloadFileService.class);
 
-        viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLAOD_SAVE_FILE);
+        viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
 
         // create the result receiver for the IntentService
-        DownloadStorageFileReceiver receiver = new DownloadStorageFileReceiver(this, new Handler());
+        SaveFileReceiver receiver = new SaveFileReceiver(this, new Handler());
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
         startService(viewerIntentService);
     }
+
+    /**
+     * Deletes a file from list
+     * @param filename name of the file to delete
+     */
+    private void deletePersonalFile(final String filename) {
+        Log.d(TAG, "deleting file: " + filename);
+        MyFile fileToDelete = retrieveFileByName(filename);
+        dbRef.child(fileToDelete.getKey()).removeValue();
+        // TODO: implement "are you sure?" dialog
+    }
+
+
+    private void provideQrCode(final String filename) {
+        Log.d(TAG, "getting qrcode");
+        MyFile f = retrieveFileByName(filename);
+        Bitmap qrCode = generateQrCode(f.getKey());
+        if (qrCode != null) {
+            //TODO: save/show the qrcode generated
+        }
+    }
+
+
     // TODO: improve the quality of the adapter
     // TODO: improve the quality of the xml related to the single item
     private class FilesAdapter extends ArrayAdapter<MyFile> {
@@ -559,7 +583,7 @@ public class FilesListActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Log.d(TAG, "saving file " + name);
-                    startDownloadStorageFileService(name);
+                    startingSavingFileService(name);
                     //TODO: implement download event
                 }
             });
@@ -568,10 +592,7 @@ public class FilesListActivity extends AppCompatActivity {
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "deleting file: " + name);
-                    MyFile fileToDelete = retrieveFileByName(name);
-                    dbRef.child(fileToDelete.getKey()).removeValue();
-                    // TODO: implement "are you sure?" dialog
+                    deletePersonalFile(name);
                 }
             });
 
@@ -579,25 +600,18 @@ public class FilesListActivity extends AppCompatActivity {
             getQrcodeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "getting qrcode");
-                    MyFile f = retrieveFileByName(name);
-                    Bitmap qrCode = generateQrCode(f.getKey());
-                    if (qrCode != null) {
-                        //TODO: save/show the qrcode generated
-                    }
+                    provideQrCode(name);
                 }
             });
 
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "showing file " + name);
                     startDownloadTmpFileService(name);
                 }
             });
 
             return convertView;
         }
-
     }
 }

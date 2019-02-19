@@ -32,6 +32,7 @@
     <string name="no_operation">operation not yet implemented</string>
     <string name="play_string">Play</string>
     <string name="pause_string">Pause</string>
+    <string name="file_already_stored">File already stored</string>
 
 
 </resources>

@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.FilesListActivity;
 
 import java.io.File;
@@ -41,9 +42,6 @@ public class DownloadFileService extends IntentService {
     // Actions that can be performed by this service
     public static final String ACTION_DOWNLOAD_TMP_FILE =
             "com.polimi.proj.qdocs.services.action.ACTION_DOWNLOAD_TMP_FILE";
-    // Actions that can be performed by this service
-    public static final String ACTION_DOWNLAOD_SAVE_FILE =
-            "com.polimi.proj.qdocs.services.action.ACTION_DOWNLAOD_SAVE_FILE";
 
     // parameters
     public static final String EXTRA_PARAM_FILENAME =
@@ -63,13 +61,9 @@ public class DownloadFileService extends IntentService {
     public static final int DOWNLOAD_OK = 1;
     public static final int DOWNLOAD_ERROR = -1;
 
-    private static String FOLDER_NAME = "my_folder";
-
     private FirebaseUser user;
     private File localFile;
     private ResultReceiver receiver;
-
-    private boolean tmp;
 
     public DownloadFileService() {
         super("DownloadFileService");
@@ -84,9 +78,6 @@ public class DownloadFileService extends IntentService {
             if (ACTION_DOWNLOAD_TMP_FILE.equals(action)) {
                 final String filename = intent.getStringExtra(EXTRA_PARAM_FILENAME);
                 downloadTmpFile(filename);
-            } else if(ACTION_DOWNLAOD_SAVE_FILE.equals(action)) {
-                final String filename = intent.getStringExtra(EXTRA_PARAM_FILENAME);
-                downloadAndSaveFile(filename);
             } else {
                 Log.e(TAG, "Action CODE wrong, get: " + action);
             }
@@ -103,35 +94,35 @@ public class DownloadFileService extends IntentService {
         final String name = elements[0];  // name of the file without extension
         final String extension = elements[1]; // get the extension from the whole filename
 
-        tmp = true;
-
-        try {
-            localFile = File.createTempFile(name, extension, getCacheDir());
-            getFileFromFilename(filename, extension);
-        } catch (IOException e) {
-            Log.d(TAG, "Error creating temporary file.");
-            e.printStackTrace();
+        // TODO: checks if the fil already exists in the personal directory
+        File storageFile = new File(getPublicDocStorageDir().getAbsolutePath(), filename);
+        if(!storageFile.exists()) {
+            try {
+                localFile = File.createTempFile(name, extension, getCacheDir());
+                downloadFileFromFilename(filename, extension);
+            } catch (IOException e) {
+                Log.d(TAG, "Error creating temporary file.");
+                e.printStackTrace();
+            }
         }
+        else {
+            Log.d(TAG,"File already stored in " + storageFile.getAbsolutePath());
+            localFile = storageFile;
+            getBackResults(filename, extension);
+        }
+
     }
 
     /**
-     * Create a file in the public storage
-     * @param filename name of the file
+     * Returns the personal directory if exists, null otherwise
+     * @return File obj
      */
-    private void downloadAndSaveFile(final String filename){
-        String[] elements = filename.split("\\.");
-        final String name = elements[0];  // name of the file without extension
-        final String extension = elements[1]; // get the extension from the whole filename
-
-        tmp = false;
-
-        try {
-            localFile = File.createTempFile(name, extension, getCacheDir());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        getFileFromFilename(filename, extension);
+    private File getPublicDocStorageDir() {
+        // Get the directory for the user's public pictures directory.
+        return new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOCUMENTS), getApplicationContext().getString(R.string.app_name));
     }
+
 
     /**
      * Download the file from the FirebaseStorage and stores it into the localFile
@@ -139,7 +130,7 @@ public class DownloadFileService extends IntentService {
      * @param filename name of the file
      * @param extension extension of the file
      */
-    private void getFileFromFilename(final String filename, final String extension) {
+    private void downloadFileFromFilename(final String filename, final String extension) {
         Log.d(TAG, "Downloading file: " + filename);
 
         // TODO: handle FirebaseStorage exceptions
@@ -182,9 +173,11 @@ public class DownloadFileService extends IntentService {
      * result -> fileUri uri of the temporary file created and its MimeType extension
      */
     private void getBackResults(final String filename, final String extension) {
-        Uri fileUri = FileProvider.getUriForFile(getApplicationContext(),
-                "com.polimi.proj.qdocs.fileprovider",
-                localFile);
+        //Uri fileUri = FileProvider.getUriForFile(getApplicationContext(),
+        //        "com.polimi.proj.qdocs.fileprovider",
+        //        localFile);
+
+        Uri fileUri = Uri.fromFile(localFile);
 
         // grant the permission
         grantUriPermission("com.polimi.proj.qdocs", fileUri,

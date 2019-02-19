@@ -33,7 +33,7 @@ import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 import com.polimi.proj.qdocs.R;
-import com.polimi.proj.qdocs.services.DownloadTmpFileReceiver;
+import com.polimi.proj.qdocs.services.ShowFileReceiver;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 
 import java.util.Arrays;
@@ -177,7 +177,7 @@ public class ScannerActivity extends AppCompatActivity {
         viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
 
         // create the result receiver for the IntentService
-        DownloadTmpFileReceiver receiver = new DownloadTmpFileReceiver(this, new Handler());
+        ShowFileReceiver receiver = new ShowFileReceiver(this, new Handler());
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
         startService(viewerIntentService);

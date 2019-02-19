@@ -28,7 +28,7 @@ import java.util.List;
  * @see DownloadFileService
  */
 
-public class DownloadTmpFileReceiver extends ResultReceiver {
+public class ShowFileReceiver extends ResultReceiver {
 
     private static final String TAG = "DOWNLOAD_FILE_RECEIVER";
 
@@ -55,7 +55,7 @@ public class DownloadTmpFileReceiver extends ResultReceiver {
      * @param handler  {@link #onReceiveResult} method will be called from the thread
      *                 running handler if given, or from an arbitrary one if null
      */
-    public DownloadTmpFileReceiver(Context parentContext, Handler handler) {
+    public ShowFileReceiver(Context parentContext, Handler handler) {
         super(handler);
         this.context = parentContext;
     }
