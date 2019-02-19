@@ -57,6 +57,7 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        closeFragment();
                         finish();
                     }
                 }
@@ -203,6 +204,7 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
 
     @Override
     public void onBackPressed(){
+        closeFragment();
         finish();
     }
 
