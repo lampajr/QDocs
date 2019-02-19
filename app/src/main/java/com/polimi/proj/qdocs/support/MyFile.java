@@ -16,15 +16,13 @@ public class MyFile {
 
     private String key;
     private String filename;
-    private String format;
-    private long size;
+    private String contentType;
 
     public MyFile() {}
 
-    public MyFile(String filename, String format, Long size) {
+    public MyFile(String filename, String contentType) {
         this.filename = filename;
-        this.format = format;
-        this.size = size;
+        this.contentType = contentType;
     }
 
     public void setKey(String key) {
@@ -38,11 +36,7 @@ public class MyFile {
         return filename;
     }
 
-    public String getFormat() {
-        return format;
-    }
-
-    public Long getSize() {
-        return size;
+    public String getContentType() {
+        return contentType;
     }
 }

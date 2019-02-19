@@ -7,7 +7,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,6 +28,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -37,8 +37,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -48,6 +50,7 @@ import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.zxing.BarcodeFormat;
@@ -93,7 +96,7 @@ public class FilesListActivity extends AppCompatActivity {
     private static final String SIZE_KEY = "size";
     private static final String FORMAT_KEY = "format";
 
-    private static final int EX_PER = 10 ;
+    private static final int PERMISSION_CODE = 10 ;
 
     private static final int IMG_PRV = 100;
     private static final int AUD_PRV = 200;
@@ -120,7 +123,7 @@ public class FilesListActivity extends AppCompatActivity {
         getPermission();
 
         user = FirebaseAuth.getInstance().getCurrentUser();
-        storageRef = FirebaseStorage.getInstance().getReference();
+        storageRef = FirebaseStorage.getInstance().getReference().child(user.getUid());
 
         loadFiles();
         initFilesList();
@@ -233,14 +236,13 @@ public class FilesListActivity extends AppCompatActivity {
      * even if it doesn't exist or null if the current folder is ok.
      * if user confirms then the file can be uploaded
      * @param data data to upload
-     * @param format format of the file
-     * @param mediaStoreData MediaStoreData obj
+     *
      */
-    private void showPathnameChooserDialog(final Intent data, final String mediaStoreData, final String format) {
+    private void showPathnameChooserDialog(final Intent data) {
         Log.d(TAG, "starting pathname chooser dialog..");
         final Dialog d = new Dialog(FilesListActivity.this);
         d.setTitle(getString(R.string.pathname_chooser));
-        d.setCancelable(false);
+        d.setCancelable(true);
         d.setContentView(R.layout.pathname_chooser_dialog);
 
         EditText pathnameText = d.findViewById(R.id.pathname_text);
@@ -250,7 +252,7 @@ public class FilesListActivity extends AppCompatActivity {
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                uploadFile(data, mediaStoreData, pathname, format);
+                uploadFile(data, pathname);
                 d.dismiss();
             }
         });
@@ -271,6 +273,7 @@ public class FilesListActivity extends AppCompatActivity {
      * @return the filtered pathname
      */
     private String filterPathname(String pathname) {
+        //TODO: implement pathname filter
         return pathname;
     }
 
@@ -281,7 +284,6 @@ public class FilesListActivity extends AppCompatActivity {
     private void initFilesList() {
         Log.d(TAG, "Creating files adapter");
         ListView listView = findViewById(R.id.list_view);
-        // TODO: add event listener on the item of the list view
         filesAdapter = new FilesAdapter(this, R.layout.item_file, files);
         listView.setAdapter(filesAdapter);
     }
@@ -307,8 +309,8 @@ public class FilesListActivity extends AppCompatActivity {
                 MyFile file = dataSnapshot.getValue(MyFile.class);
                 if (file != null) {
                     file.setKey(dataSnapshot.getKey());
-                    Log.d(TAG, "Found new file: " + file.getKey() + "; " + file.getFilename() + "; " + file.getSize() +
-                            "; " + file.getFormat());
+                    Log.d(TAG, "Found new file: " + file.getKey() + "; " + file.getFilename() +
+                            "; " + file.getContentType());
                     files.add(file);
                     filesAdapter.notifyDataSetChanged();
                 }
@@ -318,8 +320,7 @@ public class FilesListActivity extends AppCompatActivity {
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 MyFile file = dataSnapshot.getValue(MyFile.class);
                 if (file != null) {
-                    Log.d(TAG, "Found new updated file: " + file.getFilename() + "; " + file.getSize() +
-                            "; " + file.getFormat());
+                    Log.d(TAG, "Found new updated file: " + file.getFilename() + "; " + file.getContentType());
                     files.add(file);
                     filesAdapter.notifyDataSetChanged();
                 }
@@ -344,7 +345,6 @@ public class FilesListActivity extends AppCompatActivity {
                 Log.e(TAG, "database error occurred: onCanceled");
             }
         });
-
     }
 
 
@@ -380,13 +380,15 @@ public class FilesListActivity extends AppCompatActivity {
      * retrieve the permission for reading external storage
      */
     private void getPermission() {
-        ActivityCompat.requestPermissions(FilesListActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, EX_PER);
+        ActivityCompat.requestPermissions(FilesListActivity.this,
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                PERMISSION_CODE);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode==EX_PER){
+        if(requestCode== PERMISSION_CODE){
             if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
                 Log.d(TAG, "permissions read/write external storage ok");
             }
@@ -400,54 +402,14 @@ public class FilesListActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == IMG_PRV){
-            Log.d(TAG, "On result: image");
+        if (requestCode == IMG_PRV || requestCode == AUD_PRV || requestCode == FILE_PRV) {
+            Log.d(TAG, "Picked a file");
             if (resultCode == Activity.RESULT_OK) {
                 if (ContextCompat.checkSelfPermission(FilesListActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
                     Log.e(TAG,"Permission denied for external storage");
                 }else {
-                    showPathnameChooserDialog(data, MediaStore.Images.ImageColumns.DATA, "image");
-                    //uploadFile(data, MediaStore.Images.ImageColumns.DATA, "image");
-                }
-            }
-        }
-
-        if(requestCode == AUD_PRV) {
-            if (resultCode == Activity.RESULT_OK) {
-                Log.d(TAG, "On result: audio");
-                if (ContextCompat.checkSelfPermission(FilesListActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    Log.e(TAG, "Permission denied for external storage");
-                } else {
-                    showPathnameChooserDialog(data, MediaStore.Audio.AudioColumns.DATA, "audio");
-                    //uploadFile(data, MediaStore.Audio.AudioColumns.DATA, "audio");
-                }
-            }
-        }
-
-        if(requestCode == VID_PRV) {
-            if (resultCode == Activity.RESULT_OK) {
-                Log.d(TAG, "On result: video");
-                if (ContextCompat.checkSelfPermission(FilesListActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    Log.e(TAG, "Permission denied for external storage");
-                } else {
-                    showPathnameChooserDialog(data, MediaStore.Video.VideoColumns.DATA, "video");
-                    //uploadFile(data, MediaStore.Video.VideoColumns.DATA, "image");
-                }
-            }
-        }
-
-        if(requestCode == FILE_PRV) {
-            if (resultCode == Activity.RESULT_OK) {
-                Log.d(TAG, "On result: file");
-                if (ContextCompat.checkSelfPermission(FilesListActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    Log.e(TAG, "Permission denied for external storage");
-                } else {
-                    showPathnameChooserDialog(data, MediaStore.Files.FileColumns.DATA, "file");
-                    //uploadFile(data, MediaStore.Video.VideoColumns.DATA, "image");
+                    showPathnameChooserDialog(data);
                 }
             }
         }
@@ -456,13 +418,10 @@ public class FilesListActivity extends AppCompatActivity {
     /**
      * Upload a new file on the FirebaseStorage given the Uri provided by external Activities
      * @param data data of the file to upload
-     * @param mediaStoreData MediaStore index
-     * @param format format of the file: image, text, audio, video.
+     *
      */
-    private void uploadFile(Intent data, String mediaStoreData, final String pathname, final String format) {
+    private void uploadFile(Intent data, final String pathname) {
         Uri fileUri = data.getData();
-        Log.d(TAG, "Uri: " + fileUri);
-        Log.d(TAG, "UriAuthority: " + fileUri.getAuthority());
         //Cursor cursor = getContentResolver().query(fileUri, null, null, null, null);
         //cursor.moveToFirst();
         //int idx = cursor.getColumnIndex(mediaStoreData);
@@ -473,13 +432,18 @@ public class FilesListActivity extends AppCompatActivity {
         final Uri file = Uri.fromFile(new File(absoluteFilePath));
 
         StorageReference fileRef = !pathname.equals("") ?
-                storageRef.child(user.getUid()).child(pathname).child(file.getLastPathSegment())
-                : storageRef.child(user.getUid()).child(file.getLastPathSegment());
+                storageRef.child(pathname).child(file.getLastPathSegment())
+                : storageRef.child(file.getLastPathSegment());
 
+        // file information
+        final String contentType = MimeTypeMap.getSingleton().getExtensionFromMimeType(getContentResolver().getType(fileUri));
 
-        UploadTask uploadTask = fileRef.putFile(file);
+        StorageMetadata metadata = new StorageMetadata.Builder()
+                .setContentType(contentType)
+                .build();
 
-        final long size = 0L; //TODO: retrieve true size of file
+        UploadTask uploadTask = fileRef.putFile(file, metadata);
+
 
         Log.d(TAG, "starting uploading");
         // Register observers to listen for when the download is done or if it fails
@@ -492,7 +456,7 @@ public class FilesListActivity extends AppCompatActivity {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Log.d(TAG, "Upload complete");
-                addFileOnDb(file.getLastPathSegment(), format, size);
+                addFileOnDb(file.getLastPathSegment());
             }
         });
     }
@@ -502,13 +466,20 @@ public class FilesListActivity extends AppCompatActivity {
      * and then add the corresponding element on the Firebase Database
      * @param filename name of the file
      */
-    private void addFileOnDb(final String filename, final String format, long size) {
+    private void addFileOnDb(final String filename) {
         Log.d(TAG, "Adding new file on the realtime firebase database..");
         String code = generateCode(); // generate a new code
 
-        //TODO: generate the qrcode and show/save it
+        StorageReference fileStorage = storageRef.child(filename);
+        String contentType = "";
+        fileStorage.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+            @Override
+            public void onSuccess(StorageMetadata storageMetadata) {
+                String contentType = storageMetadata.getContentType();
+            }
+        });
 
-        MyFile f = new MyFile(filename, format, size);
+        MyFile f = new MyFile(filename, contentType);
         f.setKey(code);
         try {
             dbRef.child(code).setValue(f);
@@ -614,8 +585,21 @@ public class FilesListActivity extends AppCompatActivity {
      */
     private void deletePersonalFile(final String filename) {
         Log.d(TAG, "deleting file: " + filename);
-        MyFile fileToDelete = retrieveFileByName(filename);
-        dbRef.child(fileToDelete.getKey()).removeValue();
+        final DatabaseReference dbRefTmp = dbRef;
+        storageRef.child(filename).delete().addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "Failure occurred during file deletion");
+                Toast.makeText(FilesListActivity.this, getString(R.string.delition_failed), Toast.LENGTH_SHORT).show();
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d(TAG, "File deletion completed");
+                MyFile fileToDelete = retrieveFileByName(filename);
+                dbRefTmp.child(fileToDelete.getKey()).removeValue();
+            }
+        });
         // TODO: implement "are you sure?" dialog
     }
 
@@ -656,7 +640,7 @@ public class FilesListActivity extends AppCompatActivity {
             final String name = f.getFilename();
             filename.setText(name);
 
-            String format = f.getFormat();
+            String format = f.getContentType();
             fileDescription.setText(format);
 
             ImageView imageView = convertView.findViewById(R.id.file_image);

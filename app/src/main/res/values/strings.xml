@@ -22,7 +22,7 @@
     <!-- String related to scanner -->
     <string name="take_picture">TAKE PICTURE</string>
     <string name="invalid_password_registration">The password must be at least 6 characters</string>
-    <string name="invalid_email_format">Invalid email format</string>
+    <string name="invalid_email_format">Invalid email contentType</string>
     <string name="email_already_used">email already in use</string>
     <string name="format_not_recognized">Format not recognized, please check it!!</string>
 
@@ -35,6 +35,7 @@
     <string name="file_already_stored">File already stored</string>
     <string name="upload_new_file">Upload new file</string>
     <string name="pathname_chooser">pathname chooser</string>
+    <string name="delition_failed">Delition failed</string>
 
 
 </resources>
