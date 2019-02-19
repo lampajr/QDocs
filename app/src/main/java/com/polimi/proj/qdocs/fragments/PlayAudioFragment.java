@@ -47,8 +47,11 @@ public class PlayAudioFragment extends Fragment {
 
     public static int oneTimeOnly = 0;
 
+    private UpdateSongTime updateSongTime;
 
     private OnFragmentInteractionListener mListener;
+
+    private Object updateState= new Object();
 
     public PlayAudioFragment() {
         // Required empty public constructor
@@ -70,6 +73,7 @@ public class PlayAudioFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
         }
@@ -87,6 +91,9 @@ public class PlayAudioFragment extends Fragment {
         }
 
         audioName = ((ShowFileFragmentActivity) getActivity()).getFileName();
+
+        Log.d(TAG, "audio name: "+audioName);
+        Log.d(TAG, "audio duration: "+mediaPlayer.getDuration());
 
 
     }
@@ -113,22 +120,24 @@ public class PlayAudioFragment extends Fragment {
                     Log.d(TAG,"music start");
                     playButton.setText(getString(R.string.pause_string));
 
-                    finalTime = mediaPlayer.getDuration();
                     startTime = mediaPlayer.getCurrentPosition();
 
-                    if (oneTimeOnly == 0) {
-                        seekbar.setMax((int) finalTime);
-                        oneTimeOnly = 1;
-                    }
-
                     seekbar.setProgress((int)startTime);
-                    myHandler.postDelayed(UpdateSongTime,100);
+                    updateSongTime = new UpdateSongTime();
+                    myHandler.postDelayed(updateSongTime,100);
+
                 }
             }
         });
 
         seekbar = view.findViewById(R.id.seekBar);
         seekbar.setClickable(false);
+
+        finalTime = mediaPlayer.getDuration();
+        seekbar.setMax((int) finalTime);
+
+        Log.d(TAG, "seekbar start: "+ startTime);
+        Log.d(TAG, "seekbar end: "+ seekbar.getMax());
 
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -169,6 +178,27 @@ public class PlayAudioFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onStop(){
+        Log.d(TAG, "OnStop");
+        super.onStop();
+    }
+
+    @Override
+    public void onPause(){
+        Log.d(TAG, "OnPause");
+        super.onPause();
+        if(updateSongTime!=null)
+            synchronized (updateState) {
+                mediaPlayer.stop();
+                mediaPlayer.release();
+                mediaPlayer = null;
+                Log.d(TAG, "updateSongTime not null");
+                updateSongTime.stop(true);
+            }
+        seekbar.setProgress(0);
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -184,13 +214,31 @@ public class PlayAudioFragment extends Fragment {
         void onPlayAudioFragmentInteraction(Uri uri);
     }
 
-    private Runnable UpdateSongTime = new Runnable() {
+    private class UpdateSongTime implements Runnable{
+
+        private boolean stop =false;
+
+        @Override
         public void run() {
-            startTime = mediaPlayer.getCurrentPosition();
-            if(mediaPlayer.isPlaying()) {
-                seekbar.setProgress((int) startTime);
+            if(!stop) {
+                if(startTime % 200 == 0)
+                    Log.d(TAG, "updating song time...");
+                synchronized (updateState) {
+                    if(mediaPlayer != null)
+                    startTime = mediaPlayer.getCurrentPosition();
+                    if (mediaPlayer.isPlaying())
+                        seekbar.setProgress((int) startTime);
+                }
+                myHandler.postDelayed(this, 100);
             }
-            myHandler.postDelayed(this, 100);
+            else {
+                Log.d(TAG, "update song time stopped");
+            }
         }
-    };
+
+        public void stop(boolean stop){
+            this.stop = stop;
+        }
+    }
+
 }
