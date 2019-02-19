@@ -58,6 +58,7 @@ import com.polimi.proj.qdocs.services.SaveFileReceiver;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 import com.polimi.proj.qdocs.support.MyFile;
+import com.polimi.proj.qdocs.support.PathResolver;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -215,7 +216,8 @@ public class FilesListActivity extends AppCompatActivity {
                     public void onClick(View arg0)
                     {
                         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                        intent.setType("file/*");
+                        intent.setType("*/*");
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
                         startActivityForResult(intent, FILE_PRV);
                         d.dismiss();
                     }
@@ -444,7 +446,7 @@ public class FilesListActivity extends AppCompatActivity {
                         != PackageManager.PERMISSION_GRANTED) {
                     Log.e(TAG, "Permission denied for external storage");
                 } else {
-                    showPathnameChooserDialog(data, MediaStore.Video.VideoColumns.DATA, "file");
+                    showPathnameChooserDialog(data, MediaStore.Files.FileColumns.DATA, "file");
                     //uploadFile(data, MediaStore.Video.VideoColumns.DATA, "image");
                 }
             }
@@ -459,10 +461,14 @@ public class FilesListActivity extends AppCompatActivity {
      */
     private void uploadFile(Intent data, String mediaStoreData, final String pathname, final String format) {
         Uri fileUri = data.getData();
-        Cursor cursor = getContentResolver().query(fileUri, null, null, null, null);
-        cursor.moveToFirst();
-        int idx = cursor.getColumnIndex(mediaStoreData);
-        String absoluteFilePath = cursor.getString(idx);
+        Log.d(TAG, "Uri: " + fileUri);
+        Log.d(TAG, "UriAuthority: " + fileUri.getAuthority());
+        //Cursor cursor = getContentResolver().query(fileUri, null, null, null, null);
+        //cursor.moveToFirst();
+        //int idx = cursor.getColumnIndex(mediaStoreData);
+        //String absoluteFilePath = cursor.getString(idx);
+
+        String absoluteFilePath = PathResolver.getPathFromUri(this, fileUri);
 
         final Uri file = Uri.fromFile(new File(absoluteFilePath));
 
