@@ -19,6 +19,7 @@ import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.ShowFileFragmentActivity;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
@@ -35,23 +36,26 @@ public class PlayAudioFragment extends Fragment {
 
     private static final String TAG = "AUDIO FRAGMENT";
 
+    //used for manage the audio file
     private MediaPlayer mediaPlayer = null;
 
     private double startTime = 0;
-    private double finalTime = 0;
+
     private String audioName;
 
     private SeekBar seekbar;
 
+    //used to managed the position of the seekbar
     private Handler myHandler = new Handler();
 
-    public static int oneTimeOnly = 0;
-
+    //Runnable object launched by the andler
     private UpdateSongTime updateSongTime;
 
     private OnFragmentInteractionListener mListener;
 
-    private Object updateState= new Object();
+    private final Object updateState= new Object();
+
+    private boolean onlyOne = true;
 
     public PlayAudioFragment() {
         // Required empty public constructor
@@ -75,11 +79,9 @@ public class PlayAudioFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-        }
 
-
-        Uri myUri = ((ShowFileFragmentActivity) getActivity()).getAudioUri();
+        //prepare the media player object
+        Uri myUri = ((ShowFileFragmentActivity) Objects.requireNonNull(getActivity())).getAudioUri();
         Log.d(TAG, "audio uri: "+myUri.getPath());
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -106,7 +108,11 @@ public class PlayAudioFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_play_audio, container, false);
         final Button playButton = view.findViewById(R.id.btn_play);
         playButton.setOnClickListener(new View.OnClickListener() {
-
+            /**
+             *  If the music is stopped then starts play
+             *  If the musiu is played then stop it
+             * @param v
+             */
             @Override
             public void onClick(View v) {
                 Log.d(TAG,"Button play clicked");
@@ -119,12 +125,16 @@ public class PlayAudioFragment extends Fragment {
                     mediaPlayer.start();
                     Log.d(TAG,"music start");
                     playButton.setText(getString(R.string.pause_string));
-
                     startTime = mediaPlayer.getCurrentPosition();
+                    seekbar.setProgress((int) startTime);
 
-                    seekbar.setProgress((int)startTime);
-                    updateSongTime = new UpdateSongTime();
-                    myHandler.postDelayed(updateSongTime,100);
+                    //the first time an audio is played an handler that manage the seekbar run
+                    // updateSong time
+                    if(onlyOne) {
+                        updateSongTime = new UpdateSongTime();
+                        myHandler.postDelayed(updateSongTime, 100);
+                        onlyOne = false;
+                    }
 
                 }
             }
@@ -133,7 +143,7 @@ public class PlayAudioFragment extends Fragment {
         seekbar = view.findViewById(R.id.seekBar);
         seekbar.setClickable(false);
 
-        finalTime = mediaPlayer.getDuration();
+        double finalTime = mediaPlayer.getDuration();
         seekbar.setMax((int) finalTime);
 
         Log.d(TAG, "seekbar start: "+ startTime);
@@ -188,14 +198,12 @@ public class PlayAudioFragment extends Fragment {
     public void onPause(){
         Log.d(TAG, "OnPause");
         super.onPause();
-        if(updateSongTime!=null)
-            synchronized (updateState) {
-                mediaPlayer.stop();
-                mediaPlayer.release();
-                mediaPlayer = null;
-                Log.d(TAG, "updateSongTime not null");
-                updateSongTime.stop(true);
-            }
+        if(updateSongTime!=null) {
+
+            //the stop method of UpdateSongTime class take care also to stop mediaPlayer
+            updateSongTime.stop();
+            Log.d(TAG, "stopping the runnable updateSongTime");
+        }
         seekbar.setProgress(0);
     }
 
@@ -214,6 +222,13 @@ public class PlayAudioFragment extends Fragment {
         void onPlayAudioFragmentInteraction(Uri uri);
     }
 
+
+    /**
+     * This class implement Runnable interface. The run method update the position of the seek bar
+     * every 100 millis
+     *
+     * call stop for stop the run method
+     */
     private class UpdateSongTime implements Runnable{
 
         private boolean stop =false;
@@ -224,10 +239,11 @@ public class PlayAudioFragment extends Fragment {
                 if(startTime % 200 == 0)
                     Log.d(TAG, "updating song time...");
                 synchronized (updateState) {
-                    if(mediaPlayer != null)
-                    startTime = mediaPlayer.getCurrentPosition();
-                    if (mediaPlayer.isPlaying())
-                        seekbar.setProgress((int) startTime);
+                    if(mediaPlayer != null) {
+                        startTime = mediaPlayer.getCurrentPosition();
+                        if (mediaPlayer.isPlaying())
+                            seekbar.setProgress((int) startTime);
+                    }
                 }
                 myHandler.postDelayed(this, 100);
             }
@@ -236,8 +252,16 @@ public class PlayAudioFragment extends Fragment {
             }
         }
 
-        public void stop(boolean stop){
-            this.stop = stop;
+        /**
+         * stop the run and release the mediaPlayer object
+         */
+        void stop(){
+            synchronized (updateState) {
+                this.stop = true;
+                mediaPlayer.stop();
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
         }
     }
 

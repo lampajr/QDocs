@@ -1,17 +1,14 @@
 package com.polimi.proj.qdocs.fragments;
 
 import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.ortiz.touchview.TouchImageView;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.ShowFileFragmentActivity;
 
@@ -20,17 +17,16 @@ import java.util.Objects;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link ShowImageFragment.OnFragmentInteractionListener} interface
+ * {@link GenericFileFragment.OnGenericFileFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link ShowImageFragment#newInstance} factory method to
+ * Use the {@link GenericFileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ShowImageFragment extends Fragment {
+public class GenericFileFragment extends Fragment {
 
-    private static final String TAG = "IMAGE FRAGMENT";
-    private BitmapDrawable bitmapDrowalbe = null;
+    private  Uri fileUri;
 
-    public ShowImageFragment() {
+    public GenericFileFragment() {
         // Required empty public constructor
     }
 
@@ -38,50 +34,39 @@ public class ShowImageFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment ShowImageFragment.
+     * @return A new instance of fragment GenericFileFragment.
      */
-    public static ShowImageFragment newInstance() {
-        return new ShowImageFragment();
+    // TODO: Rename and change types and number of parameters
+    public static GenericFileFragment newInstance() {
+        return new GenericFileFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Take the bitmap from the activity
-        bitmapDrowalbe = ((ShowFileFragmentActivity) Objects.requireNonNull(getActivity())).getImageResult();
-        checkbitmap(bitmapDrowalbe);
-        Log.d(TAG, "bitmap received");
 
-
+        fileUri = ((ShowFileFragmentActivity) Objects.requireNonNull(getActivity())).getFileUri();
+        //checkUri(fileUri);
     }
 
-    private void checkbitmap(BitmapDrawable b) {
-        if(b == null) {
-            Log.d(TAG,"Bitmap is null");
-            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStack();
-        }
-
-
-    }
-
+    /*
+    hack = pietro_pc.hacking(NOW);
+    nudes = hack.getElementFromString("send nudes");
+    nipples = nudes.findNipples();
+    Turgid tette_turgide = nipples.turgidali();
+    */
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView method");
-
-        View view = inflater.inflate(R.layout.fragment_show_image, container, false);
-        TouchImageView tuchImageView = view.findViewById(R.id.touch_image);
-        tuchImageView.setImageDrawable(bitmapDrowalbe);
-        
-        return view;
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_generic_file, container, false);
     }
-
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (!(context instanceof OnFragmentInteractionListener)) {
+        if (!(context instanceof OnGenericFileFragmentInteractionListener)) {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
@@ -102,8 +87,8 @@ public class ShowImageFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+    public interface OnGenericFileFragmentInteractionListener {
 
-        void onShowImageFragmentInteraction(Uri uri);
+        void onGenericFileFragmentInteraction(Uri uri);
     }
 }

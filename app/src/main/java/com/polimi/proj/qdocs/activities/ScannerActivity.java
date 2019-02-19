@@ -33,6 +33,7 @@ import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.fragments.GenericFileFragment;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 
@@ -53,7 +54,7 @@ import java.util.List;
  * @see com.journeyapps.barcodescanner.BarcodeView
  * @see com.polimi.proj.qdocs.fragments.PlayAudioFragment
  * @see com.polimi.proj.qdocs.fragments.ShowImageFragment
- * @see com.polimi.proj.qdocs.fragments.ShowTextFragment
+ * @see GenericFileFragment
  */
 
 public class ScannerActivity extends AppCompatActivity {

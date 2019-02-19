@@ -1,15 +1,10 @@
 package com.polimi.proj.qdocs.activities;
-/**
- * Activity that take a uri file and its type and display the correct fragment.
- * The fragment take care about showing the file
- */
 
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -20,18 +15,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.fragments.GenericFileFragment;
 import com.polimi.proj.qdocs.fragments.PlayAudioFragment;
 import com.polimi.proj.qdocs.fragments.ShowImageFragment;
 import com.polimi.proj.qdocs.services.DownloadFileService;
-
-import java.io.File;
 import java.io.IOException;
 
-public class ShowFileFragmentActivity extends FragmentActivity implements ShowImageFragment.OnFragmentInteractionListener, PlayAudioFragment.OnFragmentInteractionListener {
+public class ShowFileFragmentActivity extends FragmentActivity implements
+        ShowImageFragment.OnFragmentInteractionListener,
+        PlayAudioFragment.OnFragmentInteractionListener,
+        GenericFileFragment.OnGenericFileFragmentInteractionListener {
 
     private static final String TAG = "SHOW_FILE_FRAG_ACT";
     private static final String IMAGE = "image";
@@ -40,7 +35,6 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
     private Uri fileUri;
     private String mimeType;
     private String fileName;
-    private Fragment fragment;
     private BitmapDrawable bitmapDrawable;
     private Uri audioUri;
 
@@ -65,9 +59,12 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
         );
 
         Bundle bundle = getIntent().getExtras();
-        fileUri = (Uri) bundle.get(DownloadFileService.RESULT_KEY_URI);
-        mimeType = bundle.getString(DownloadFileService.RESULT_KEY_EXTENSION);
-        fileName = bundle.getString(DownloadFileService.RESULT_KEY_FILENAME);
+
+        if (bundle != null) {
+            fileUri = (Uri) bundle.get(DownloadFileService.RESULT_KEY_URI);
+            mimeType = bundle.getString(DownloadFileService.RESULT_KEY_EXTENSION);
+            fileName = bundle.getString(DownloadFileService.RESULT_KEY_FILENAME);
+        }
 
         Log.d(TAG, "file uri: " + fileUri);
         Log.d(TAG, "mimeType: " + mimeType);
@@ -88,7 +85,7 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
 
             case IMAGE:
                 Log.d(TAG, "Insantiating 'show image' fragment...");
-                fragment = ShowImageFragment.newInstance();
+                Fragment fragment = ShowImageFragment.newInstance();
                 displayFragment(fragment);
                 onShowImageFragmentInteraction(fileUri);
                 break;
@@ -99,12 +96,17 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
                 displayFragment(fragment);
                 onPlayAudioFragmentInteraction(fileUri);
                 break;
+
+            default:
+                Log.d(TAG, "Instantiating 'generic file' fragment...");
+                fragment = GenericFileFragment.newInstance();
+                displayFragment(fragment);
         }
 
     }
 
     private void displayFragment(Fragment fragment) {
-        //TODO: display the fragment
+
         // Get the FragmentManager and start a transaction.
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager
@@ -121,7 +123,7 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
         // Get the FragmentManager.
         FragmentManager fragmentManager = getSupportFragmentManager();
         // Check to see if the fragment is already showing.
-        Fragment fragment = (Fragment) fragmentManager
+        Fragment fragment = fragmentManager
                 .findFragmentById(R.id.fragment_container);
         if (fragment != null) {
             // Create and commit the transaction to remove the fragment.
@@ -132,9 +134,10 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
     }
 
     private void checkParameter() {
-        if(fileUri != null && mimeType != null){
+        if(fileUri != null && mimeType != null && fileName!= null){
             Log.d(TAG, "file URI recived: " + fileUri);
             Log.d(TAG, "mime type recived: " + mimeType);
+            Log.d(TAG, "filename type recived: " + fileName);
         }
         else {
 
@@ -143,6 +146,9 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
             }
             if (mimeType == null) {
                 Log.e(TAG, "mime type recived is NULL");
+            }
+            if (fileName == null){
+                Log.d(TAG, "filename recived is NULL ");
             }
 
             //TODO: handle error
@@ -173,6 +179,8 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
     public Uri getAudioUri() {return audioUri;}
 
     public String getFileName() {return fileName;}
+
+    public Uri getFileUri(){return fileUri;}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -211,5 +219,10 @@ public class ShowFileFragmentActivity extends FragmentActivity implements ShowIm
     @Override
     public void onPlayAudioFragmentInteraction(Uri uri) {
         audioUri = fileUri;
+    }
+
+    @Override
+    public void onGenericFileFragmentInteraction(Uri uri) {
+
     }
 }
