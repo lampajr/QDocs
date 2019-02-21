@@ -14,6 +14,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.polimi.proj.qdocs.R;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -286,5 +288,20 @@ public class PathResolver {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * Creates a new Directory in the user's public documents directory.
+     * if does not already exists
+     * @return the new File created
+     */
+    public static File createPublicDocStorageDir(Context context) {
+        // Get the directory for the user's public pictures directory.
+        File file = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOCUMENTS), context.getString(R.string.app_name));
+        if (!file.mkdirs()) {
+            Log.d(TAG, "Directory not created, already exists");
+        }
+        return file;
     }
 }

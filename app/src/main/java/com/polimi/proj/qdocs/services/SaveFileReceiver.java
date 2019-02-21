@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.FilesListActivity;
+import com.polimi.proj.qdocs.support.PathResolver;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -98,7 +99,7 @@ public class SaveFileReceiver extends ResultReceiver {
      * @param filename name of the file
      */
     private void saveFile(Uri fileUri, String filename) {
-        File dst = new File(createPublicDocStorageDir().getAbsolutePath(), filename);
+        File dst = new File(PathResolver.createPublicDocStorageDir(context).getAbsolutePath(), filename);
         if (!dst.exists()) {
             File src = new File(context.getCacheDir().getAbsolutePath() + "/" + fileUri.getLastPathSegment());
             Log.d(TAG, "exists? -> " + src.exists() + "; path : " + context.getCacheDir().getAbsolutePath() + "/" + fileUri.getLastPathSegment());
@@ -123,21 +124,6 @@ public class SaveFileReceiver extends ResultReceiver {
             Log.d(TAG, "A file with this name already exists.");
             Toast.makeText(context, context.getString(R.string.file_already_stored), Toast.LENGTH_SHORT).show();
         }
-    }
-
-    /**
-     * Creates a new Directory in the user's public documents directory.
-     * if does not already exists
-     * @return the new File created
-     */
-    private File createPublicDocStorageDir() {
-        // Get the directory for the user's public pictures directory.
-        File file = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOCUMENTS), context.getString(R.string.app_name));
-        if (!file.mkdirs()) {
-            Log.d(TAG, "Directory not created, already exists");
-        }
-        return file;
     }
 }
 

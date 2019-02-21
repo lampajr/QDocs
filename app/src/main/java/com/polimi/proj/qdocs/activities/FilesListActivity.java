@@ -66,6 +66,8 @@ import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.PathResolver;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -95,6 +97,8 @@ public class FilesListActivity extends AppCompatActivity {
 
     private static final String BASE_REFERENCE = "documents";
     private static final String KEY_METADATA = "key_metadata";
+    private static final String UID_METADATA = "uid_metadata";
+
     private static final String FILENAME_KEY = "filename";
     private static final String SIZE_KEY = "size";
     private static final String FORMAT_KEY = "format";
@@ -312,7 +316,8 @@ public class FilesListActivity extends AppCompatActivity {
                 MyFile file = dataSnapshot.getValue(MyFile.class);
                 if (file != null) {
                     Log.d(TAG, "Found new file: " + file.getKey() + "; " + file.getFilename() +
-                            "; " + file.getContentType());
+                            "; " + file.getContentType() + "; " + file.getSize() +
+                            "; " + file.getTime());
                     files.add(file);
                     filesAdapter.notifyDataSetChanged();
                 }
@@ -330,7 +335,7 @@ public class FilesListActivity extends AppCompatActivity {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                MyFile file = retrieveFileByKey(dataSnapshot.getKey());
+                MyFile file = retrieveFileByKey(dataSnapshot.getValue(MyFile.class).getKey());
                 assert file != null;
                 Log.d(TAG, "removed file: " + file.getFilename());
                 files.remove(file);
@@ -339,7 +344,7 @@ public class FilesListActivity extends AppCompatActivity {
 
             @Override
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                //TODO: implement onChildMoved
             }
 
             @Override
@@ -424,10 +429,6 @@ public class FilesListActivity extends AppCompatActivity {
      */
     private void uploadFile(Intent data, final String pathname) {
         Uri fileUri = data.getData();
-        //Cursor cursor = getContentResolver().query(fileUri, null, null, null, null);
-        //cursor.moveToFirst();
-        //int idx = cursor.getColumnIndex(mediaStoreData);
-        //String absoluteFilePath = cursor.getString(idx);
 
         String absoluteFilePath = PathResolver.getPathFromUri(this, fileUri);
 
@@ -439,11 +440,11 @@ public class FilesListActivity extends AppCompatActivity {
 
         // file information
         final String contentType = getContentResolver().getType(fileUri);
-        //final String contentType = MimeTypeMap.getSingleton().getExtensionFromMimeType(getContentResolver().getType(fileUri));
 
         StorageMetadata metadata = new StorageMetadata.Builder()
                 .setContentType(contentType)
                 .setCustomMetadata(KEY_METADATA, generateCode())
+                .setCustomMetadata(UID_METADATA, user.getUid())
                 .build();
 
         UploadTask uploadTask = fileRef.putFile(file, metadata);
@@ -460,8 +461,8 @@ public class FilesListActivity extends AppCompatActivity {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Log.d(TAG, "Upload complete");
-                String filename = pathname.equals("") ? file.getLastPathSegment()
-                        : pathname + "/" + file.getLastPathSegment();
+                //String filename = pathname.equals("") ? file.getLastPathSegment()
+                //        : pathname + "/" + file.getLastPathSegment();
                 //addFileOnDb(filename);
             }
         }).addOnCanceledListener(new OnCanceledListener() {
@@ -472,7 +473,7 @@ public class FilesListActivity extends AppCompatActivity {
         }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                Log.w(TAG, "Upload paused");
+                Log.d(TAG, "Upload paused");
             }
         });
     }
@@ -557,7 +558,7 @@ public class FilesListActivity extends AppCompatActivity {
      */
     public MyFile retrieveFileByKey(String key) {
         for(MyFile f : files) {
-            if (f.getKey().equals(key)) return f;
+            if (f.getKey() != null && f.getKey().equals(key)) return f;
         }
         return null;
     }
@@ -604,12 +605,12 @@ public class FilesListActivity extends AppCompatActivity {
         //TODO: implement "are you sure?" dialog
 
         Log.d(TAG, "deleting file: " + filename);
-        final DatabaseReference dbRefTmp = dbRef;
         storageRef.child(filename).delete().addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.d(TAG, "Failure occurred during file removing");
-                Toast.makeText(FilesListActivity.this, getString(R.string.delition_failed), Toast.LENGTH_SHORT).show();
+                Toast.makeText(FilesListActivity.this, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
+                        .show();
             }
         }).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -627,7 +628,7 @@ public class FilesListActivity extends AppCompatActivity {
     private void showQrCode(final String filename) {
         Log.d(TAG, "getting qrcode");
         MyFile f = retrieveFileByName(filename);
-        Bitmap qrCode = generateQrCode(f.getKey());
+        final Bitmap qrCode = generateQrCode(f.getKey());
         if (qrCode != null) {
             Log.d(TAG, "showing qrcode dialog..");
             final Dialog d = new Dialog(FilesListActivity.this);
@@ -640,15 +641,33 @@ public class FilesListActivity extends AppCompatActivity {
             saveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: save the bitmap locally (using asynctask or simply a thread)
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            File dst = new File(PathResolver.createPublicDocStorageDir(FilesListActivity.this).getAbsolutePath(),
+                                    "QRCode-" + filename);
+                            if (!dst.exists()) {
+                                try (FileOutputStream out = new FileOutputStream(dst)) {
+                                    qrCode.compress(Bitmap.CompressFormat.PNG, 100, out); // qrCode is the Bitmap instance
+                                    // PNG is a lossless format, the compression factor (100) is ignored
+                                    d.dismiss();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            else {
+                                Log.d(TAG, "QRCode already saved");
+                                Toast.makeText(FilesListActivity.this,
+                                        getString(R.string.file_already_stored),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }).start();
                 }
             });
             d.show();
         }
     }
-
-
-
 
     //TODO: improve the quality of the adapter
     //TODO: improve the quality of the xml related to the single item
@@ -672,7 +691,6 @@ public class FilesListActivity extends AppCompatActivity {
             TextView fileDescription = convertView.findViewById(R.id.file_description);
 
             MyFile f = getItem(position);
-
             final String name = f.getFilename();
             filename.setText(name);
 

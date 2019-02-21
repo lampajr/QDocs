@@ -13,7 +13,7 @@ import com.google.firebase.database.IgnoreExtraProperties;
  * structure of the object that describes the file:
  * var fileObj = {
  *      filename : filename,
- *      key : code,
+ *      key : object.metadata[KEY_METADATA],
  * 		contentType : object.contentType,
  * 		size : object.size,
  * 		time : object.timeCreated
