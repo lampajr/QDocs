@@ -37,6 +37,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -50,6 +51,7 @@ import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -91,7 +93,8 @@ public class FilesListActivity extends AppCompatActivity {
 
     private static final String TAG = "FILES_LIST_ACTIVITY";
 
-    private static final String BASE_REFERENCE = "files";
+    private static final String BASE_REFERENCE = "documents";
+    private static final String KEY_METADATA = "key_metadata";
     private static final String FILENAME_KEY = "filename";
     private static final String SIZE_KEY = "size";
     private static final String FORMAT_KEY = "format";
@@ -100,8 +103,7 @@ public class FilesListActivity extends AppCompatActivity {
 
     private static final int IMG_PRV = 100;
     private static final int AUD_PRV = 200;
-    private static final int VID_PRV = 300;
-    private static final int FILE_PRV = 400;
+    private static final int FILE_PRV = 300;
 
     private FloatingActionButton addButton;
     private StorageReference storageRef;
@@ -309,7 +311,6 @@ public class FilesListActivity extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 MyFile file = dataSnapshot.getValue(MyFile.class);
                 if (file != null) {
-                    file.setKey(dataSnapshot.getKey());
                     Log.d(TAG, "Found new file: " + file.getKey() + "; " + file.getFilename() +
                             "; " + file.getContentType());
                     files.add(file);
@@ -437,10 +438,12 @@ public class FilesListActivity extends AppCompatActivity {
                 : storageRef.child(file.getLastPathSegment());
 
         // file information
-        final String contentType = MimeTypeMap.getSingleton().getExtensionFromMimeType(getContentResolver().getType(fileUri));
+        final String contentType = getContentResolver().getType(fileUri);
+        //final String contentType = MimeTypeMap.getSingleton().getExtensionFromMimeType(getContentResolver().getType(fileUri));
 
         StorageMetadata metadata = new StorageMetadata.Builder()
                 .setContentType(contentType)
+                .setCustomMetadata(KEY_METADATA, generateCode())
                 .build();
 
         UploadTask uploadTask = fileRef.putFile(file, metadata);
@@ -459,7 +462,17 @@ public class FilesListActivity extends AppCompatActivity {
                 Log.d(TAG, "Upload complete");
                 String filename = pathname.equals("") ? file.getLastPathSegment()
                         : pathname + "/" + file.getLastPathSegment();
-                addFileOnDb(filename);
+                //addFileOnDb(filename);
+            }
+        }).addOnCanceledListener(new OnCanceledListener() {
+            @Override
+            public void onCanceled() {
+                Log.e(TAG, "Upload canceled");
+            }
+        }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+                Log.w(TAG, "Upload paused");
             }
         });
     }
@@ -468,7 +481,7 @@ public class FilesListActivity extends AppCompatActivity {
      * Add a new item on the db, it generates a qrocode image, it saves that
      * and then add the corresponding element on the Firebase Database
      * @param filename name of the file
-     */
+
     private void addFileOnDb(final String filename) {
         Log.d(TAG, "Adding new file on the realtime firebase database..");
         String code = generateCode(); // generate a new code
@@ -493,7 +506,7 @@ public class FilesListActivity extends AppCompatActivity {
             Log.d(TAG, "Database path incorrect -> file wasn't added");
         }
     }
-
+*/
     /**
      * Generate a new code from which provide a new qrcode to
      * associate to a new file
@@ -501,10 +514,11 @@ public class FilesListActivity extends AppCompatActivity {
      */
     private String generateCode() {
         long time = Calendar.getInstance().getTimeInMillis();
-        String code = time + "" + new Random().nextLong();
+        String code = time + "";// + "" + new Random().nextLong();
         Log.d(TAG, "new code: " + code);
         return code;
     }
+
 
     /**
      * generates a new qrcode
@@ -587,23 +601,22 @@ public class FilesListActivity extends AppCompatActivity {
      * @param filename name of the file to delete
      */
     private void deletePersonalFile(final String filename) {
+        //TODO: implement "are you sure?" dialog
+
         Log.d(TAG, "deleting file: " + filename);
         final DatabaseReference dbRefTmp = dbRef;
         storageRef.child(filename).delete().addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.d(TAG, "Failure occurred during file deletion");
+                Log.d(TAG, "Failure occurred during file removing");
                 Toast.makeText(FilesListActivity.this, getString(R.string.delition_failed), Toast.LENGTH_SHORT).show();
             }
         }).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                Log.d(TAG, "File deletion completed");
-                MyFile fileToDelete = retrieveFileByName(filename);
-                dbRefTmp.child(fileToDelete.getKey()).removeValue();
+                Log.d(TAG, "File correctly removed!");
             }
         });
-        // TODO: implement "are you sure?" dialog
     }
 
 
@@ -627,7 +640,7 @@ public class FilesListActivity extends AppCompatActivity {
             saveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //TODO: save the bitmap locally (using asynctask)
+                    //TODO: save the bitmap locally (using asynctask or simply a thread)
                 }
             });
             d.show();
@@ -637,8 +650,8 @@ public class FilesListActivity extends AppCompatActivity {
 
 
 
-    // TODO: improve the quality of the adapter
-    // TODO: improve the quality of the xml related to the single item
+    //TODO: improve the quality of the adapter
+    //TODO: improve the quality of the xml related to the single item
     private class FilesAdapter extends ArrayAdapter<MyFile> {
 
 

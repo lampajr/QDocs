@@ -36,6 +36,7 @@ import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.fragments.GenericFileFragment;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
 import com.polimi.proj.qdocs.services.DownloadFileService;
+import com.polimi.proj.qdocs.support.MyFile;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -68,7 +69,7 @@ public class ScannerActivity extends AppCompatActivity {
 
     private static final int REQUEST_CAMERA_PERMISSION = 1;
 
-    private static final String BASE_REFERENCE = "files";
+    private static final String BASE_REFERENCE = "documents";
     private static final String FILENAME_KEY = "filename";
 
     // scanner data
@@ -83,6 +84,9 @@ public class ScannerActivity extends AppCompatActivity {
     // authentication
     private FirebaseAuth firebaseAuth;
     private FirebaseUser user;
+
+    // database reference
+    private DatabaseReference dbRef;
 
     // callback on the barcode, listening on results
     private BarcodeCallback barcodeCallback = new BarcodeCallback() {
@@ -116,6 +120,8 @@ public class ScannerActivity extends AppCompatActivity {
         barcodeView = (DecoratedBarcodeView) findViewById(R.id.barcode_view);
 
         firebaseAuth = FirebaseAuth.getInstance();
+
+        dbRef = FirebaseDatabase.getInstance().getReference().child(BASE_REFERENCE);
 
         //setup toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_widget);
@@ -228,18 +234,14 @@ public class ScannerActivity extends AppCompatActivity {
      * @param code code detected by the barcode scanner
      */
     private void verifyCode(@NonNull final String code) {
-        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child(BASE_REFERENCE)
-                .child(user.getUid()).child(code);
-        dbRef.addChildEventListener(new ChildEventListener() {
+        DatabaseReference reference = dbRef.child(user.getUid());
+        reference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Object value = dataSnapshot.getValue();
-                String key_field = dataSnapshot.getKey();
-                assert key_field != null;
-                if (key_field.equals(FILENAME_KEY)) {
-                    String filename = (String) value;
-                    Log.d(TAG, "filename found! : " + filename);
-                    startRetrieveFileService(filename);
+                MyFile file = dataSnapshot.getValue(MyFile.class);
+                if (file != null && file.getKey().equals(code)) {
+                    Log.d(TAG, "filename found! : " + file.getFilename());
+                    startRetrieveFileService(file.getFilename());
                 }
             }
 
