@@ -21,7 +21,7 @@ import com.google.firebase.database.IgnoreExtraProperties;
  */
 
 @IgnoreExtraProperties
-public class MyFile {
+public class MyFile implements StorageElement{
 
     // file's attribute stored in the database
     private String key;

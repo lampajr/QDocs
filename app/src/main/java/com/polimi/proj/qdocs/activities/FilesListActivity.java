@@ -62,8 +62,10 @@ import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.services.SaveFileReceiver;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
 import com.polimi.proj.qdocs.services.DownloadFileService;
+import com.polimi.proj.qdocs.support.Directory;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.PathResolver;
+import com.polimi.proj.qdocs.support.StorageElement;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -111,7 +113,7 @@ public class FilesListActivity extends AppCompatActivity {
 
     private FloatingActionButton addButton;
     private StorageReference storageRef;
-    private List<MyFile> files;
+    private List<StorageElement> files;
     private FilesAdapter filesAdapter;
 
     private FirebaseUser user;
@@ -313,32 +315,48 @@ public class FilesListActivity extends AppCompatActivity {
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                MyFile file = dataSnapshot.getValue(MyFile.class);
-                if (file != null) {
-                    Log.d(TAG, "Found new file: " + file.getKey() + "; " + file.getFilename() +
-                            "; " + file.getContentType() + "; " + file.getSize() +
-                            "; " + file.getTime());
-                    files.add(file);
-                    filesAdapter.notifyDataSetChanged();
+                Log.d(TAG, "key found -> " + dataSnapshot.getKey());
+                if (dataSnapshot.getKey().matches("\\d+")) {
+                    // the element is a file
+                    Log.d(TAG, "adding new file..");
+                    MyFile file = dataSnapshot.getValue(MyFile.class);
+                    if (file != null) {
+                        Log.d(TAG, "Found new file: " + file.getKey() + "; " + file.getFilename() +
+                                "; " + file.getContentType() + "; " + file.getSize() +
+                                "; " + file.getTime());
+                        files.add(file);
+                    }
                 }
+                else {
+                    // the element is a directory
+                    Log.d(TAG, "adding new folder..");
+                    Directory dir = new Directory(dataSnapshot.getKey());
+                    files.add(dir);
+                }
+                filesAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                MyFile file = dataSnapshot.getValue(MyFile.class);
-                if (file != null) {
-                    Log.d(TAG, "Found new updated file: " + file.getFilename() + "; " + file.getContentType());
-                    files.add(file);
-                    filesAdapter.notifyDataSetChanged();
-                }
+                //TODO: implement onChildChanged listener on db
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                MyFile file = retrieveFileByKey(dataSnapshot.getValue(MyFile.class).getKey());
-                assert file != null;
-                Log.d(TAG, "removed file: " + file.getFilename());
-                files.remove(file);
+                if (dataSnapshot.getKey().matches("\\d+")) {
+                    // the element to remove is a file
+                    Log.d(TAG, "removing new file..");
+                    MyFile file = retrieveFileByKey(dataSnapshot.getValue(MyFile.class).getKey());
+                    if (file != null)
+                        files.remove(file);
+                }
+                else {
+                    // the element to remove is a directory
+                    Log.d(TAG, "removing new folder..");
+                    Directory dir = retrieveDirectoryByName(dataSnapshot.getKey());
+                    if (dir != null)
+                        files.remove(dir);
+                }
                 filesAdapter.notifyDataSetChanged();
             }
 
@@ -545,8 +563,8 @@ public class FilesListActivity extends AppCompatActivity {
      * @return the MyFile instance if exists, null otherwise
      */
     public MyFile retrieveFileByName(String filename) {
-        for(MyFile f : files) {
-            if (f.getFilename().equals(filename)) return f;
+        for(StorageElement f : files) {
+            if (((MyFile)f).getFilename().equals(filename)) return ((MyFile)f);
         }
         return null;
     }
@@ -557,8 +575,22 @@ public class FilesListActivity extends AppCompatActivity {
      * @return the MyFile instance if exists, null otherwise
      */
     public MyFile retrieveFileByKey(String key) {
-        for(MyFile f : files) {
-            if (f.getKey() != null && f.getKey().equals(key)) return f;
+        for(StorageElement f : files) {
+            if (f instanceof MyFile && ((MyFile)f).getKey() != null
+                    && ((MyFile)f).getKey().equals(key)) return ((MyFile)f);
+        }
+        return null;
+    }
+
+    /**
+     * Retrieve a Directory object from the files attribute
+     * @param name name to check, is unique for folders
+     * @return the Directory obj
+     */
+    public Directory retrieveDirectoryByName(String name) {
+        for(StorageElement d : files) {
+            if (d instanceof Directory && ((Directory)d).getFolderName() != null
+                    && ((Directory)d).getFolderName().equals(name)) return ((Directory)d);
         }
         return null;
     }
@@ -671,10 +703,10 @@ public class FilesListActivity extends AppCompatActivity {
 
     //TODO: improve the quality of the adapter
     //TODO: improve the quality of the xml related to the single item
-    private class FilesAdapter extends ArrayAdapter<MyFile> {
+    private class FilesAdapter extends ArrayAdapter<StorageElement> {
 
 
-        FilesAdapter(@NonNull Context context, int textViewResourceId, @NonNull List<MyFile> objects) {
+        FilesAdapter(@NonNull Context context, int textViewResourceId, @NonNull List<StorageElement> objects) {
             super(context, textViewResourceId, objects);
         }
         @NonNull
@@ -683,54 +715,78 @@ public class FilesListActivity extends AppCompatActivity {
             LayoutInflater inflater = (LayoutInflater) getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            // load the view of a single row (a single file)
-            convertView = inflater.inflate(R.layout.item_file, null);
+            StorageElement element = getItem(position);
 
+            if (convertView == null && element instanceof MyFile) {
+                // the current element is a file
+                Log.d(TAG, "new file showed");
 
-            final TextView filename = convertView.findViewById(R.id.filename);
-            TextView fileDescription = convertView.findViewById(R.id.file_description);
+                // load the view of a single row (a single file)
+                convertView = inflater.inflate(R.layout.item_file, null);
 
-            MyFile f = getItem(position);
-            final String name = f.getFilename();
-            filename.setText(name);
+                final TextView filename = convertView.findViewById(R.id.filename);
+                final TextView fileDescription = convertView.findViewById(R.id.file_description);
 
-            String format = f.getContentType();
-            fileDescription.setText(format);
+                MyFile f = (MyFile) element;
+                final String name = f.getFilename();
+                filename.setText(name);
 
-            ImageView imageView = convertView.findViewById(R.id.file_image);
-            imageView.setImageResource(R.drawable.file_image);
+                String format = f.getContentType();
+                fileDescription.setText(format);
 
-            Button saveButton = convertView.findViewById(R.id.save_button);
-            saveButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startingSavingFileService(name);
-                }
-            });
+                ImageView imageView = convertView.findViewById(R.id.file_image);
+                imageView.setImageResource(R.drawable.file_image);
 
-            Button deleteButton = convertView.findViewById(R.id.delete_button);
-            deleteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    deletePersonalFile(name);
-                }
-            });
+                Button saveButton = convertView.findViewById(R.id.save_button);
+                saveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startingSavingFileService(name);
+                    }
+                });
 
-            Button getQrcodeButton = convertView.findViewById(R.id.get_qrcode_button);
-            getQrcodeButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showQrCode(name);
-                }
-            });
+                Button deleteButton = convertView.findViewById(R.id.delete_button);
+                deleteButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        deletePersonalFile(name);
+                    }
+                });
 
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startDownloadTmpFileService(name);
-                }
-            });
+                Button getQrcodeButton = convertView.findViewById(R.id.get_qrcode_button);
+                getQrcodeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showQrCode(name);
+                    }
+                });
 
+                convertView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startDownloadTmpFileService(name);
+                    }
+                });
+            }
+            else if(convertView == null){
+                // the current element is a directory/folder
+                Log.d(TAG, "new directory showed");
+
+                // load the view of a single row (a single directory)
+                //TODO: substitute the layout, has to be for the folder
+                convertView = inflater.inflate(R.layout.item_file, null);
+
+                final TextView filename = convertView.findViewById(R.id.filename);
+                final TextView fileDescription = convertView.findViewById(R.id.file_description);
+
+                //TODO: implement folder deletion
+
+                Directory dir = (Directory) element;
+                //TODO: implement handling directories
+
+                filename.setText(dir.getFolderName());
+                fileDescription.setText("folder");
+            }
             return convertView;
         }
     }
