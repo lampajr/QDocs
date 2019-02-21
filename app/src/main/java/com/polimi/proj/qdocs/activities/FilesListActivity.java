@@ -245,13 +245,14 @@ public class FilesListActivity extends AppCompatActivity {
         d.setCancelable(true);
         d.setContentView(R.layout.pathname_chooser_dialog);
 
-        EditText pathnameText = d.findViewById(R.id.pathname_text);
-        final String pathname = filterPathname(pathnameText.getText().toString());
+        final EditText pathnameText = d.findViewById(R.id.pathname_text);
 
         Button confirmButton = d.findViewById(R.id.confirm_button);
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String pathname = filterPathname(pathnameText.getText().toString());
+                Log.d(TAG, "pathname inserted : " + pathname);
                 uploadFile(data, pathname);
                 d.dismiss();
             }
@@ -456,7 +457,9 @@ public class FilesListActivity extends AppCompatActivity {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 Log.d(TAG, "Upload complete");
-                addFileOnDb(file.getLastPathSegment());
+                String filename = pathname.equals("") ? file.getLastPathSegment()
+                        : pathname + "/" + file.getLastPathSegment();
+                addFileOnDb(filename);
             }
         });
     }
@@ -604,14 +607,34 @@ public class FilesListActivity extends AppCompatActivity {
     }
 
 
-    private void provideQrCode(final String filename) {
+    /**
+     * Generates a new qrcode bitmap
+     * @param filename text to encode
+     */
+    private void showQrCode(final String filename) {
         Log.d(TAG, "getting qrcode");
         MyFile f = retrieveFileByName(filename);
         Bitmap qrCode = generateQrCode(f.getKey());
         if (qrCode != null) {
-            //TODO: save/show the qrcode generated
+            Log.d(TAG, "showing qrcode dialog..");
+            final Dialog d = new Dialog(FilesListActivity.this);
+            d.setTitle(getString(R.string.pathname_chooser));
+            d.setCancelable(true);
+            d.setContentView(R.layout.show_qrcode_dialog);
+            ImageView qrcodeImage = d.findViewById(R.id.qrcode_iamge);
+            qrcodeImage.setImageBitmap(qrCode);
+            Button saveButton = d.findViewById(R.id.save_button);
+            saveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //TODO: save the bitmap locally (using asynctask)
+                }
+            });
+            d.show();
         }
     }
+
+
 
 
     // TODO: improve the quality of the adapter
@@ -666,7 +689,7 @@ public class FilesListActivity extends AppCompatActivity {
             getQrcodeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    provideQrCode(name);
+                    showQrCode(name);
                 }
             });
 
