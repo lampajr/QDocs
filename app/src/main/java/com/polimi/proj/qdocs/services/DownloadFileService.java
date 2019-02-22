@@ -6,12 +6,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ResultReceiver;
+import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.google.android.gms.tasks.OnCanceledListener;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FileDownloadTask;
@@ -86,20 +89,20 @@ public class DownloadFileService extends IntentService {
 
     /**
      * Create a temporary file in the internal directory
-     * @param filename name of the file
+     * @param pathname name of the file
      */
-    private void downloadTmpFile(final String filename) {
-
-        String[] elements = filename.split("\\.");
-        final String name = elements[0];  // name of the file without extension
-        final String extension = elements[1]; // get the extension from the whole filename
+    private void downloadTmpFile(final String pathname) {
+        String[] pathElements = pathname.split("/");
+        String[] elements = pathElements[pathElements.length-1].split("\\.");
+        final String filename = elements[0];  // filename of the file without extension
+        final String extension = elements[1]; // get the extension from the whole pathname
 
         // TODO: checks if the fil already exists in the personal directory
-        File storageFile = new File(getPublicDocStorageDir().getAbsolutePath(), filename);
+        File storageFile = new File(getPublicDocStorageDir().getAbsolutePath(), filename + "." + extension);
         if(!storageFile.exists()) {
             try {
-                localFile = File.createTempFile(name, extension, getCacheDir());
-                downloadFileFromFilename(filename, extension);
+                localFile = File.createTempFile(filename, extension, getCacheDir());
+                downloadFileFromFilename(pathname, filename, extension);
             } catch (IOException e) {
                 Log.d(TAG, "Error creating temporary file.");
                 e.printStackTrace();
@@ -126,16 +129,16 @@ public class DownloadFileService extends IntentService {
     /**
      * Download the file from the FirebaseStorage and stores it into the localFile
      * previously created.
-     * @param filename name of the file
+     * @param pathname name of the file
      * @param extension extension of the file
      */
-    private void downloadFileFromFilename(final String filename, final String extension) {
-        Log.d(TAG, "Downloading file: " + filename);
+    private void downloadFileFromFilename(final String pathname, final String filename, final String extension) {
+        Log.d(TAG, "Downloading file: " + pathname);
 
         // TODO: handle FirebaseStorage exceptions
 
         StorageReference storageRef = FirebaseStorage.getInstance().getReference()
-                .child(user.getUid()).child(filename);
+                .child(user.getUid()).child(pathname);
 
         if (localFile != null) {
             Log.d(TAG, "Local file created: " + localFile.getAbsolutePath());
@@ -145,13 +148,13 @@ public class DownloadFileService extends IntentService {
                     new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                            Log.d(TAG, "MyFile downloaded successfully");
+                            Log.d(TAG, "MyFile downloaded successfully: onSuccess");
                             getBackResults(filename, extension);
                         }
                     }).addOnCanceledListener(new OnCanceledListener() {
                 @Override
                 public void onCanceled() {
-                    Log.e(TAG, "Error occurred during download of " + filename + " from FirebaseStorage");
+                    Log.e(TAG, "Error occurred during download of " + pathname + " from FirebaseStorage");
                 }
             });
         }

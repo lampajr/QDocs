@@ -82,7 +82,7 @@ public class SaveFileReceiver extends ResultReceiver {
             Log.d(TAG, "EXTENSION received: " + mimeType);
 
             // TODO: implement dialog to tell whether user want to see the file or not
-            saveFile(fileUri, filename);
+            saveFile(fileUri, filename + "." + mimeType.split("/")[1]);
         }
         else {
             // something goes wrong: resultCode == DOWNLOAD_ERROR

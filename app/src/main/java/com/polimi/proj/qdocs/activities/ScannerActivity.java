@@ -102,7 +102,7 @@ public class ScannerActivity extends AppCompatActivity {
 
             beepManager.playBeepSoundAndVibrate();
 
-            verifyCode(result.getText());
+            verifyCode(result.getText(), null);
         }
 
         @Override
@@ -228,21 +228,34 @@ public class ScannerActivity extends AppCompatActivity {
         }
     }
 
-
     /**
      * check whether there is a filename associated with this code
      * @param code code detected by the barcode scanner
      */
-    private void verifyCode(@NonNull final String code) {
-        DatabaseReference reference = dbRef.child(user.getUid());
+    private void verifyCode(@NonNull final String code, final String folder) {
+        //TODO: handle files hierarchy
+        DatabaseReference reference = folder == null ? dbRef.child(user.getUid())
+                : dbRef.child(user.getUid()).child(folder);
         reference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                MyFile file = dataSnapshot.getValue(MyFile.class);
-                if (file != null && file.getKey().equals(code)) {
-                    Log.d(TAG, "filename found! : " + file.getFilename());
-                    startRetrieveFileService(file.getFilename());
+                if (dataSnapshot.getKey().matches("\\d+")) {
+                    // the element is a file
+                    MyFile file = dataSnapshot.getValue(MyFile.class);
+                    if (file != null && file.getKey().equals(code)) {
+                        //Log.d(TAG, "filename found! : " + file.getFilename());
+                        String pathname = folder == null ? file.getFilename()
+                                : folder + "/" + file.getFilename();
+                        Log.d(TAG, "pathname found! : " + pathname);
+                        startRetrieveFileService(pathname);
+                    }
                 }
+                else {
+                    String pathFolder = folder == null ? dataSnapshot.getKey()
+                            : folder + "/" + dataSnapshot.getKey();
+                    verifyCode(code, pathFolder);
+                }
+
             }
 
             @Override

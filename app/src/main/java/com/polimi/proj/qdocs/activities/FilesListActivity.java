@@ -28,7 +28,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -48,7 +47,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -74,7 +72,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Random;
 
 /**
  * @author Andrea Lamparelli
@@ -624,11 +621,13 @@ public class FilesListActivity extends AppCompatActivity {
      * start the FileViewer which will show the file
      * @param filename name of the file to show
      */
-    private void startDownloadTmpFileService(String filename) {
+    private void startShowingFileService(String filename) {
         Log.d(TAG, "showing file " + filename);
         Intent viewerIntentService = new Intent(this, DownloadFileService.class);
 
         viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
+
+        filename = getCurrentPath(dbRef) + "/" + filename;
 
         // create the result receiver for the IntentService
         ShowFileReceiver receiver = new ShowFileReceiver(this, new Handler());
@@ -646,11 +645,24 @@ public class FilesListActivity extends AppCompatActivity {
 
         viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
 
+        filename = getCurrentPath(dbRef) + "/" + filename;
+
         // create the result receiver for the IntentService
         SaveFileReceiver receiver = new SaveFileReceiver(this, new Handler());
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
         startService(viewerIntentService);
+    }
+
+    /**
+     * Return the current path, from the root to the current directory
+     * @return the path string
+     */
+    private String getCurrentPath(DatabaseReference ref) {
+        if (ref.getKey().equals(user.getUid()))
+            return "";
+        else
+            return getCurrentPath(ref.getParent()) + "/" + ref.getKey();
     }
 
     /**
@@ -801,7 +813,7 @@ public class FilesListActivity extends AppCompatActivity {
                 convertView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        startDownloadTmpFileService(name);
+                        startShowingFileService(name);
                     }
                 });
             }
@@ -836,6 +848,7 @@ public class FilesListActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         //TODO: we need to remove all the files, individually.
+                        Toast.makeText(FilesListActivity.this, getString(R.string.no_operation), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
