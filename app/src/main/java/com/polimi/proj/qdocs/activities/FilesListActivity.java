@@ -677,30 +677,6 @@ public class FilesListActivity extends AppCompatActivity {
     }
 
     /**
-     * can delete either a single file or an entire directory
-     * @param elementName name of the storage element to remove
-     */
-    private void deleteStorageElement(final String elementName) {
-        //TODO: implement "are you sure?" dialog
-
-        Log.d(TAG, "deleting storage element: " + elementName);
-        storageRef.child(elementName).delete().addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(TAG, "Failure occurred during file removing");
-                Toast.makeText(FilesListActivity.this, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
-                        .show();
-            }
-        }).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Log.d(TAG, "File correctly removed!");
-            }
-        });
-    }
-
-
-    /**
      * Generates a new qrcode bitmap
      * @param filename text to encode
      */
@@ -856,6 +832,12 @@ public class FilesListActivity extends AppCompatActivity {
 
                 Button deleteFolderButton = convertView.findViewById(R.id.delete_folder_button);
                 //TODO: implement deleting folder
+                deleteFolderButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //TODO: we need to remove all the files, individually.
+                    }
+                });
             }
             return convertView;
         }
