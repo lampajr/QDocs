@@ -221,8 +221,12 @@ public class LoginActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         Log.d(TAG, "On Start");
-        if(mAuth.getCurrentUser() != null)
+        if(mAuth.getCurrentUser() != null) {
+            //finish();
+            Intent scannerIntent = new Intent(this, ScannerActivity.class);
+            startActivity(scannerIntent);
             finish();
+        }
     }
 
     public static void logout(){

@@ -32,6 +32,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -113,7 +114,7 @@ public class FilesListActivity extends AppCompatActivity {
 
     private FloatingActionButton addButton;
     private StorageReference storageRef;
-    private List<StorageElement> files;
+    private final List<StorageElement> files = new ArrayList<>();;
     private FilesAdapter filesAdapter;
 
     private FirebaseUser user;
@@ -133,15 +134,38 @@ public class FilesListActivity extends AppCompatActivity {
         user = FirebaseAuth.getInstance().getCurrentUser();
         storageRef = FirebaseStorage.getInstance().getReference().child(user.getUid());
 
+        dbRef = FirebaseDatabase.getInstance().getReference()
+                .child(BASE_REFERENCE).child(user.getUid());
+
         loadFiles();
         initFilesList();
 
         initAddFileButton();
+        setupSwipeListener();
 
         Toolbar toolbar = findViewById(R.id.toolbar_widget);
-        setSupportActionBar(toolbar);
+        ImageButton backButton = toolbar.findViewById(R.id.back_button);
+        backButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!dbRef.getKey().equals(user.getUid())) {
+                            Log.d(TAG, "Removing a directory level");
+                            dbRef = dbRef.getParent();
+                            storageRef = storageRef.getParent();
+                            files.clear();
+                            filesAdapter.notifyDataSetChanged();
+                            loadFiles();
+                        }
+                        else {
+                            Log.d(TAG, "you are already at root");
+                            Toast.makeText(FilesListActivity.this, getString(R.string.already_at_root_level), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
 
-        setupSwipeListener();
+        );
+        setSupportActionBar(toolbar);
     }
 
 
@@ -306,11 +330,11 @@ public class FilesListActivity extends AppCompatActivity {
     private void loadFiles() {
         //TODO: add hierarchy, allow user navigate among folders
         //TODO: add folder class and interface for dirs and files
-        files = new ArrayList<>();
+        //files = new ArrayList<>();
 
         // get firebase database reference
-        dbRef = FirebaseDatabase.getInstance().getReference()
-                .child(BASE_REFERENCE).child(user.getUid());
+        //dbRef = FirebaseDatabase.getInstance().getReference()
+        //        .child(BASE_REFERENCE).child(user.getUid());
         // retrieve
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
@@ -376,7 +400,7 @@ public class FilesListActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        Log.d(TAG, "Creating menu");
+        Log.d(TAG, "creating menu");
         MenuInflater inflater=getMenuInflater();
         inflater.inflate(R.menu.file_menu_layout, menu);
 
@@ -652,6 +676,29 @@ public class FilesListActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * can delete either a single file or an entire directory
+     * @param elementName name of the storage element to remove
+     */
+    private void deleteStorageElement(final String elementName) {
+        //TODO: implement "are you sure?" dialog
+
+        Log.d(TAG, "deleting storage element: " + elementName);
+        storageRef.child(elementName).delete().addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "Failure occurred during file removing");
+                Toast.makeText(FilesListActivity.this, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d(TAG, "File correctly removed!");
+            }
+        });
+    }
+
 
     /**
      * Generates a new qrcode bitmap
@@ -701,6 +748,19 @@ public class FilesListActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * change the default directory, updating the files to show
+     * @param folderName name of the folder to which move to
+     */
+    private void openDirectory(final String folderName) {
+        Log.d(TAG, "changing directory, going to " + folderName);
+        dbRef = dbRef.child(folderName);
+        storageRef = storageRef.child(folderName);
+        files.clear();
+        filesAdapter.notifyDataSetChanged();
+        loadFiles();
+    }
+
     //TODO: improve the quality of the adapter
     //TODO: improve the quality of the xml related to the single item
     private class FilesAdapter extends ArrayAdapter<StorageElement> {
@@ -734,6 +794,7 @@ public class FilesListActivity extends AppCompatActivity {
                 String format = f.getContentType();
                 fileDescription.setText(format);
 
+                //TODO: handle image
                 ImageView imageView = convertView.findViewById(R.id.file_image);
                 imageView.setImageResource(R.drawable.file_image);
 
@@ -774,18 +835,27 @@ public class FilesListActivity extends AppCompatActivity {
 
                 // load the view of a single row (a single directory)
                 //TODO: substitute the layout, has to be for the folder
-                convertView = inflater.inflate(R.layout.item_file, null);
+                convertView = inflater.inflate(R.layout.item_directory, null);
 
-                final TextView filename = convertView.findViewById(R.id.filename);
-                final TextView fileDescription = convertView.findViewById(R.id.file_description);
+                final TextView folderName = convertView.findViewById(R.id.folder_name);
+                final TextView folderDescription = convertView.findViewById(R.id.folder_description);
 
-                //TODO: implement folder deletion
-
-                Directory dir = (Directory) element;
+                final Directory dir = (Directory) element;
                 //TODO: implement handling directories
 
-                filename.setText(dir.getFolderName());
-                fileDescription.setText("folder");
+                folderName.setText(dir.getFolderName());
+                folderDescription.setText("folder");
+
+                Button openFolderButton = convertView.findViewById(R.id.open_folder_button);
+                openFolderButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        openDirectory(dir.getFolderName());
+                    }
+                });
+
+                Button deleteFolderButton = convertView.findViewById(R.id.delete_folder_button);
+                //TODO: implement deleting folder
             }
             return convertView;
         }

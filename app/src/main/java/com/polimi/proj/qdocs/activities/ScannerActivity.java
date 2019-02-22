@@ -124,7 +124,7 @@ public class ScannerActivity extends AppCompatActivity {
         dbRef = FirebaseDatabase.getInstance().getReference().child(BASE_REFERENCE);
 
         //setup toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_widget);
+        Toolbar toolbar = findViewById(R.id.toolbar_widget);
         setSupportActionBar(toolbar);
 
         setupSwipeListener();

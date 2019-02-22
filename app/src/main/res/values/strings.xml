@@ -36,6 +36,7 @@
     <string name="upload_new_file">Upload new file</string>
     <string name="pathname_chooser">pathname chooser</string>
     <string name="delition_failed">Delition failed</string>
+    <string name="already_at_root_level">You are already at root level</string>
 
 
 </resources>

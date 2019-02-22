@@ -5,4 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/toolbar_height">
 
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/ic_toolbar_arrow"
+        android:id="@+id/back_button"
+        />
+
 </android.support.v7.widget.Toolbar>
