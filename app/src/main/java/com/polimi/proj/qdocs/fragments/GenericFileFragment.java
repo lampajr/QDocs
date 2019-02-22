@@ -75,7 +75,7 @@ public class GenericFileFragment extends Fragment {
         createProviderUri();
         Log.d(TAG, "provider URI: "+providerUri);
 
-        finalUri = fileUri.contains("cache") ? providerUri : fileUri;
+        finalUri = fileUri.getPath().contains("cache") ? providerUri : fileUri;
 
 
         Intent objIntent = new Intent(Intent.ACTION_VIEW);
