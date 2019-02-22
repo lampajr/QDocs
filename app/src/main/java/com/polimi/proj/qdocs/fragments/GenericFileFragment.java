@@ -1,10 +1,13 @@
 package com.polimi.proj.qdocs.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.FileProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +15,9 @@ import android.view.ViewGroup;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.ShowFileFragmentActivity;
 
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
 import java.util.Objects;
 
 /**
@@ -23,8 +29,11 @@ import java.util.Objects;
  * create an instance of this fragment.
  */
 public class GenericFileFragment extends Fragment {
-
+    private final String TAG="GENERIC_FILE_FRAGMENT";
+    private final String AUTHORITY = "com.polimi.proj.qdocs.fileprovider";
     private  Uri fileUri;
+    private Uri providerUri;
+    private String mimeType;
 
     public GenericFileFragment() {
         // Required empty public constructor
@@ -46,7 +55,7 @@ public class GenericFileFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         fileUri = ((ShowFileFragmentActivity) Objects.requireNonNull(getActivity())).getFileUri();
-        //checkUri(fileUri);
+        mimeType = ((ShowFileFragmentActivity) Objects.requireNonNull(getActivity())).getFileType();
     }
 
     /*
@@ -59,8 +68,29 @@ public class GenericFileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(TAG, "file URI: "+fileUri);
+        Log.d(TAG, "mimeType: "+mimeType);
+
+        createProviderUri();
+        Log.d(TAG, "provider URI: "+providerUri);
+
+
+        Intent objIntent = new Intent(Intent.ACTION_VIEW);
+        objIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        objIntent.setDataAndType(providerUri, mimeType);
+
+        startActivity(objIntent);
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_generic_file, container, false);
+    }
+
+    private void createProviderUri() {
+        // in a rare case we received file:// in currentUri, we need to:
+        // 1. create new File variable from currentUri that looks like "file:///storage/emulated/0/download/50044382b.jpg"
+        // 2. generate a proper content:// Uri for it
+        File currentFile = new File(fileUri.getPath());
+        providerUri = FileProvider.getUriForFile(getActivity(), AUTHORITY, currentFile);
+
     }
 
     @Override

@@ -178,6 +178,8 @@ public class ShowFileFragmentActivity extends FragmentActivity implements
 
     public Uri getAudioUri() {return audioUri;}
 
+    public String getFileType(){return mimeType;}
+
     public String getFileName() {return fileName;}
 
     public Uri getFileUri(){return fileUri;}
