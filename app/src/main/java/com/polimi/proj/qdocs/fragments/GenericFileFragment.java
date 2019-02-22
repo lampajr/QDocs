@@ -72,18 +72,19 @@ public class GenericFileFragment extends Fragment {
                              Bundle savedInstanceState) {
         Log.d(TAG, "file URI: "+fileUri);
         Log.d(TAG, "mimeType: "+mimeType);
-
+        /*
         if(fileUri.getPath().contains("cache")){
             createProviderUri();
-        }
+        }*/
+        createProviderUri();
         Log.d(TAG, "provider URI: "+providerUri);
 
-        finalUri = fileUri.getPath().contains("cache") ? providerUri : fileUri;
+        //finalUri = fileUri.getPath().contains("cache") ? providerUri : fileUri;
 
 
         Intent objIntent = new Intent(Intent.ACTION_VIEW);
         objIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        objIntent.setDataAndType(finalUri, mimeType);
+        objIntent.setDataAndType(providerUri, mimeType);
 
         startActivityForResult(objIntent, OKCODE);
         // Inflate the layout for this fragment
