@@ -708,12 +708,15 @@ public class FilesListActivity extends AppCompatActivity {
             saveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    new Thread(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             File dst = new File(PathResolver.createPublicDocStorageDir(FilesListActivity.this).getAbsolutePath(),
                                     "QRCode-" + filename);
+
+                            //File dst = new File(PathResolver.getPublicDocFileDir(FilesListActivity.this).getAbsolutePath(), "QRCode-" + filename);
                             if (!dst.exists()) {
+                                //TODO: 2 files with same name but different folder cannot produce 2 qr code different
                                 try (FileOutputStream out = new FileOutputStream(dst)) {
                                     qrCode.compress(Bitmap.CompressFormat.PNG, 100, out); // qrCode is the Bitmap instance
                                     // PNG is a lossless format, the compression factor (100) is ignored
@@ -729,7 +732,7 @@ public class FilesListActivity extends AppCompatActivity {
                                         Toast.LENGTH_SHORT).show();
                             }
                         }
-                    }).start();
+                    });
                 }
             });
             d.show();

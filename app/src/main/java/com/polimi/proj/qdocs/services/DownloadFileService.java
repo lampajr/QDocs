@@ -22,6 +22,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.FilesListActivity;
+import com.polimi.proj.qdocs.support.PathResolver;
 
 import java.io.File;
 import java.io.IOException;
@@ -98,7 +99,7 @@ public class DownloadFileService extends IntentService {
         final String extension = elements[1]; // get the extension from the whole pathname
 
         // TODO: checks if the fil already exists in the personal directory
-        File storageFile = new File(getPublicDocStorageDir().getAbsolutePath(), filename + "." + extension);
+        File storageFile = new File(PathResolver.getPublicDocFileDir(getApplicationContext()).getAbsolutePath(), filename + "." + extension);
         if(!storageFile.exists()) {
             try {
                 localFile = File.createTempFile(filename, extension, getCacheDir());
@@ -113,16 +114,6 @@ public class DownloadFileService extends IntentService {
             localFile = storageFile;
             getBackResults(filename, extension);
         }
-    }
-
-    /**
-     * Returns the personal directory if exists, null otherwise
-     * @return File obj
-     */
-    private File getPublicDocStorageDir() {
-        // Get the directory for the user's public pictures directory.
-        return new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOCUMENTS), getApplicationContext().getString(R.string.app_name));
     }
 
 

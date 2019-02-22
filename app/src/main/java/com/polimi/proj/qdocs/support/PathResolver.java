@@ -304,4 +304,14 @@ public class PathResolver {
         }
         return file;
     }
+
+    /**
+     * Returns the personal directory if exists, null otherwise
+     * @return File obj
+     */
+    public static File getPublicDocFileDir(Context context) {
+        // Get the directory for the user's public pictures directory.
+        return new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOCUMENTS), context.getString(R.string.app_name));
+    }
 }
