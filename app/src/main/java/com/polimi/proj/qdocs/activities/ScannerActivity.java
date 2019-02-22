@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -40,7 +41,10 @@ import com.polimi.proj.qdocs.support.MyFile;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Andrea Lamparelli
@@ -72,6 +76,8 @@ public class ScannerActivity extends AppCompatActivity {
     private static final String BASE_REFERENCE = "documents";
     private static final String FILENAME_KEY = "filename";
 
+    private final HashMap<String, String> filesMap = new HashMap<>();
+
     // scanner data
     private DecoratedBarcodeView barcodeView;
     private BeepManager beepManager;
@@ -102,7 +108,7 @@ public class ScannerActivity extends AppCompatActivity {
 
             beepManager.playBeepSoundAndVibrate();
 
-            verifyCode(result.getText(), null);
+            verifyCode(result.getText());
         }
 
         @Override
@@ -226,14 +232,17 @@ public class ScannerActivity extends AppCompatActivity {
             // you must login
             startLoginActivity();
         }
+        else {
+            filesMap.clear();
+            loadFiles(null);
+        }
     }
 
     /**
-     * check whether there is a filename associated with this code
-     * @param code code detected by the barcode scanner
+     * load all the files into an HashMap obj <keycode, pathname>
+     * @param folder nested folder, null if it the root
      */
-    private void verifyCode(@NonNull final String code, final String folder) {
-        //TODO: handle files hierarchy
+    private void loadFiles(final String folder) {
         DatabaseReference reference = folder == null ? dbRef.child(user.getUid())
                 : dbRef.child(user.getUid()).child(folder);
         reference.addChildEventListener(new ChildEventListener() {
@@ -242,18 +251,14 @@ public class ScannerActivity extends AppCompatActivity {
                 if (dataSnapshot.getKey().matches("\\d+")) {
                     // the element is a file
                     MyFile file = dataSnapshot.getValue(MyFile.class);
-                    if (file != null && file.getKey().equals(code)) {
-                        //Log.d(TAG, "filename found! : " + file.getFilename());
-                        String pathname = folder == null ? file.getFilename()
-                                : folder + "/" + file.getFilename();
-                        Log.d(TAG, "pathname found! : " + pathname);
-                        startRetrieveFileService(pathname);
-                    }
+                    String pathname = folder == null ? file.getFilename()
+                            : folder + "/" + file.getFilename();
+                    filesMap.put(file.getKey(), pathname);
                 }
                 else {
                     String pathFolder = folder == null ? dataSnapshot.getKey()
                             : folder + "/" + dataSnapshot.getKey();
-                    verifyCode(code, pathFolder);
+                    loadFiles(pathFolder);
                 }
 
             }
@@ -270,6 +275,23 @@ public class ScannerActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {}
         });
+    }
+
+    /**
+     * check whether there is a filename associated with this code
+     * @param code code detected by the barcode scanner
+     */
+    private void verifyCode(@NonNull final String code) {
+        for (Object o : filesMap.entrySet()) {
+            Map.Entry entry = (Map.Entry) o;
+            if (entry.getKey().equals(code)) {
+                Log.d(TAG, "QRCode's associated file found!");
+                startRetrieveFileService((String) entry.getValue());
+                return;
+            }
+        }
+        Toast.makeText(ScannerActivity.this, getString(R.string.no_files_associated),
+                Toast.LENGTH_SHORT).show();
     }
 
     @Override
