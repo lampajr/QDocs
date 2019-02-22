@@ -32,6 +32,7 @@ public class GenericFileFragment extends Fragment {
     private final String TAG="GENERIC_FILE_FRAGMENT";
     private final String AUTHORITY = "com.polimi.proj.qdocs.fileprovider";
     private  Uri fileUri;
+    private Uri finalUri;
     private Uri providerUri;
     private String mimeType;
 
@@ -74,10 +75,12 @@ public class GenericFileFragment extends Fragment {
         createProviderUri();
         Log.d(TAG, "provider URI: "+providerUri);
 
+        finalUri = fileUri.contains("cache") ? providerUri : fileUri;
+
 
         Intent objIntent = new Intent(Intent.ACTION_VIEW);
         objIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        objIntent.setDataAndType(providerUri, mimeType);
+        objIntent.setDataAndType(finalUri, mimeType);
 
         startActivity(objIntent);
         // Inflate the layout for this fragment
