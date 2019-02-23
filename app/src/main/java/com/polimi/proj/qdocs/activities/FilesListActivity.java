@@ -20,6 +20,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -83,11 +84,11 @@ import java.util.List;
  *
  * This activity represents the main page of the user, can be seen as folder of all the documents
  * owned by the current user.
- * The activity shows the list of all files and allow the user to interact with them:
+ * The activity shows the list of all filesList and allow the user to interact with them:
  *      - show file
  *      - delete file
  *      - save file
- * the user can also upload new files on the storage
+ * the user can also upload new filesList on the storage
  *
  * @see AppCompatActivity
  * @see SaveFileReceiver
@@ -116,8 +117,15 @@ public class FilesListActivity extends AppCompatActivity {
     private FloatingActionMenu floatingMenu;
     private FloatingActionButton addButton;
     private StorageReference storageRef;
-    private final List<StorageElement> files = new ArrayList<>();;
+
+    //TODO: remove
+    private final List<StorageElement> filesList = new ArrayList<>();
     private FilesAdapter filesAdapter;
+
+    private final List<MyFile> files = new ArrayList<>();
+    private final List<Directory> directories = new ArrayList<>();
+    private FilesListAdapter filesListAdapter;
+
 
     private FirebaseUser user;
     private DatabaseReference dbRef;
@@ -129,7 +137,7 @@ public class FilesListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_file);
+        setContentView(R.layout.activity_files_list);
 
         getPermission();
 
@@ -156,7 +164,7 @@ public class FilesListActivity extends AppCompatActivity {
                             Log.d(TAG, "Removing a directory level");
                             dbRef = dbRef.getParent();
                             storageRef = storageRef.getParent();
-                            files.clear();
+                            filesList.clear();
                             filesAdapter.notifyDataSetChanged();
                             loadFiles();
                         }
@@ -174,7 +182,7 @@ public class FilesListActivity extends AppCompatActivity {
 
     /**
      * Initialize the Floating Action Button Menu that is in charge to
-     * upload new files, picking them from gallery or 'my files' section
+     * upload new filesList, picking them from gallery or 'my filesList' section
      * of the mobile phone
      */
     private void setupUploadFileFloatingButton() {
@@ -317,25 +325,25 @@ public class FilesListActivity extends AppCompatActivity {
     }
 
     /**
-     * initialize the List View that will show the list of all user's files stored in the Firebase
+     * initialize the List View that will show the list of all user's filesList stored in the Firebase
      * Storage, it will add the listener on the items
      */
     private void initFilesList() {
-        Log.d(TAG, "Creating files adapter");
+        Log.d(TAG, "Creating filesList adapter");
         ListView listView = findViewById(R.id.files_view);
-        filesAdapter = new FilesAdapter(this, R.layout.item_file, files);
+        filesAdapter = new FilesAdapter(this, R.layout.item_file, filesList);
         listView.setAdapter(filesAdapter);
     }
 
     /**
-     * load all the files from the Firebase Realtime Database
-     * and store them into the files attribute.
+     * load all the filesList from the Firebase Realtime Database
+     * and store them into the filesList attribute.
      * implements the callback method from the realtime database
      * in order to react in case of db operation.
      */
     private void loadFiles() {
         //TODO: add hierarchy, allow user navigate among folders
-        //TODO: add folder class and interface for dirs and files
+        //TODO: add folder class and interface for dirs and filesList
 
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
@@ -349,6 +357,7 @@ public class FilesListActivity extends AppCompatActivity {
                         Log.d(TAG, "Found new file: " + file.getKey() + "; " + file.getFilename() +
                                 "; " + file.getContentType() + "; " + file.getSize() +
                                 "; " + file.getTime());
+                        filesList.add(file); //TODO: remove
                         files.add(file);
                     }
                 }
@@ -356,7 +365,8 @@ public class FilesListActivity extends AppCompatActivity {
                     // the element is a directory
                     Log.d(TAG, "adding new folder..");
                     Directory dir = new Directory(dataSnapshot.getKey());
-                    files.add(dir);
+                    filesList.add(dir); //TODO: remove
+                    directories.add(dir);
                 }
                 filesAdapter.notifyDataSetChanged();
             }
@@ -375,14 +385,14 @@ public class FilesListActivity extends AppCompatActivity {
                     Log.d(TAG, "removing new file..");
                     MyFile file = retrieveFileByKey(dataSnapshot.getValue(MyFile.class).getKey());
                     if (file != null)
-                        files.remove(file);
+                        filesList.remove(file);
                 }
                 else {
                     // the element to remove is a directory
                     Log.d(TAG, "removing new folder..");
                     Directory dir = retrieveDirectoryByName(dataSnapshot.getKey());
                     if (dir != null)
-                        files.remove(dir);
+                        filesList.remove(dir);
                 }
                 filesAdapter.notifyDataSetChanged();
             }
@@ -565,7 +575,7 @@ public class FilesListActivity extends AppCompatActivity {
      * @return the MyFile instance if exists, null otherwise
      */
     public MyFile retrieveFileByName(String filename) {
-        for(StorageElement f : files) {
+        for(StorageElement f : filesList) {
             if (((MyFile)f).getFilename().equals(filename)) return ((MyFile)f);
         }
         return null;
@@ -577,7 +587,7 @@ public class FilesListActivity extends AppCompatActivity {
      * @return the MyFile instance if exists, null otherwise
      */
     public MyFile retrieveFileByKey(String key) {
-        for(StorageElement f : files) {
+        for(StorageElement f : filesList) {
             if (f instanceof MyFile && ((MyFile)f).getKey() != null
                     && ((MyFile)f).getKey().equals(key)) return ((MyFile)f);
         }
@@ -585,12 +595,12 @@ public class FilesListActivity extends AppCompatActivity {
     }
 
     /**
-     * Retrieve a Directory object from the files attribute
+     * Retrieve a Directory object from the filesList attribute
      * @param name name to check, is unique for folders
      * @return the Directory obj
      */
     public Directory retrieveDirectoryByName(String name) {
-        for(StorageElement d : files) {
+        for(StorageElement d : filesList) {
             if (d instanceof Directory && ((Directory)d).getFolderName() != null
                     && ((Directory)d).getFolderName().equals(name)) return ((Directory)d);
         }
@@ -697,7 +707,7 @@ public class FilesListActivity extends AppCompatActivity {
 
                             //File dst = new File(PathResolver.getPublicDocFileDir(FilesListActivity.this).getAbsolutePath(), "QRCode-" + filename);
                             if (!dst.exists()) {
-                                //TODO: 2 files with same name but different folder cannot produce 2 qr code different
+                                //TODO: 2 filesList with same name but different folder cannot produce 2 qr code different
                                 try (FileOutputStream out = new FileOutputStream(dst)) {
                                     qrCode.compress(Bitmap.CompressFormat.PNG, 100, out); // qrCode is the Bitmap instance
                                     // PNG is a lossless format, the compression factor (100) is ignored
@@ -721,14 +731,14 @@ public class FilesListActivity extends AppCompatActivity {
     }
 
     /**
-     * change the default directory, updating the files to show
+     * change the default directory, updating the filesList to show
      * @param folderName name of the folder to which move to
      */
     private void openDirectory(final String folderName) {
         Log.d(TAG, "changing directory, going to " + folderName);
         dbRef = dbRef.child(folderName);
         storageRef = storageRef.child(folderName);
-        files.clear();
+        filesList.clear();
         filesAdapter.notifyDataSetChanged();
         loadFiles();
     }
@@ -835,7 +845,7 @@ public class FilesListActivity extends AppCompatActivity {
                 deleteFolderButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //TODO: we need to remove all the files, individually.
+                        //TODO: we need to remove all the filesList, individually.
                         Toast.makeText(FilesListActivity.this, getString(R.string.no_operation), Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -843,4 +853,51 @@ public class FilesListActivity extends AppCompatActivity {
             return convertView;
         }
     }
+
+    //TODO: creates RecyclerView Adapter for directories
+
+    /**
+     * RecyclerView adapter for the filesList list recycler view
+     */
+    //TODO: create RecyclerView Adapter for filesList
+    private class FilesListAdapter extends RecyclerView.Adapter<FilesListAdapter.DataViewHolder> {
+        private LayoutInflater inflater;
+        private List<MyFile> files;
+
+
+        public FilesListAdapter(Context context, List<MyFile> files) {
+            inflater = LayoutInflater.from(context);
+            this.files = files;
+        }
+
+        @NonNull
+        @Override
+        public DataViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            //TODO: rearrange item file layout
+            View view = inflater.inflate(R.layout.item_file, parent, false);
+            return new DataViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull DataViewHolder dataViewHolder, int position) {
+            dataViewHolder.bindData(files.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return files.size();
+        }
+
+        class DataViewHolder extends RecyclerView.ViewHolder {
+            TextView mainText, subText;
+            public DataViewHolder(@NonNull View itemView) {
+                super(itemView);
+            }
+
+            public void bindData(MyFile file) {
+
+            }
+        }
+    }
+
 }

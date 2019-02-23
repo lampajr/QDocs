@@ -10,6 +10,7 @@
     <include layout="@layout/toolbar_layout"
         android:id="@+id/toolbar_widget"/>
 
+    <!-- USE RECYCLER VIEW -->
     <ListView
         android:id="@+id/files_view"
         android:layout_width="match_parent"
