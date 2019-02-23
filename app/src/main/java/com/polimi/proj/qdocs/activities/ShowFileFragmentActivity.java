@@ -58,6 +58,7 @@ public class ShowFileFragmentActivity extends FragmentActivity implements
 
         );
 
+
         Bundle bundle = getIntent().getExtras();
 
         if (bundle != null) {

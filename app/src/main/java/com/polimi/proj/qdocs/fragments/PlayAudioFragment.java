@@ -21,6 +21,8 @@ import com.polimi.proj.qdocs.activities.ShowFileFragmentActivity;
 import java.io.IOException;
 import java.util.Objects;
 
+import at.markushi.ui.CircleButton;
+
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
@@ -106,7 +108,7 @@ public class PlayAudioFragment extends Fragment {
         // Inflate the layout for this fragment
         Log.d(TAG, "On create view");
         View view = inflater.inflate(R.layout.fragment_play_audio, container, false);
-        final Button playButton = view.findViewById(R.id.btn_play);
+        final CircleButton playButton = view.findViewById(R.id.btn_play);
         playButton.setOnClickListener(new View.OnClickListener() {
             /**
              *  If the music is stopped then starts play
@@ -119,12 +121,12 @@ public class PlayAudioFragment extends Fragment {
                 if(mediaPlayer.isPlaying()){
                     mediaPlayer.pause();
                     Log.d(TAG,"music stop");
-                    playButton.setText(getString(R.string.play_string));
+                    playButton.setImageResource(R.drawable.ic_play_arrow_black_24dp);
                 }
                 else{
                     mediaPlayer.start();
                     Log.d(TAG,"music start");
-                    playButton.setText(getString(R.string.pause_string));
+                    playButton.setImageResource(R.drawable.ic_pause_black_24dp);
                     startTime = mediaPlayer.getCurrentPosition();
                     seekbar.setProgress((int) startTime);
 
@@ -152,7 +154,7 @@ public class PlayAudioFragment extends Fragment {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                playButton.setText(getString(R.string.play_string));
+                playButton.setImageResource(R.drawable.ic_play_arrow_black_24dp);
                 startTime = 0;
                 seekbar.setProgress((int) startTime);
             }

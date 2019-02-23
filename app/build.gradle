@@ -53,6 +53,9 @@ dependencies {
     //fileUtils
     implementation 'org.apache.commons:commons-io:1.3.2'
 
+    //android-circleButton
+    implementation 'com.github.markushi:circlebutton:1.1'
+
 
 }
 

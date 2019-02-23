@@ -29,11 +29,10 @@ import java.util.Objects;
  * create an instance of this fragment.
  */
 public class GenericFileFragment extends Fragment {
-    private static final int OKCODE = 100;
+    private static final int GENERIC = 100;
     private final String TAG="GENERIC_FILE_FRAGMENT";
     private final String AUTHORITY = "com.polimi.proj.qdocs.fileprovider";
     private  Uri fileUri;
-    private Uri finalUri;
     private Uri providerUri;
     private String mimeType;
 
@@ -86,7 +85,7 @@ public class GenericFileFragment extends Fragment {
         objIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         objIntent.setDataAndType(providerUri, mimeType);
 
-        startActivityForResult(objIntent, OKCODE);
+        startActivityForResult(objIntent, GENERIC);
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_generic_file, container, false);
     }
@@ -114,7 +113,12 @@ public class GenericFileFragment extends Fragment {
         super.onDetach();
     }
 
-
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == GENERIC)
+            getActivity().finish();
+    }
 
     /**
      * This interface must be implemented by activities that contain this
