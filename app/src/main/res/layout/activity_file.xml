@@ -11,7 +11,7 @@
         android:id="@+id/toolbar_widget"/>
 
     <ListView
-        android:id="@+id/list_view"
+        android:id="@+id/files_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/toolbar_widget" />
@@ -20,7 +20,7 @@
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/add_button"
+        android:id="@+id/upload_file_button"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
         android:src="@drawable/add_img"

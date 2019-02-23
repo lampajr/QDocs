@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
@@ -51,12 +52,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnPausedListener;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
+import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.services.SaveFileReceiver;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
@@ -109,6 +113,7 @@ public class FilesListActivity extends AppCompatActivity {
     private static final int AUD_PRV = 200;
     private static final int FILE_PRV = 300;
 
+    private FloatingActionMenu floatingMenu;
     private FloatingActionButton addButton;
     private StorageReference storageRef;
     private final List<StorageElement> files = new ArrayList<>();;
@@ -137,7 +142,8 @@ public class FilesListActivity extends AppCompatActivity {
         loadFiles();
         initFilesList();
 
-        initAddFileButton();
+        //initAddFileButton();
+        setupUploadFileFloatingButton();
         setupSwipeListener();
 
         Toolbar toolbar = findViewById(R.id.toolbar_widget);
@@ -156,7 +162,8 @@ public class FilesListActivity extends AppCompatActivity {
                         }
                         else {
                             Log.d(TAG, "you are already at root");
-                            Toast.makeText(FilesListActivity.this, getString(R.string.already_at_root_level), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FilesListActivity.this, getString(R.string.already_at_root_level),
+                                    Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -165,6 +172,64 @@ public class FilesListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
     }
 
+    /**
+     * Initialize the Floating Action Button Menu that is in charge to
+     * upload new files, picking them from gallery or 'my files' section
+     * of the mobile phone
+     */
+    private void setupUploadFileFloatingButton() {
+        FloatingActionButton uploadGenericFileFloatingButton = findViewById(R.id.upload_file_button);
+
+        // upload image button
+        SubActionButton uploadImageButton = generateSubActionButton(R.drawable.galley);
+        uploadImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.INTERNAL_CONTENT_URI), IMG_PRV);
+            }
+        });
+
+        // upload file button
+        SubActionButton uploadFileButton = generateSubActionButton(R.drawable.file_image);
+        uploadFileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("*/*");
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(intent, FILE_PRV);
+            }
+        });
+
+        // upload audio button
+        SubActionButton uploadAudioButton = generateSubActionButton(R.drawable.audio_image);
+        uploadAudioButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.INTERNAL_CONTENT_URI), AUD_PRV);
+            }
+        });
+
+        floatingMenu = new FloatingActionMenu.Builder(this)
+                .addSubActionView(uploadImageButton)
+                .addSubActionView(uploadAudioButton)
+                .addSubActionView(uploadFileButton)
+                .attachTo(uploadGenericFileFloatingButton)
+                .build();
+    }
+
+    /**
+     * Generates a SubActionButton that has to be added to the floating action men Button
+     * @param resId image resource id
+     * @return SubActionButton object
+     */
+    private SubActionButton generateSubActionButton(@DrawableRes int resId) {
+        //TODO: change the button dimension
+        SubActionButton.Builder subActionBuilder = new SubActionButton.Builder(this);
+        ImageView contentImage = new ImageView(this);
+        contentImage.setImageResource(resId);
+        return subActionBuilder.setContentView(contentImage).build();
+    }
 
     /**
      * set the swipe listener on the view such that the user
@@ -201,62 +266,6 @@ public class FilesListActivity extends AppCompatActivity {
         finish();
         startActivity(scannerIntent);
         overridePendingTransition(R.anim.left_to_right, R.anim.exit_l2r);
-    }
-
-    /**
-     * initialize the add file button (+)
-     */
-    private void initAddFileButton() {
-        addButton = findViewById(R.id.add_button);
-        addButton.setOnClickListener(new View.OnClickListener() {
-
-
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "Click add button");
-                final Dialog d=new Dialog(FilesListActivity.this);
-                d.setTitle(getString(R.string.upload_new_file));
-                d.setCancelable(true);
-                d.setContentView(R.layout.chooser_file_type_dialog);
-
-                ImageView gallery_img = d.findViewById(R.id.image_image);
-                gallery_img.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View arg0)
-                    {
-                        startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.INTERNAL_CONTENT_URI), IMG_PRV);
-                        d.dismiss();
-                    }
-                });
-
-                ImageView audio_img = d.findViewById(R.id.audio_image);
-                audio_img.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View arg0)
-                    {
-                        startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.INTERNAL_CONTENT_URI), AUD_PRV);
-                        d.dismiss();
-                    }
-                });
-
-                ImageView file_img = d.findViewById(R.id.file_image);
-                file_img.setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View arg0)
-                    {
-                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                        intent.setType("*/*");
-                        intent.addCategory(Intent.CATEGORY_OPENABLE);
-                        startActivityForResult(intent, FILE_PRV);
-                        d.dismiss();
-                    }
-                });
-                d.show();
-            }
-        });
     }
 
     /**
@@ -313,7 +322,7 @@ public class FilesListActivity extends AppCompatActivity {
      */
     private void initFilesList() {
         Log.d(TAG, "Creating files adapter");
-        ListView listView = findViewById(R.id.list_view);
+        ListView listView = findViewById(R.id.files_view);
         filesAdapter = new FilesAdapter(this, R.layout.item_file, files);
         listView.setAdapter(filesAdapter);
     }
@@ -327,16 +336,11 @@ public class FilesListActivity extends AppCompatActivity {
     private void loadFiles() {
         //TODO: add hierarchy, allow user navigate among folders
         //TODO: add folder class and interface for dirs and files
-        //files = new ArrayList<>();
 
-        // get firebase database reference
-        //dbRef = FirebaseDatabase.getInstance().getReference()
-        //        .child(BASE_REFERENCE).child(user.getUid());
-        // retrieve
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Log.d(TAG, "key found -> " + dataSnapshot.getKey());
+                Log.d(TAG, "onChildAdded : key found -> " + dataSnapshot.getKey());
                 if (dataSnapshot.getKey().matches("\\d+")) {
                     // the element is a file
                     Log.d(TAG, "adding new file..");
@@ -360,10 +364,12 @@ public class FilesListActivity extends AppCompatActivity {
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 //TODO: implement onChildChanged listener on db
+                Log.d(TAG, "onChildChanged");
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                Log.d(TAG, "onChildRemoved");
                 if (dataSnapshot.getKey().matches("\\d+")) {
                     // the element to remove is a file
                     Log.d(TAG, "removing new file..");
@@ -514,39 +520,14 @@ public class FilesListActivity extends AppCompatActivity {
             public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
                 Log.d(TAG, "Upload paused");
             }
-        });
-    }
-
-    /**
-     * Add a new item on the db, it generates a qrocode image, it saves that
-     * and then add the corresponding element on the Firebase Database
-     * @param filename name of the file
-
-    private void addFileOnDb(final String filename) {
-        Log.d(TAG, "Adding new file on the realtime firebase database..");
-        String code = generateCode(); // generate a new code
-
-        StorageReference fileStorage = storageRef.child(filename);
-        String contentType = "";
-        fileStorage.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
             @Override
-            public void onSuccess(StorageMetadata storageMetadata) {
-                String contentType = storageMetadata.getContentType();
+            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                //TODO: implement ViewStub progress bar in overlay
             }
         });
-
-        MyFile f = new MyFile(filename, contentType);
-        f.setKey(code);
-        try {
-            dbRef.child(code).setValue(f);
-            Log.d(TAG, "New file added");
-        }
-        catch (DatabaseException ex) {
-            Toast.makeText(this, "Invalid name: Firebase Database paths must not contain '.', '#', '$', '[', or ']'", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Database path incorrect -> file wasn't added");
-        }
     }
-*/
+
     /**
      * Generate a new code from which provide a new qrcode to
      * associate to a new file
@@ -752,6 +733,7 @@ public class FilesListActivity extends AppCompatActivity {
         loadFiles();
     }
 
+    //TODO: re-implement all
     //TODO: improve the quality of the adapter
     //TODO: improve the quality of the xml related to the single item
     private class FilesAdapter extends ArrayAdapter<StorageElement> {
@@ -760,6 +742,9 @@ public class FilesListActivity extends AppCompatActivity {
         FilesAdapter(@NonNull Context context, int textViewResourceId, @NonNull List<StorageElement> objects) {
             super(context, textViewResourceId, objects);
         }
+
+        //TODO: implement using ViewHolder pattern
+        //TODO: download asynchronously image preview
         @NonNull
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
