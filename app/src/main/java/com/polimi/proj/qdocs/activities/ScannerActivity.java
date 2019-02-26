@@ -42,7 +42,6 @@ import com.polimi.proj.qdocs.support.MyFile;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -296,7 +295,7 @@ public class ScannerActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.file_menu_layout, menu);
+        getMenuInflater().inflate(R.menu.app_settings_menu, menu);
         return true;
     }
 

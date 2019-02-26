@@ -59,6 +59,9 @@ dependencies {
     // Android-circularFloatingActionMenu
     implementation 'com.oguzdev:CircularFloatingActionMenu:1.0.2'
 
+    // RecyclerViewEnhanced
+    implementation 'com.nikhilpanju.recyclerviewenhanced:recyclerviewenhanced:1.1.0'
+
 
 }
 

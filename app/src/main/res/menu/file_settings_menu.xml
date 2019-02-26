@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/save_option"
+        android:title="SAVE" />
+
+    <item
+        android:id="@+id/delete_option"
+        android:title="DELETE" />
+
+    <item
+        android:id="@+id/get_qrcode_option"
+        android:title="GET QRCODE" />
+
+</menu>

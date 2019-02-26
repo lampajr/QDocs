@@ -11,7 +11,7 @@
         android:id="@+id/toolbar_widget"/>
 
     <!-- USE RECYCLER VIEW -->
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/files_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

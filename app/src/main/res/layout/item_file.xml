@@ -1,60 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="wrap_content" android:orientation="horizontal">
+    android:layout_height="wrap_content" android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginStart="10dp">
+        android:layout_margin="10dp"
+        android:elevation="4dp">
 
-
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:padding="5dp">
 
             <TextView
-                android:layout_width="60dp"
+                android:id="@+id/file_name"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="filename"
-                android:id="@+id/filename"/>
+                android:text="filename"/>
 
             <TextView
-                android:layout_width="100dp"
+                android:id="@+id/file_description"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="description"
-                android:id="@+id/file_description"/>
+                android:layout_below="@id/file_name"
+                android:text="description"/>
 
-        </LinearLayout>
+            <TextView
+                android:id="@+id/file_options"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:text="&#8942;"/>
 
+        </RelativeLayout>
 
-    </LinearLayout>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:id="@+id/save_button"
-        android:text="SAVE"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:id="@+id/delete_button"
-        android:text="DEL"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:id="@+id/get_qrcode_button"
-        android:text="CODE"/>
-
-    <ImageView
-        android:id="@+id/file_image"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="end"
-        android:src="@drawable/audio_image" />
+    </android.support.v7.widget.CardView>
 
 </LinearLayout>

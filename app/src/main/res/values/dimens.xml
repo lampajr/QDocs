@@ -4,4 +4,5 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="toolbar_height">40dp</dimen>
     <dimen name="list_element_dim">100dp</dimen>
+    <dimen name="swipe_element_dim">80dp</dimen>
 </resources>

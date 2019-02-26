@@ -190,7 +190,7 @@ public class ShowFileFragmentActivity extends FragmentActivity implements
     {
         Log.d(TAG, "Creazione menu");
         MenuInflater inflater=getMenuInflater();
-        inflater.inflate(R.menu.file_menu_layout, menu);
+        inflater.inflate(R.menu.app_settings_menu, menu);
 
         return super.onCreateOptionsMenu(menu);
     }
