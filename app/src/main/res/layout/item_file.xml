@@ -55,6 +55,7 @@
                 android:layout_alignParentTop="true"
                 android:gravity="end|center_vertical"
                 android:layout_centerInParent="true"
+                android:background="@android:color/transparent"
                 android:textSize="25dp"
                 android:textAlignment="center"
                 android:text="@string/settings_points_string"/>
