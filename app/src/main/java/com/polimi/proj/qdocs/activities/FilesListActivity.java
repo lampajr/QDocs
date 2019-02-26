@@ -20,6 +20,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -777,6 +778,14 @@ public class FilesListActivity extends AppCompatActivity{
         @Override
         public void onBindViewHolder(@NonNull final FileDataViewHolder holder, int position) {
             holder.bindData(files.get(position));
+
+            holder.fileCard.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startShowingFileService(holder.filenameView.getText().toString());
+                }
+            });
+
             holder.fileOptionView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -818,11 +827,13 @@ public class FilesListActivity extends AppCompatActivity{
         class FileDataViewHolder extends RecyclerView.ViewHolder {
             //TODO: change the data elements
             TextView filenameView, fileDescriptionView, fileOptionView;
+            CardView fileCard;
             FileDataViewHolder(@NonNull View itemView) {
                 super(itemView);
                 filenameView = itemView.findViewById(R.id.file_name);
                 fileDescriptionView = itemView.findViewById(R.id.file_description);
                 fileOptionView = itemView.findViewById(R.id.file_options);
+                fileCard = itemView.findViewById(R.id.file_card);
             }
 
             void bindData(MyFile file) {
