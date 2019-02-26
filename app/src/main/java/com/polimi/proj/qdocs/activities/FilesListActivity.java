@@ -40,6 +40,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -870,6 +871,7 @@ public class FilesListActivity extends AppCompatActivity{
         class FileDataViewHolder extends RecyclerView.ViewHolder {
             // Item-row elements
             TextView filenameView, fileDescriptionView, fileOptionView;
+            ImageView fileImage;
             CardView fileCard;
 
             FileDataViewHolder(@NonNull View itemView) {
@@ -877,12 +879,24 @@ public class FilesListActivity extends AppCompatActivity{
                 filenameView = itemView.findViewById(R.id.file_name);
                 fileDescriptionView = itemView.findViewById(R.id.file_description);
                 fileOptionView = itemView.findViewById(R.id.file_options);
+                fileImage = itemView.findViewById(R.id.file_image);
                 fileCard = itemView.findViewById(R.id.file_card);
             }
 
             void bindData(final MyFile file) {
                 filenameView.setText(file.getFilename());
                 fileDescriptionView.setText(file.getContentType());
+
+                if (file.getContentType().contains("image")) {
+
+                    storageRef.child(file.getFilename()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            Log.d(TAG, "preview image loaded successfully");
+                            Glide.with(context).load(uri).into(fileImage);
+                        }
+                    });
+                }
 
                 fileCard.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -925,5 +939,4 @@ public class FilesListActivity extends AppCompatActivity{
             }
         }
     }
-
 }

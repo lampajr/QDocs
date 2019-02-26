@@ -38,6 +38,7 @@
     <string name="delition_failed">Delition failed</string>
     <string name="already_at_root_level">You are already at root level</string>
     <string name="no_files_associated">There are no files associated with this qr code</string>
+    <string name="settings_points_string">⋮</string>
 
 
 </resources>
