@@ -6,6 +6,18 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="editTextStyle">@style/edit_text_style</item>
+        <item name="android:fontFamily">@font/caviardreams</item>
+
+    </style>
+
+    <style name="edit_text_style" parent="@style/Widget.AppCompat.EditText">
+        <item name="android:textSize">@dimen/edit_text_text_size</item>
+        <item name="android:textColor">@color/color_light_Text</item>
+        <item name="android:background">@drawable/rounded_edittext</item>
+        <item name="android:textColorHint">@color/color_hint_edit_text</item>
+        <item name="android:drawablePadding">@dimen/edit_text_drawable_padding</item>
+
     </style>
 
 
