@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.Toolbar
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/toolbar_widget"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/toolbar_height">
+    android:layout_height="@dimen/toolbar_height"
+    app:navigationIcon="@drawable/ic_arrow_back_black_24dp">
 
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/ic_toolbar_arrow"
+        android:src="@drawable/ic_arrow_back_black_24dp"
         android:id="@+id/back_button"
         />
 

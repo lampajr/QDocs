@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toolbar;
 
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.fragments.GenericFileFragment;
@@ -43,10 +44,9 @@ public class ShowFileFragmentActivity extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_file);
 
-        android.widget.Toolbar toolbar = findViewById(R.id.toolbar_widget);
+        Toolbar toolbar = findViewById(R.id.toolbar_widget);
         this.setActionBar(toolbar);
-
-        toolbar.setNavigationIcon(R.mipmap.ic_toolbar_arrow);
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
         toolbar.setNavigationOnClickListener(
                 new View.OnClickListener() {
                     @Override
