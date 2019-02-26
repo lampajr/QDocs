@@ -2,13 +2,13 @@ package com.polimi.proj.qdocs.support;
 
 public class Directory implements StorageElement {
 
-    private String folderName;
+    private String directoryName;
 
-    public Directory(String folderName) {
-        this.folderName = folderName;
+    public Directory(String directoryName) {
+        this.directoryName = directoryName;
     }
 
-    public String getFolderName() {
-        return folderName;
+    public String getDirectoryName() {
+        return directoryName;
     }
 }

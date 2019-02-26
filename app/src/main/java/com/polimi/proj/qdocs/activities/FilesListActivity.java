@@ -15,7 +15,6 @@ import android.provider.MediaStore;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -37,6 +36,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,7 +61,6 @@ import com.google.firebase.storage.UploadTask;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
-import com.nikhilpanju.recyclerviewenhanced.OnActivityTouchListener;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.polimi.proj.qdocs.R;
@@ -118,8 +117,9 @@ public class FilesListActivity extends AppCompatActivity{
     private final List<MyFile> files = new ArrayList<>();
     private final List<Directory> directories = new ArrayList<>();
     private FilesListAdapter filesListAdapter;
+    private DirectoriesListAdapter directoriesListAdapter;
     private RecyclerView filesView;
-    private OnActivityTouchListener touchListener;
+    private RecyclerView directoriesView;
 
     private FirebaseUser user;
     private DatabaseReference dbRef;
@@ -143,8 +143,10 @@ public class FilesListActivity extends AppCompatActivity{
 
         // RecyclerView for files
         filesView = findViewById(R.id.files_view);
-        loadFiles();
+        directoriesView = findViewById(R.id.directories_view);
+        loadStorageElements();
         initFilesList();
+        initDirectoriesList();
 
         setupUploadFileFloatingButton();
         setupSwipeListener();
@@ -160,8 +162,9 @@ public class FilesListActivity extends AppCompatActivity{
                             dbRef = dbRef.getParent();
                             storageRef = storageRef.getParent();
                             files.clear();
-                            filesListAdapter.notifyDataSetChanged();
-                            loadFiles();
+                            directories.clear();
+                            notifyAdapters();
+                            loadStorageElements();
                         }
                         else {
                             Log.d(TAG, "you are already at root");
@@ -240,7 +243,7 @@ public class FilesListActivity extends AppCompatActivity{
      */
     @SuppressLint("ClickableViewAccessibility")
     private void setupSwipeListener() {
-        ConstraintLayout mainLayout = findViewById(R.id.files_main_layout);
+        RelativeLayout mainLayout = findViewById(R.id.files_main_layout);
         mainLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -320,7 +323,7 @@ public class FilesListActivity extends AppCompatActivity{
     }
 
     /**
-     * initialize the List View that will show the list of all user's filesList stored in the Firebase
+     * initialize the List View that will show the list of all user's files stored in the Firebase
      * Storage, it will add the listener on the items
      */
     private void initFilesList() {
@@ -331,7 +334,20 @@ public class FilesListActivity extends AppCompatActivity{
         filesListAdapter = new FilesListAdapter(this, files);
         // set the adapter for the files
         filesView.setAdapter(filesListAdapter);
+    }
 
+    /**
+     * initialize the List View that will show the list of all user's directories stored in the Firebase
+     * Storage, it will add the listener on the items
+     */
+    private void initDirectoriesList() {
+        Log.d(TAG, "Creating directoriesList adapter");
+
+        directoriesView.setHasFixedSize(true);
+        directoriesView.setLayoutManager(new LinearLayoutManager(this));
+        directoriesListAdapter = new DirectoriesListAdapter(this, directories);
+        // set the adapter for the directories
+        directoriesView.setAdapter(directoriesListAdapter);
     }
 
     /**
@@ -340,9 +356,7 @@ public class FilesListActivity extends AppCompatActivity{
      * implements the callback method from the realtime database
      * in order to react in case of db operation.
      */
-    private void loadFiles() {
-        //TODO: add hierarchy, allow user navigate among folders
-        //TODO: add folder class and interface for dirs and filesList
+    private void loadStorageElements() {
 
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
@@ -365,7 +379,7 @@ public class FilesListActivity extends AppCompatActivity{
                     Directory dir = new Directory(dataSnapshot.getKey());
                     directories.add(dir);
                 }
-                filesListAdapter.notifyDataSetChanged();
+                notifyAdapters();
             }
 
             @Override
@@ -389,9 +403,9 @@ public class FilesListActivity extends AppCompatActivity{
                     Log.d(TAG, "removing new folder..");
                     Directory dir = retrieveDirectoryByName(dataSnapshot.getKey());
                     if (dir != null)
-                        files.remove(dir);
+                        directories.remove(dir);
                 }
-                filesListAdapter.notifyDataSetChanged();
+                notifyAdapters();
             }
 
             @Override
@@ -598,8 +612,8 @@ public class FilesListActivity extends AppCompatActivity{
      */
     public Directory retrieveDirectoryByName(String name) {
         for(Directory d : directories) {
-            if (d != null && d.getFolderName() != null
-                    && d.getFolderName().equals(name)) return d;
+            if (d != null && d.getDirectoryName() != null
+                    && d.getDirectoryName().equals(name)) return d;
         }
         return null;
     }
@@ -727,16 +741,6 @@ public class FilesListActivity extends AppCompatActivity{
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
     /**
      * change the default directory, updating the filesList to show
      * @param folderName name of the folder to which move to
@@ -746,16 +750,82 @@ public class FilesListActivity extends AppCompatActivity{
         dbRef = dbRef.child(folderName);
         storageRef = storageRef.child(folderName);
         files.clear();
+        directories.clear();
+        notifyAdapters();
+        loadStorageElements();
+    }
+
+    /**
+     * Notifies the adapters that data has been changed
+     */
+    public void notifyAdapters() {
         filesListAdapter.notifyDataSetChanged();
-        loadFiles();
+        directoriesListAdapter.notifyDataSetChanged();
     }
 
     //TODO: creates RecyclerView Adapter for directories
+    /**
+     * RecyclerView adapter for the directories' list
+     */
+    private class DirectoriesListAdapter extends RecyclerView.Adapter<DirectoriesListAdapter.DirectoryDataViewHolder> {
+
+        private LayoutInflater inflater;
+        private List<Directory> directories;
+        private Context context;
+
+        public DirectoriesListAdapter(Context context, List<Directory> directories) {
+            this.inflater = LayoutInflater.from(context);
+            this.directories = directories;
+            this.context = context;
+        }
+
+        @NonNull
+        @Override
+        public DirectoryDataViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = inflater.inflate(R.layout.item_directory, parent, false);
+            return new DirectoryDataViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull DirectoryDataViewHolder holder, int position) {
+            holder.bindData(directories.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return directories.size();
+        }
+
+        /**
+         * Holder for the directory element
+         */
+        class DirectoryDataViewHolder extends RecyclerView.ViewHolder {
+
+            TextView directoryNameView;
+            CardView directoryCard;
+
+            DirectoryDataViewHolder(@NonNull View itemView) {
+                super(itemView);
+                directoryNameView = itemView.findViewById(R.id.directory_name);
+                directoryCard = itemView.findViewById(R.id.directory_card);
+            }
+
+            void bindData(final Directory directory) {
+                directoryNameView.setText(directory.getDirectoryName());
+
+                directoryCard.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        openDirectory(directory.getDirectoryName());
+                    }
+                });
+            }
+        }
+    }
 
     /**
-     * RecyclerView adapter for the filesList list recycler view
+     * RecyclerView adapter for the files' list
      */
-    //TODO: create RecyclerView Adapter for filesList
     private class FilesListAdapter extends RecyclerView.Adapter<FilesListAdapter.FileDataViewHolder> {
         private LayoutInflater inflater;
         private List<MyFile> files;
@@ -778,45 +848,6 @@ public class FilesListActivity extends AppCompatActivity{
         @Override
         public void onBindViewHolder(@NonNull final FileDataViewHolder holder, int position) {
             holder.bindData(files.get(position));
-
-            holder.fileCard.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    startShowingFileService(holder.filenameView.getText().toString());
-                }
-            });
-
-            holder.fileOptionView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // will show popup menu here
-                    PopupMenu fileSettingsPopup = new PopupMenu(context, holder.fileOptionView);
-                    fileSettingsPopup.inflate(R.menu.file_settings_menu);
-
-                    fileSettingsPopup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem menuItem) {
-                            String name = holder.filenameView.getText().toString();
-                            switch (menuItem.getItemId()) {
-                                case R.id.delete_option:
-                                    deletePersonalFile(name);
-                                    break;
-
-                                case R.id.save_option:
-                                    startingSavingFileService(name);
-                                    break;
-
-                                case R.id.get_qrcode_option:
-                                    showQrCode(name);
-                                    break;
-                            }
-                            return false;
-                        }
-                    });
-
-                    fileSettingsPopup.show();
-                }
-            });
         }
 
         @Override
@@ -824,10 +855,14 @@ public class FilesListActivity extends AppCompatActivity{
             return files.size();
         }
 
+        /**
+         * Holder for the File element
+         */
         class FileDataViewHolder extends RecyclerView.ViewHolder {
-            //TODO: change the data elements
+            // Item-row elements
             TextView filenameView, fileDescriptionView, fileOptionView;
             CardView fileCard;
+
             FileDataViewHolder(@NonNull View itemView) {
                 super(itemView);
                 filenameView = itemView.findViewById(R.id.file_name);
@@ -836,9 +871,48 @@ public class FilesListActivity extends AppCompatActivity{
                 fileCard = itemView.findViewById(R.id.file_card);
             }
 
-            void bindData(MyFile file) {
+            void bindData(final MyFile file) {
                 filenameView.setText(file.getFilename());
                 fileDescriptionView.setText(file.getContentType());
+
+                fileCard.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startShowingFileService(file.getFilename());
+                    }
+                });
+
+                fileOptionView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // will show popup menu here
+                        PopupMenu fileSettingsPopup = new PopupMenu(context, fileOptionView);
+                        fileSettingsPopup.inflate(R.menu.file_settings_menu);
+
+                        fileSettingsPopup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem menuItem) {
+                                String name = file.getFilename();
+                                switch (menuItem.getItemId()) {
+                                    case R.id.delete_option:
+                                        deletePersonalFile(name);
+                                        break;
+
+                                    case R.id.save_option:
+                                        startingSavingFileService(name);
+                                        break;
+
+                                    case R.id.get_qrcode_option:
+                                        showQrCode(name);
+                                        break;
+                                }
+                                return false;
+                            }
+                        });
+
+                        fileSettingsPopup.show();
+                    }
+                });
             }
         }
     }
