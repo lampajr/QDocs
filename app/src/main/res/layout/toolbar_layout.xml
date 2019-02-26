@@ -7,11 +7,13 @@
     android:layout_height="@dimen/toolbar_height"
     app:navigationIcon="@drawable/ic_arrow_back_black_24dp">
 
+    <!--
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_arrow_back_black_24dp"
         android:id="@+id/back_button"
         />
+        -->
 
 </android.support.v7.widget.Toolbar>

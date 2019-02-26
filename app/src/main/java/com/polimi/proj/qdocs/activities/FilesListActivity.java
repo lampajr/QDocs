@@ -110,8 +110,6 @@ public class FilesListActivity extends AppCompatActivity{
     private static final int AUD_PRV = 200;
     private static final int FILE_PRV = 300;
 
-    private FloatingActionMenu floatingMenu;
-    private FloatingActionButton addButton;
     private StorageReference storageRef;
 
     private final List<MyFile> files = new ArrayList<>();
@@ -150,32 +148,23 @@ public class FilesListActivity extends AppCompatActivity{
 
         setupUploadFileFloatingButton();
         setupSwipeListener();
+        setupToolbar();
 
+    }
+
+    /**
+     * setup the toolbar functionality
+     */
+    private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar_widget);
-        ImageButton backButton = toolbar.findViewById(R.id.back_button);
-        backButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (!dbRef.getKey().equals(user.getUid())) {
-                            Log.d(TAG, "Removing a directory level");
-                            dbRef = dbRef.getParent();
-                            storageRef = storageRef.getParent();
-                            files.clear();
-                            directories.clear();
-                            notifyAdapters();
-                            loadStorageElements();
-                        }
-                        else {
-                            Log.d(TAG, "you are already at root");
-                            Toast.makeText(FilesListActivity.this, getString(R.string.already_at_root_level),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-
-        );
         setSupportActionBar(toolbar);
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getBackDirectory();
+            }
+        });
     }
 
     /**
@@ -216,7 +205,7 @@ public class FilesListActivity extends AppCompatActivity{
             }
         });
 
-        floatingMenu = new FloatingActionMenu.Builder(this)
+        FloatingActionMenu floatingMenu = new FloatingActionMenu.Builder(this)
                 .addSubActionView(uploadImageButton)
                 .addSubActionView(uploadAudioButton)
                 .addSubActionView(uploadFileButton)
@@ -742,6 +731,26 @@ public class FilesListActivity extends AppCompatActivity{
     }
 
     /**
+     * get back to the previous directory if any.
+     */
+    private void getBackDirectory() {
+        if (!dbRef.getKey().equals(user.getUid())) {
+            Log.d(TAG, "Removing a directory level");
+            dbRef = dbRef.getParent();
+            storageRef = storageRef.getParent();
+            files.clear();
+            directories.clear();
+            notifyAdapters();
+            loadStorageElements();
+        }
+        else {
+            Log.d(TAG, "you are already at root");
+            Toast.makeText(FilesListActivity.this, getString(R.string.already_at_root_level),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
      * change the default directory, updating the filesList to show
      * @param folderName name of the folder to which move to
      */
@@ -773,7 +782,7 @@ public class FilesListActivity extends AppCompatActivity{
         private List<Directory> directories;
         private Context context;
 
-        public DirectoriesListAdapter(Context context, List<Directory> directories) {
+        DirectoriesListAdapter(Context context, List<Directory> directories) {
             this.inflater = LayoutInflater.from(context);
             this.directories = directories;
             this.context = context;
