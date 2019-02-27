@@ -17,6 +17,7 @@
         <item name="android:background">@drawable/rounded_edittext</item>
         <item name="android:textColorHint">@color/color_hint_edit_text</item>
         <item name="android:drawablePadding">@dimen/edit_text_drawable_padding</item>
+        <item name="android:cursorVisible">true</item>
     </style>
 
     <style name="button_Style" parent="@style/Widget.AppCompat.Button">

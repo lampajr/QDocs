@@ -73,7 +73,7 @@ public class RegistrationActivity extends AppCompatActivity {
 
                                         } catch (FirebaseAuthInvalidCredentialsException e) {
 
-                                            labelError.setText(getString(R.string.invalid_email_format));
+                                            labelError.setText(getString(R.string.error_invalid_email));
 
                                         } catch (FirebaseAuthUserCollisionException e) {
 
