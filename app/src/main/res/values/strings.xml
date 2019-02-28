@@ -41,6 +41,7 @@
     <string name="settings_points_string">⋮</string>
     <string name="enter_email_string">Enter email</string>
     <string name="register_string">Register</string>
+    <string name="empty_string" />
 
 
 </resources>
