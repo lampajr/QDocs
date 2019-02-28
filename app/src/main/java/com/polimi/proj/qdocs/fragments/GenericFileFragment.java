@@ -104,7 +104,7 @@ public class GenericFileFragment extends Fragment {
         super.onAttach(context);
         if (!(context instanceof OnGenericFileFragmentInteractionListener)) {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnScannerInteractionListener");
         }
     }
 

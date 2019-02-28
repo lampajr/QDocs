@@ -83,7 +83,7 @@ public class ShowImageFragment extends Fragment {
         super.onAttach(context);
         if (!(context instanceof OnFragmentInteractionListener)) {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnScannerInteractionListener");
         }
     }
 
