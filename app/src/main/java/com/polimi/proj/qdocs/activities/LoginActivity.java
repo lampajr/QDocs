@@ -36,9 +36,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
-
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -150,7 +147,7 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            goToScannerActivity();
+                            startMain();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.e(TAG, "signInWithCredential:failure", task.getException());
@@ -205,7 +202,7 @@ public class LoginActivity extends AppCompatActivity {
                             Log.d(TAG, "signInWithCredential:success with google");
                             FirebaseUser user = mAuth.getCurrentUser();
                             Log.d(TAG, "user "+mAuth.getCurrentUser());
-                            goToScannerActivity();
+                            startMain();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.e(TAG, "signInWithCredential:failure", task.getException());
@@ -223,10 +220,15 @@ public class LoginActivity extends AppCompatActivity {
         Log.d(TAG, "On Start");
         if(mAuth.getCurrentUser() != null) {
             //finish();
-            Intent scannerIntent = new Intent(this, ScannerActivity.class);
-            startActivity(scannerIntent);
-            finish();
+            startMain();
         }
+    }
+
+    private void startMain() {
+        Log.d(TAG, "end Login Activity");
+        Intent scannerIntent = new Intent(this, ScannerActivity.class);
+        startActivity(scannerIntent);
+        finish();
     }
 
     public static void logout(){
@@ -247,12 +249,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         }).executeAsync();
 
-    }
-
-
-    private void goToScannerActivity(){
-        Log.d(TAG, "End login Activity");
-        onBackPressed();
     }
 
 
@@ -285,7 +281,7 @@ public class LoginActivity extends AppCompatActivity {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
-                                    goToScannerActivity();
+                                    startMain();
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.w(TAG, "signInWithEmail:failure", task.getException());
