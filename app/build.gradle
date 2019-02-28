@@ -62,6 +62,9 @@ dependencies {
     // An image loading and caching library for Android focused on smooth scrolling
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+
+    // Number progress bar
+    implementation 'com.daimajia.numberprogressbar:library:1.4@aar'
 }
 
 

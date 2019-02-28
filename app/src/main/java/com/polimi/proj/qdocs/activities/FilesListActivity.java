@@ -40,6 +40,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.daimajia.numberprogressbar.NumberProgressBar;
+import com.daimajia.numberprogressbar.OnProgressBarListener;
 import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -119,6 +121,8 @@ public class FilesListActivity extends AppCompatActivity{
     private StorageAdapter storageAdapter;
     private RecyclerView storageView;
 
+    private NumberProgressBar uploadProgressBar;
+
     private FloatingActionMenu floatingMenu;
     private FloatingActionButton uploadGenericFileFloatingButton;
 
@@ -141,6 +145,9 @@ public class FilesListActivity extends AppCompatActivity{
 
         dbRef = FirebaseDatabase.getInstance().getReference()
                 .child(BASE_REFERENCE).child(user.getUid());
+
+        // get progress bar
+        uploadProgressBar = findViewById(R.id.number_progress_bar);
 
         // RecyclerView for elements
         storageView = findViewById(R.id.files_view);
@@ -476,6 +483,8 @@ public class FilesListActivity extends AppCompatActivity{
      *
      */
     private void uploadFile(Intent data, final String pathname) {
+        uploadGenericFileFloatingButton.performClick();
+
         Uri fileUri = data.getData();
 
         String absoluteFilePath = PathResolver.getPathFromUri(this, fileUri);
@@ -495,36 +504,53 @@ public class FilesListActivity extends AppCompatActivity{
                 .setCustomMetadata(UID_METADATA, user.getUid())
                 .build();
 
-        UploadTask uploadTask = fileRef.putFile(file, metadata);
+        final UploadTask uploadTask = fileRef.putFile(file, metadata);
 
+        final RelativeLayout.LayoutParams params= new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.ABOVE, R.id.upload_file_button);
+        storageView.setLayoutParams(params);
+        uploadProgressBar.setVisibility(View.VISIBLE);
+
+        int fileSize = Integer.parseInt(String.valueOf((new File(absoluteFilePath)).length()/1024));
+        //uploadProgressBar.setMax(fileSize);
 
         Log.d(TAG, "starting uploading");
         // Register observers to listen for when the download is done or if it fails
-        uploadTask.addOnFailureListener(new OnFailureListener() {
+        runOnUiThread(new Runnable() {
             @Override
-            public void onFailure(@NonNull Exception exception) {
-                Log.e(TAG, exception.toString());
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Log.d(TAG, "Upload complete");
-                uploadGenericFileFloatingButton.performClick();
-            }
-        }).addOnCanceledListener(new OnCanceledListener() {
-            @Override
-            public void onCanceled() {
-                Log.e(TAG, "Upload canceled");
-            }
-        }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                Log.d(TAG, "Upload paused");
-            }
-        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                //TODO: implement ViewStub progress bar in overlay
+            public void run() {
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        Log.e(TAG, exception.toString());
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Log.d(TAG, "Upload complete");
+                        uploadProgressBar.setProgress(1000);
+                        uploadProgressBar.setVisibility(View.INVISIBLE);
+                        uploadProgressBar.setProgress(0);
+                        params.removeRule(RelativeLayout.ABOVE);
+                    }
+                }).addOnCanceledListener(new OnCanceledListener() {
+                    @Override
+                    public void onCanceled() {
+                        Log.e(TAG, "Upload canceled");
+                    }
+                }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+                        Log.d(TAG, "Upload paused");
+                    }
+                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        final double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                        Log.d(TAG, "PROGRESS -> " + progress);
+                        uploadProgressBar.setProgress((int)progress * 10);
+                    }
+                });
             }
         });
     }
@@ -776,6 +802,13 @@ public class FilesListActivity extends AppCompatActivity{
             this.inflater = LayoutInflater.from(context);
             this.elements = elements;
             this.context = context;
+
+            setHasStableIds(true);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
         }
 
         @NonNull

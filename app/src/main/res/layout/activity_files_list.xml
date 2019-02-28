@@ -15,12 +15,12 @@
         android:id="@+id/files_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar_widget" />
+        android:layout_below="@id/toolbar_widget"/>
 
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/upload_file_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/upload_file_button"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
         android:src="@drawable/add_img"
@@ -28,4 +28,14 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         />
+
+    <com.daimajia.numberprogressbar.NumberProgressBar
+        android:id="@+id/number_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginStart="20dp"
+        android:visibility="invisible"
+        android:layout_toStartOf="@id/upload_file_button"
+        android:layout_alignParentBottom="true"/>
 </RelativeLayout>
