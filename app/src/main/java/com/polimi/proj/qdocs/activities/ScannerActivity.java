@@ -119,7 +119,7 @@ public class ScannerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_scanner);
+        setContentView(R.layout.scanner_layout);
 
         // get the barcode view
         barcodeView = (DecoratedBarcodeView) findViewById(R.id.barcode_view);
