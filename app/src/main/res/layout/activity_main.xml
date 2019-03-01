@@ -19,6 +19,7 @@
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/main_navigation_bar"
+        style="@style/Widget.Design.BottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"

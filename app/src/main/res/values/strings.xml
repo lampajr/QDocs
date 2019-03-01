@@ -42,6 +42,11 @@
     <string name="enter_email_string">Enter email</string>
     <string name="register_string">Register</string>
     <string name="empty_string" />
+    <string name="files_string">FILES</string>
+    <string name="scanner_string">SCANNER</string>
+    <string name="save_file_string">Save File</string>
+    <string name="delete_file_string">Delete File</string>
+    <string name="get_qrcode_string">Get QR Code</string>
 
 
 </resources>

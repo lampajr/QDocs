@@ -17,11 +17,14 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -93,6 +96,7 @@ public class FilesListFragment extends Fragment {
 
     private final List<MyFile> files = new ArrayList<>();
     private final List<Directory> directories = new ArrayList<>();
+    //TODO: order elements, as first folder then files
     private final List<StorageElement> storageElements = new ArrayList<>();
     private FilesListFragment.StorageAdapter storageAdapter;
     private RecyclerView storageView;
@@ -730,7 +734,7 @@ public class FilesListFragment extends Fragment {
         /**
          * Holder for the File element
          */
-        class dataViewHolder extends RecyclerView.ViewHolder {
+        class dataViewHolder extends RecyclerView.ViewHolder{
             // Item-row elements
             TextView elementNameView, elementDescriptionView, elementOptionView;
             ImageView elementImage;
@@ -773,6 +777,7 @@ public class FilesListFragment extends Fragment {
                     }
                     else {
                         //TODO: set image for another file type
+                        elementImage.setImageResource(R.drawable.ic_unsupported_file_24dp);
                     }
 
                     elementCardView.setOnClickListener(new View.OnClickListener() {
@@ -810,6 +815,15 @@ public class FilesListFragment extends Fragment {
                                 }
                             });
 
+                            if (fileSettingsPopup.getMenu() instanceof MenuBuilder) {
+                                MenuBuilder helper = (MenuBuilder) fileSettingsPopup.getMenu();
+                                helper.setOptionalIconsVisible(true);
+                            }
+                            /*
+                            MenuPopupHelper fileSettingsMenuHelper = new MenuPopupHelper(context, (MenuBuilder) fileSettingsPopup.getMenu(), elementOptionView);
+                            fileSettingsMenuHelper.setForceShowIcon(true);
+
+                            fileSettingsMenuHelper.show();*/
                             fileSettingsPopup.show();
                         }
                     });
