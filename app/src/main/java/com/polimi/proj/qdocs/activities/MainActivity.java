@@ -33,9 +33,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean cameraPermissionGranted;
     private boolean filesPermissionGranted;
 
+    private static final int SCANNER_ID = 1, FILES_ID = 2;
+
     private BottomNavigationView navigationBar;
     private Fragment currentFragment;
     private FrameLayout mainFrame;
+
+    private int currentFragmentId;
 
     private FirebaseUser user;
 
@@ -85,11 +89,11 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.files_item:
                         //TODO: creates files fragment
                         if (filesPermissionGranted)
-                            applyFragment(FilesListFragment.newInstance());
+                            applyFragment(FilesListFragment.newInstance(), FILES_ID);
                         break;
                     case R.id.scanner_item:
                         //TODO: creates scanner fragment
-                        applyFragment(ScannerFragment.newInstance(getIntent()));
+                        applyFragment(ScannerFragment.newInstance(getIntent()), SCANNER_ID);
                         break;
                 }
                 return true;
@@ -101,14 +105,15 @@ public class MainActivity extends AppCompatActivity {
      * apply the fragment to the main layout
      * @param fr fragment to be applied
      */
-    private void applyFragment(Fragment fr) {
+    private void applyFragment(Fragment fr, int id) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        if (fr != null) {
+        if (fr != null && id != currentFragmentId) {
             if (currentFragment != null) {
                 transaction.remove(currentFragment);
             }
             transaction.add(R.id.main_frame, fr, "fragment changed");
             transaction.commit();
+            currentFragmentId = id;
             currentFragment = fr;
         }
     }
@@ -128,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         if (cameraPermissionGranted && filesPermissionGranted) {
             // as first fragment create the scanner fragment
             if (currentFragment == null)
-                applyFragment(ScannerFragment.newInstance(getIntent()));
+                applyFragment(ScannerFragment.newInstance(getIntent()), SCANNER_ID);
         }
         else if (!cameraPermissionGranted)requestCameraPermission();
         else requestFilesPermission();
