@@ -1,31 +1,21 @@
-package com.polimi.proj.qdocs.fragments;
+package com.polimi.proj.qdocs.activities;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.ortiz.touchview.TouchImageView;
 import com.polimi.proj.qdocs.R;
-import com.polimi.proj.qdocs.activities.ShowFileFragmentActivity;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 
 import java.io.IOException;
-import java.util.Objects;
 
-/**
- * A simple AppCompactActivity that display an image given its uri, type, filename
- */
-public class ShowImageFragment extends AppCompatActivity {
+public class ShowImageActivity extends AppCompatActivity {
 
     private static final String TAG = "IMAGE FRAGMENT";
     private BitmapDrawable bitmapDrowalbe = null;
@@ -33,24 +23,11 @@ public class ShowImageFragment extends AppCompatActivity {
     private String mimeType = null;
     private String fileName = null;
 
-    public ShowImageFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment ShowImageFragment.
-     */
-    public static ShowImageFragment newInstance() {
-        return new ShowImageFragment();
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_show_image);
+        setContentView(R.layout.activity_show_image);
+
         //Take the bitmap from the bundle
         Bundle bundle = getIntent().getExtras();
 
@@ -64,16 +41,32 @@ public class ShowImageFragment extends AppCompatActivity {
         Log.d(TAG, "mimeType: " + mimeType);
 
         checkParameter();
+
         createBitmap();
         Log.d(TAG, "bitmap received");
 
+        setImage();
+
+        createToolbar();
+    }
+
+    /**
+     * set the bitmap recived on the tuchImageView
+     */
+    private void setImage() {
         //set the bitmap to the tuchImageView
         TouchImageView tuchImageView = findViewById(R.id.touch_image);
         tuchImageView.setImageDrawable(bitmapDrowalbe);
-
-
     }
 
+    private void createToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar_widget);
+        setSupportActionBar(toolbar);
+    }
+
+    /**
+     * Creation of the bitmap from the uri
+     */
     private void createBitmap() {
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), fileUri);
@@ -83,6 +76,10 @@ public class ShowImageFragment extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * Check if the parameter fileUri, fileName and mimeType is null. If it is, then the activity is closed
+     */
     private void checkParameter() {
         if(fileUri != null && mimeType != null && fileName!= null){
             Log.d(TAG, "file URI recived: " + fileUri);
@@ -101,10 +98,9 @@ public class ShowImageFragment extends AppCompatActivity {
                 Log.d(TAG, "filename recived is NULL ");
             }
 
-            //TODO: handle error
+            //TODO: print the error
 
             finish();
         }
     }
-
 }

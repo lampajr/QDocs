@@ -25,7 +25,6 @@ import com.polimi.proj.qdocs.services.DownloadFileService;
 import java.io.IOException;
 
 public class ShowFileFragmentActivity extends FragmentActivity implements
-        ShowImageFragment.OnFragmentInteractionListener,
         PlayAudioFragment.OnFragmentInteractionListener,
         GenericFileFragment.OnGenericFileFragmentInteractionListener {
 
@@ -81,14 +80,13 @@ public class ShowFileFragmentActivity extends FragmentActivity implements
     private void setFragment() {
 
         String type = mimeType.split("/")[0];
+        Fragment fragment = null;
 
         switch (type){
 
             case IMAGE:
                 Log.d(TAG, "Insantiating 'show image' fragment...");
-                Fragment fragment = ShowImageFragment.newInstance();
                 displayFragment(fragment);
-                onShowImageFragmentInteraction(fileUri);
                 break;
 
             case AUDIO:
@@ -158,20 +156,7 @@ public class ShowFileFragmentActivity extends FragmentActivity implements
         }
     }
 
-    @Override
-    public void onShowImageFragmentInteraction(Uri uri) {
 
-        //File file = new File(uri.getPath());
-        try {
-
-
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-            bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
-
-        } catch (IOException e) {
-            Log.e(TAG, "Error in showing the image");
-        }
-    }
 
     public BitmapDrawable getImageResult(){
         return bitmapDrawable;

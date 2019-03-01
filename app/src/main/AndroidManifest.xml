@@ -23,8 +23,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activities.MainActivity"></activity>
-        <!-- FILE PROVIDER -->
+        <activity android:name=".PlayAudioActivity"></activity>
+        <activity android:name=".activities.ShowImageActivity" />
+        <activity android:name=".activities.MainActivity" /> <!-- FILE PROVIDER -->
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.polimi.proj.qdocs.fileprovider"
@@ -73,6 +74,7 @@
             android:stopWithTask="true" />
 
         <activity android:name=".activities.ShowFileFragmentActivity" />
+        <activity android:name=".fragments.ShowImageFragment" />
     </application>
 
 </manifest>
