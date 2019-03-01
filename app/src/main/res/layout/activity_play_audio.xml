@@ -4,6 +4,52 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PlayAudioActivity">
+    android:background="@drawable/audio_background"
+    tools:context=".fragments.PlayAudioFragment">
 
+    <include layout="@layout/toolbar_layout"/>
+
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="189dp"
+        android:layout_height="43dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btn_play"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.888" />
+
+    <at.markushi.ui.CircleButton
+        android:id="@+id/btn_play"
+        android:layout_width="64dip"
+        android:layout_height="64dip"
+        android:layout_marginStart="20dp"
+        android:src="@drawable/ic_play_arrow_black_24dp"
+        app:cb_color="@color/colorPrimary"
+        app:cb_pressedRingWidth="8dip"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/seekBar"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.902" />
+
+    <TextView
+        android:id="@+id/audio_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:paddingBottom="50dp"
+        app:layout_constraintBottom_toTopOf="@+id/seekBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.159" />
 </android.support.constraint.ConstraintLayout>

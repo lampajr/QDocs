@@ -1,4 +1,4 @@
-package com.polimi.proj.qdocs;
+package com.polimi.proj.qdocs.activities;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -11,16 +11,12 @@ import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.polimi.proj.qdocs.activities.ShowFileFragmentActivity;
-import com.polimi.proj.qdocs.fragments.PlayAudioFragment;
+import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 
 import java.io.IOException;
-import java.util.Objects;
 
 import at.markushi.ui.CircleButton;
-
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class PlayAudioActivity extends AppCompatActivity {
 
@@ -31,7 +27,6 @@ public class PlayAudioActivity extends AppCompatActivity {
     private SeekBar seekbar;
     private Handler myHandler = new Handler();    //used to managed the position of the seekbar
     private PlayAudioActivity.UpdateSongTime updateSongTime; //Runnable object launched by the andler
-    private PlayAudioFragment.OnFragmentInteractionListener mListener;
     private final Object updateState= new Object();
     private boolean onlyOne = true;
     private Uri fileUri;

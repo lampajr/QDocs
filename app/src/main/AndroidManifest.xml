@@ -23,7 +23,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".PlayAudioActivity"></activity>
+        <activity android:name=".activities.GenericFileActivity"></activity>
+        <activity android:name=".activities.PlayAudioActivity" />
         <activity android:name=".activities.ShowImageActivity" />
         <activity android:name=".activities.MainActivity" /> <!-- FILE PROVIDER -->
         <provider
@@ -73,8 +74,6 @@
             android:exported="false"
             android:stopWithTask="true" />
 
-        <activity android:name=".activities.ShowFileFragmentActivity" />
-        <activity android:name=".fragments.ShowImageFragment" />
     </application>
 
 </manifest>

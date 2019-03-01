@@ -8,8 +8,10 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Log;
 
+import com.polimi.proj.qdocs.activities.GenericFileActivity;
+import com.polimi.proj.qdocs.activities.PlayAudioActivity;
 import com.polimi.proj.qdocs.activities.FilesListActivity;
-import com.polimi.proj.qdocs.activities.ShowFileFragmentActivity;
+import com.polimi.proj.qdocs.activities.ShowImageActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +33,7 @@ import java.util.List;
 public class ShowFileReceiver extends ResultReceiver {
 
     private static final String TAG = "DOWNLOAD_FILE_RECEIVER";
+    private final String AUTHORITY = "com.polimi.proj.qdocs.fileprovider";
 
     // formats
     private static final List<String> AUDIO_FORMATS =
@@ -73,7 +76,6 @@ public class ShowFileReceiver extends ResultReceiver {
             Log.d(TAG, "EXTENSION received: " + mimeType);
 
 
-            // trigger the ShowFileFragmentActivity
             triggerShowFile(fileUri, filename, mimeType);
         }
         else {
@@ -91,10 +93,35 @@ public class ShowFileReceiver extends ResultReceiver {
      * @param mimeType extension in mimeType format
      */
     private void triggerShowFile(Uri fileUri, String filename, String mimeType) {
-        Intent showFileIntent = new Intent(context, ShowFileFragmentActivity.class);
+
+        String type = mimeType.split("/")[0];
+        Intent showFileIntent;
+
+        switch (type){
+
+            case IMAGE:
+                Log.d(TAG, "Insantiating 'show image' activity...");
+                showFileIntent = new Intent(context, ShowImageActivity.class);
+                break;
+
+            case AUDIO:
+                Log.d(TAG, "Insantiating 'play audio' activity...");
+                showFileIntent = new Intent(context, PlayAudioActivity.class);
+                break;
+
+            default:
+                Log.d(TAG, "Insantiating 'generic' activity...");
+                showFileIntent = new Intent(context, GenericFileActivity.class);
+                break;
+
+        }
+
         showFileIntent.putExtra(DownloadFileService.RESULT_KEY_URI, fileUri);
         showFileIntent.putExtra(DownloadFileService.RESULT_KEY_EXTENSION, mimeType);
         showFileIntent.putExtra(DownloadFileService.RESULT_KEY_FILENAME, filename);
+
         context.startActivity(showFileIntent);
+
     }
+
 }

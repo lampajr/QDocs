@@ -34,7 +34,6 @@ import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 import com.polimi.proj.qdocs.R;
-import com.polimi.proj.qdocs.fragments.GenericFileFragment;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 import com.polimi.proj.qdocs.support.MyFile;
