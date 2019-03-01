@@ -43,11 +43,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activities.ScannerActivity"
-            android:noHistory="true" />
         <activity android:name=".activities.RegistrationActivity" />
-        <activity android:name=".activities.FilesListActivity" /> <!-- FACEBOOK -->
+        <!-- FACEBOOK -->
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />

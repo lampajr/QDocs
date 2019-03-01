@@ -226,7 +226,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void startMain() {
         Log.d(TAG, "end Login Activity");
-        Intent scannerIntent = new Intent(this, ScannerActivity.class);
+        Intent scannerIntent = new Intent(this, MainActivity.class);
         startActivity(scannerIntent);
         finish();
     }

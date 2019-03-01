@@ -1,7 +1,6 @@
-package com.polimi.proj.qdocs.activities;
+package com.polimi.proj.qdocs.fragments;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -15,22 +14,16 @@ import android.provider.MediaStore;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -66,9 +59,10 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.activities.MainActivity;
+import com.polimi.proj.qdocs.services.DownloadFileService;
 import com.polimi.proj.qdocs.services.SaveFileReceiver;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
-import com.polimi.proj.qdocs.services.DownloadFileService;
 import com.polimi.proj.qdocs.support.Directory;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.PathResolver;
@@ -81,33 +75,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-/**
- * @author Andrea Lamparelli
- * @author Pietro Chittò
- *
- * This activity represents the main page of the user, can be seen as folder of all the documents
- * owned by the current user.
- * The activity shows the list of all filesList and allow the user to interact with them:
- *      - show file
- *      - delete file
- *      - save file
- * the user can also upload new filesList on the storage
- *
- * @see AppCompatActivity
- * @see SaveFileReceiver
- * @see ShowFileReceiver
- * @see DownloadFileService
- */
 
-public class FilesListActivity extends AppCompatActivity{
+public class FilesListFragment extends Fragment {
 
-    private static final String TAG = "FILES_LIST_ACTIVITY";
+    private static final String TAG = "FILES_LIST_FRAGMENT";
 
     private static final String BASE_REFERENCE = "documents";
     private static final String KEY_METADATA = "key_metadata";
     private static final String UID_METADATA = "uid_metadata";
 
-    private static final int PERMISSION_CODE = 10 ;
 
     private static final int IMG_PRV = 100;
     private static final int AUD_PRV = 200;
@@ -118,7 +94,7 @@ public class FilesListActivity extends AppCompatActivity{
     private final List<MyFile> files = new ArrayList<>();
     private final List<Directory> directories = new ArrayList<>();
     private final List<StorageElement> storageElements = new ArrayList<>();
-    private StorageAdapter storageAdapter;
+    private FilesListFragment.StorageAdapter storageAdapter;
     private RecyclerView storageView;
 
     private NumberProgressBar uploadProgressBar;
@@ -128,17 +104,35 @@ public class FilesListActivity extends AppCompatActivity{
 
     private FirebaseUser user;
     private DatabaseReference dbRef;
+    private Context context;
+    private MainActivity parentActivity;
 
-    // swipe data
-    private double previousX=0.0, previousY=0.0;
-    private double offset = 20;
+    /**
+     * Required empty public constructor
+     */
+    public FilesListFragment() {}
+
+    public static FilesListFragment newInstance() {
+        FilesListFragment fragment = new FilesListFragment();
+        return fragment;
+    }
+
+
+    //////////////////// OVERRIDE METHODS //////////////////////////
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.files_list_layout);
+    }
 
-        getPermission();
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_files_list, container, false);
+
+        uploadGenericFileFloatingButton = view.findViewById(R.id.upload_file_button);
+        setupUploadFileFloatingButton();
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         storageRef = FirebaseStorage.getInstance().getReference().child(user.getUid());
@@ -147,33 +141,46 @@ public class FilesListActivity extends AppCompatActivity{
                 .child(BASE_REFERENCE).child(user.getUid());
 
         // get progress bar
-        uploadProgressBar = findViewById(R.id.number_progress_bar);
+        uploadProgressBar = view.findViewById(R.id.number_progress_bar);
 
         // RecyclerView for elements
-        storageView = findViewById(R.id.files_view);
+        storageView = view.findViewById(R.id.files_view);
         loadStorageElements();
         initFilesList();
 
-        setupUploadFileFloatingButton();
-        setupSwipeListener();
-        setupToolbar();
-
+        return view;
     }
 
-    /**
-     * setup the toolbar functionality
-     */
-    private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar_widget);
-        setSupportActionBar(toolbar);
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
+        this.parentActivity = (MainActivity) context;
+    }
 
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getBackDirectory();
+    @Override
+    public void onDetach() {
+        super.onDetach();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == IMG_PRV || requestCode == AUD_PRV || requestCode == FILE_PRV) {
+            Log.d(TAG, "Picked a file");
+            if (resultCode == Activity.RESULT_OK) {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    Log.e(TAG,"Permission denied for external storage");
+                }else {
+                    showPathnameChooserDialog(data);
+                }
             }
-        });
+        }
     }
+
+
+    //////////////////// PRIVATE METHODS //////////////////////////////
 
     /**
      * Initialize the Floating Action Button Menu that is in charge to
@@ -181,8 +188,6 @@ public class FilesListActivity extends AppCompatActivity{
      * of the mobile phone
      */
     private void setupUploadFileFloatingButton() {
-        uploadGenericFileFloatingButton = findViewById(R.id.upload_file_button);
-
         // upload image button
         SubActionButton uploadImageButton = generateSubActionButton(R.drawable.galley);
         uploadImageButton.setOnClickListener(new View.OnClickListener() {
@@ -213,7 +218,7 @@ public class FilesListActivity extends AppCompatActivity{
             }
         });
 
-        floatingMenu = new FloatingActionMenu.Builder(this)
+        floatingMenu = new FloatingActionMenu.Builder(parentActivity)
                 .addSubActionView(uploadImageButton)
                 .addSubActionView(uploadAudioButton)
                 .addSubActionView(uploadFileButton)
@@ -228,95 +233,88 @@ public class FilesListActivity extends AppCompatActivity{
      */
     private SubActionButton generateSubActionButton(@DrawableRes int resId) {
         //TODO: change the button dimension
-        SubActionButton.Builder subActionBuilder = new SubActionButton.Builder(this);
-        ImageView contentImage = new ImageView(this);
+        SubActionButton.Builder subActionBuilder = new SubActionButton.Builder(parentActivity);
+        ImageView contentImage = new ImageView(context);
         contentImage.setImageResource(resId);
         return subActionBuilder.setContentView(contentImage).build();
     }
 
     /**
-     * set the swipe listener on the view such that the user
-     * swiping from right to left can access the login activity
-     */
-    @SuppressLint("ClickableViewAccessibility")
-    private void setupSwipeListener() {
-        RelativeLayout mainLayout = findViewById(R.id.files_main_layout);
-        mainLayout.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    previousX = event.getX();
-                    previousY = event.getY();
-                    Log.d(TAG, previousX + " " + previousY);
-                }
-                else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    double currentX = event.getX();
-                    double currentY = event.getY();
-                    if (previousX < currentX - offset) {
-                        startScannerActivity();
-                    }
-                }
-                return true;
-            }
-        });
-    }
-
-    /**
-     * Start the ScannerActivity
-     */
-    private void startScannerActivity() {
-        Intent scannerIntent = new Intent(this, ScannerActivity.class);
-        finish();
-        startActivity(scannerIntent);
-        overridePendingTransition(R.anim.left_to_right, R.anim.exit_l2r);
-    }
-
-    /**
-     * Show a dialog that will ask to the user the pathname of the file
-     * that is going to be uploaded, the pathname consists of the folder,
-     * even if it doesn't exist or null if the current folder is ok.
-     * if user confirms then the file can be uploaded
-     * @param data data to upload
+     * Upload a new file on the FirebaseStorage given the Uri provided by external Activities
+     * @param data data of the file to upload
      *
      */
-    private void showPathnameChooserDialog(final Intent data) {
-        Log.d(TAG, "starting pathname chooser dialog..");
-        final Dialog d = new Dialog(FilesListActivity.this);
-        d.setTitle(getString(R.string.pathname_chooser));
-        d.setCancelable(true);
-        d.setContentView(R.layout.pathname_chooser_dialog);
+    private void uploadFile(Intent data, final String pathname) {
+        uploadGenericFileFloatingButton.performClick();
 
-        final EditText pathnameText = d.findViewById(R.id.pathname_text);
+        Uri fileUri = data.getData();
 
-        Button confirmButton = d.findViewById(R.id.confirm_button);
-        confirmButton.setOnClickListener(new View.OnClickListener() {
+        String absoluteFilePath = PathResolver.getPathFromUri(context, fileUri);
+
+        final Uri file = Uri.fromFile(new File(absoluteFilePath));
+
+        StorageReference fileRef = !pathname.equals("") ?
+                storageRef.child(pathname).child(file.getLastPathSegment())
+                : storageRef.child(file.getLastPathSegment());
+
+        // file information
+        final String contentType = context.getContentResolver().getType(fileUri);
+
+        StorageMetadata metadata = new StorageMetadata.Builder()
+                .setContentType(contentType)
+                .setCustomMetadata(KEY_METADATA, generateCode())
+                .setCustomMetadata(UID_METADATA, user.getUid())
+                .build();
+
+        final UploadTask uploadTask = fileRef.putFile(file, metadata);
+
+        final RelativeLayout.LayoutParams params= new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.ABOVE, R.id.upload_file_button);
+        storageView.setLayoutParams(params);
+        uploadProgressBar.setVisibility(View.VISIBLE);
+
+        int fileSize = Integer.parseInt(String.valueOf((new File(absoluteFilePath)).length()/1024));
+        //uploadProgressBar.setMax(fileSize);
+
+        Log.d(TAG, "starting uploading");
+        // Register observers to listen for when the download is done or if it fails
+        parentActivity.runOnUiThread(new Runnable() {
             @Override
-            public void onClick(View v) {
-                String pathname = filterPathname(pathnameText.getText().toString());
-                Log.d(TAG, "pathname inserted : " + pathname);
-                uploadFile(data, pathname);
-                d.dismiss();
+            public void run() {
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        Log.e(TAG, exception.toString());
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Log.d(TAG, "Upload complete");
+                        uploadProgressBar.setProgress(1000);
+                        uploadProgressBar.setVisibility(View.INVISIBLE);
+                        uploadProgressBar.setProgress(0);
+                        params.removeRule(RelativeLayout.ABOVE);
+                    }
+                }).addOnCanceledListener(new OnCanceledListener() {
+                    @Override
+                    public void onCanceled() {
+                        Log.e(TAG, "Upload canceled");
+                    }
+                }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+                        Log.d(TAG, "Upload paused");
+                    }
+                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        final double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                        Log.d(TAG, "PROGRESS -> " + progress);
+                        uploadProgressBar.setProgress((int)progress * 10);
+                    }
+                });
             }
         });
-
-        Button cancelButton = d.findViewById(R.id.cancel_button);
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                d.dismiss();
-            }
-        });
-        d.show();
-    }
-
-    /**
-     * Filters the pathname removing illegal characters
-     * @param pathname name to filter
-     * @return the filtered pathname
-     */
-    private String filterPathname(String pathname) {
-        //TODO: implement pathname filter
-        return pathname;
     }
 
     /**
@@ -327,8 +325,8 @@ public class FilesListActivity extends AppCompatActivity{
         Log.d(TAG, "Creating filesList adapter");
 
         storageView.setHasFixedSize(true);
-        storageView.setLayoutManager(new LinearLayoutManager(this));
-        storageAdapter = new StorageAdapter(this, storageElements);
+        storageView.setLayoutManager(new LinearLayoutManager(context));
+        storageAdapter = new FilesListFragment.StorageAdapter(context, storageElements);
         // set the adapter for the elements
         storageView.setAdapter(storageAdapter);
     }
@@ -409,150 +407,217 @@ public class FilesListActivity extends AppCompatActivity{
         });
     }
 
+    /**
+     * start the FileViewer which will show the file
+     * @param filename name of the file to show
+     */
+    private void startShowingFileService(String filename) {
+        Log.d(TAG, "showing file " + filename);
+        Intent viewerIntentService = new Intent(parentActivity, DownloadFileService.class);
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        Log.d(TAG, "creating menu");
-        MenuInflater inflater=getMenuInflater();
-        inflater.inflate(R.menu.app_settings_menu, menu);
+        viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
 
-        return super.onCreateOptionsMenu(menu);
-    }
+        filename = getCurrentPath(dbRef) + "/" + filename;
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        int id=item.getItemId();
-        switch(id)
-        {
-            case R.id.logout_menu:
-                LoginActivity.logout();
-                Log.d(TAG, "Log out");
-
-                final Intent scanner = new Intent(FilesListActivity.this, ScannerActivity.class);
-                scanner.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(scanner);
-                break;
-        }
-        return false;
+        // create the result receiver for the IntentService
+        ShowFileReceiver receiver = new ShowFileReceiver(context, new Handler());
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
+        context.startService(viewerIntentService);
     }
 
     /**
-     * retrieve the permission for reading external storage
+     * Start the service that will store the file on the public storage
+     * @param filename name of the file
      */
-    private void getPermission() {
-        ActivityCompat.requestPermissions(FilesListActivity.this,
-                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                PERMISSION_CODE);
-    }
+    private void startingSavingFileService(String filename) {
+        Intent viewerIntentService = new Intent(parentActivity, DownloadFileService.class);
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode== PERMISSION_CODE){
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                Log.d(TAG, "permissions read/write external storage ok");
-            }
-            else{
+        viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
 
-                Log.d(TAG, "permissions read/write external storage denied");
-            }
-        }
-    }
+        filename = getCurrentPath(dbRef) + "/" + filename;
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == IMG_PRV || requestCode == AUD_PRV || requestCode == FILE_PRV) {
-            Log.d(TAG, "Picked a file");
-            if (resultCode == Activity.RESULT_OK) {
-                if (ContextCompat.checkSelfPermission(FilesListActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    Log.e(TAG,"Permission denied for external storage");
-                }else {
-                    showPathnameChooserDialog(data);
-                }
-            }
-        }
+        // create the result receiver for the IntentService
+        SaveFileReceiver receiver = new SaveFileReceiver(context, new Handler());
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
+        context.startService(viewerIntentService);
     }
 
     /**
-     * Upload a new file on the FirebaseStorage given the Uri provided by external Activities
-     * @param data data of the file to upload
-     *
+     * Return the current path, from the root to the current directory
+     * @return the path string
      */
-    private void uploadFile(Intent data, final String pathname) {
-        uploadGenericFileFloatingButton.performClick();
+    private String getCurrentPath(DatabaseReference ref) {
+        if (ref.getKey().equals(user.getUid()))
+            return "";
+        else
+            return getCurrentPath(ref.getParent()) + "/" + ref.getKey();
+    }
 
-        Uri fileUri = data.getData();
+    /**
+     * Deletes a file from list
+     * @param filename name of the file to delete
+     */
+    private void deletePersonalFile(final String filename) {
+        //TODO: implement "are you sure?" dialog
 
-        String absoluteFilePath = PathResolver.getPathFromUri(this, fileUri);
-
-        final Uri file = Uri.fromFile(new File(absoluteFilePath));
-
-        StorageReference fileRef = !pathname.equals("") ?
-                storageRef.child(pathname).child(file.getLastPathSegment())
-                : storageRef.child(file.getLastPathSegment());
-
-        // file information
-        final String contentType = getContentResolver().getType(fileUri);
-
-        StorageMetadata metadata = new StorageMetadata.Builder()
-                .setContentType(contentType)
-                .setCustomMetadata(KEY_METADATA, generateCode())
-                .setCustomMetadata(UID_METADATA, user.getUid())
-                .build();
-
-        final UploadTask uploadTask = fileRef.putFile(file, metadata);
-
-        final RelativeLayout.LayoutParams params= new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.ABOVE, R.id.upload_file_button);
-        storageView.setLayoutParams(params);
-        uploadProgressBar.setVisibility(View.VISIBLE);
-
-        int fileSize = Integer.parseInt(String.valueOf((new File(absoluteFilePath)).length()/1024));
-        //uploadProgressBar.setMax(fileSize);
-
-        Log.d(TAG, "starting uploading");
-        // Register observers to listen for when the download is done or if it fails
-        runOnUiThread(new Runnable() {
+        Log.d(TAG, "deleting file: " + filename);
+        storageRef.child(filename).delete().addOnFailureListener(new OnFailureListener() {
             @Override
-            public void run() {
-                uploadTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        Log.e(TAG, exception.toString());
-                    }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Log.d(TAG, "Upload complete");
-                        uploadProgressBar.setProgress(1000);
-                        uploadProgressBar.setVisibility(View.INVISIBLE);
-                        uploadProgressBar.setProgress(0);
-                        params.removeRule(RelativeLayout.ABOVE);
-                    }
-                }).addOnCanceledListener(new OnCanceledListener() {
-                    @Override
-                    public void onCanceled() {
-                        Log.e(TAG, "Upload canceled");
-                    }
-                }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                        Log.d(TAG, "Upload paused");
-                    }
-                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                        final double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                        Log.d(TAG, "PROGRESS -> " + progress);
-                        uploadProgressBar.setProgress((int)progress * 10);
-                    }
-                });
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "Failure occurred during file removing");
+                Toast.makeText(context, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d(TAG, "File correctly removed!");
             }
         });
+    }
+
+    /**
+     * Generates a new qrcode bitmap
+     * @param filename text to encode
+     */
+    private void showQrCode(final String filename) {
+        Log.d(TAG, "getting qrcode");
+        MyFile f = retrieveFileByName(filename);
+        final Bitmap qrCode = generateQrCode(f.getKey());
+        if (qrCode != null) {
+            Log.d(TAG, "showing qrcode dialog..");
+            final Dialog d = new Dialog(context);
+            d.setTitle(getString(R.string.pathname_chooser));
+            d.setCancelable(true);
+            d.setContentView(R.layout.show_qrcode_dialog);
+            ImageView qrcodeImage = d.findViewById(R.id.qrcode_iamge);
+            qrcodeImage.setImageBitmap(qrCode);
+            Button saveButton = d.findViewById(R.id.save_button);
+            saveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    parentActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            File dst = new File(PathResolver.createPublicDocStorageDir(context).getAbsolutePath(),
+                                    "QRCode-" + filename);
+
+                            //File dst = new File(PathResolver.getPublicDocFileDir(FilesListActivity.this).getAbsolutePath(), "QRCode-" + filename);
+                            if (!dst.exists()) {
+                                //TODO: 2 filesList with same name but different folder cannot produce 2 qr code different
+                                try (FileOutputStream out = new FileOutputStream(dst)) {
+                                    qrCode.compress(Bitmap.CompressFormat.PNG, 100, out); // qrCode is the Bitmap instance
+                                    // PNG is a lossless format, the compression factor (100) is ignored
+                                    d.dismiss();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            else {
+                                Log.d(TAG, "QRCode already saved");
+                                Toast.makeText(context,
+                                        getString(R.string.file_already_stored),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+            });
+            d.show();
+        }
+    }
+
+    /**
+     * get back to the previous directory if any.
+     */
+    private void getBackDirectory() {
+        if (!dbRef.getKey().equals(user.getUid())) {
+            Log.d(TAG, "Removing a directory level");
+            dbRef = dbRef.getParent();
+            storageRef = storageRef.getParent();
+            files.clear();
+            directories.clear();
+            storageElements.clear();
+            notifyAdapters();
+            loadStorageElements();
+        }
+        else {
+            Log.d(TAG, "you are already at root");
+            Toast.makeText(context, getString(R.string.already_at_root_level),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * change the default directory, updating the filesList to show
+     * @param folderName name of the folder to which move to
+     */
+    private void openDirectory(final String folderName) {
+        Log.d(TAG, "changing directory, going to " + folderName);
+        dbRef = dbRef.child(folderName);
+        storageRef = storageRef.child(folderName);
+        files.clear();
+        directories.clear();
+        storageElements.clear();
+        notifyAdapters();
+        loadStorageElements();
+    }
+
+    /**
+     * Show a dialog that will ask to the user the pathname of the file
+     * that is going to be uploaded, the pathname consists of the folder,
+     * even if it doesn't exist or null if the current folder is ok.
+     * if user confirms then the file can be uploaded
+     * @param data data to upload
+     *
+     */
+    private void showPathnameChooserDialog(final Intent data) {
+        Log.d(TAG, "starting pathname chooser dialog..");
+        final Dialog d = new Dialog(context);
+        d.setTitle(getString(R.string.pathname_chooser));
+        d.setCancelable(true);
+        d.setContentView(R.layout.pathname_chooser_dialog);
+
+        final EditText pathnameText = d.findViewById(R.id.pathname_text);
+
+        Button confirmButton = d.findViewById(R.id.confirm_button);
+        confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String pathname = filterPathname(pathnameText.getText().toString());
+                Log.d(TAG, "pathname inserted : " + pathname);
+                uploadFile(data, pathname);
+                d.dismiss();
+            }
+        });
+
+        Button cancelButton = d.findViewById(R.id.cancel_button);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+        d.show();
+    }
+
+    /**
+     * Filters the pathname removing illegal characters
+     * @param pathname name to filter
+     * @return the filtered pathname
+     */
+    private String filterPathname(String pathname) {
+        //TODO: implement pathname filter
+        return pathname;
+    }
+
+    /**
+     * Notifies the adapters that data has been changed
+     */
+    public void notifyAdapters() {
+        storageAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -566,7 +631,6 @@ public class FilesListActivity extends AppCompatActivity{
         Log.d(TAG, "new code: " + code);
         return code;
     }
-
 
     /**
      * generates a new qrcode
@@ -624,176 +688,10 @@ public class FilesListActivity extends AppCompatActivity{
         return null;
     }
 
-
-    /**
-     * start the FileViewer which will show the file
-     * @param filename name of the file to show
-     */
-    private void startShowingFileService(String filename) {
-        Log.d(TAG, "showing file " + filename);
-        Intent viewerIntentService = new Intent(this, DownloadFileService.class);
-
-        viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
-
-        filename = getCurrentPath(dbRef) + "/" + filename;
-
-        // create the result receiver for the IntentService
-        ShowFileReceiver receiver = new ShowFileReceiver(this, new Handler());
-        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
-        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
-        startService(viewerIntentService);
-    }
-
-    /**
-     * Start the service that will store the file on the public storage
-     * @param filename name of the file
-     */
-    private void startingSavingFileService(String filename) {
-        Intent viewerIntentService = new Intent(this, DownloadFileService.class);
-
-        viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
-
-        filename = getCurrentPath(dbRef) + "/" + filename;
-
-        // create the result receiver for the IntentService
-        SaveFileReceiver receiver = new SaveFileReceiver(this, new Handler());
-        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
-        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
-        startService(viewerIntentService);
-    }
-
-    /**
-     * Return the current path, from the root to the current directory
-     * @return the path string
-     */
-    private String getCurrentPath(DatabaseReference ref) {
-        if (ref.getKey().equals(user.getUid()))
-            return "";
-        else
-            return getCurrentPath(ref.getParent()) + "/" + ref.getKey();
-    }
-
-    /**
-     * Deletes a file from list
-     * @param filename name of the file to delete
-     */
-    private void deletePersonalFile(final String filename) {
-        //TODO: implement "are you sure?" dialog
-
-        Log.d(TAG, "deleting file: " + filename);
-        storageRef.child(filename).delete().addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(TAG, "Failure occurred during file removing");
-                Toast.makeText(FilesListActivity.this, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
-                        .show();
-            }
-        }).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Log.d(TAG, "File correctly removed!");
-            }
-        });
-    }
-
-    /**
-     * Generates a new qrcode bitmap
-     * @param filename text to encode
-     */
-    private void showQrCode(final String filename) {
-        Log.d(TAG, "getting qrcode");
-        MyFile f = retrieveFileByName(filename);
-        final Bitmap qrCode = generateQrCode(f.getKey());
-        if (qrCode != null) {
-            Log.d(TAG, "showing qrcode dialog..");
-            final Dialog d = new Dialog(FilesListActivity.this);
-            d.setTitle(getString(R.string.pathname_chooser));
-            d.setCancelable(true);
-            d.setContentView(R.layout.show_qrcode_dialog);
-            ImageView qrcodeImage = d.findViewById(R.id.qrcode_iamge);
-            qrcodeImage.setImageBitmap(qrCode);
-            Button saveButton = d.findViewById(R.id.save_button);
-            saveButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            File dst = new File(PathResolver.createPublicDocStorageDir(FilesListActivity.this).getAbsolutePath(),
-                                    "QRCode-" + filename);
-
-                            //File dst = new File(PathResolver.getPublicDocFileDir(FilesListActivity.this).getAbsolutePath(), "QRCode-" + filename);
-                            if (!dst.exists()) {
-                                //TODO: 2 filesList with same name but different folder cannot produce 2 qr code different
-                                try (FileOutputStream out = new FileOutputStream(dst)) {
-                                    qrCode.compress(Bitmap.CompressFormat.PNG, 100, out); // qrCode is the Bitmap instance
-                                    // PNG is a lossless format, the compression factor (100) is ignored
-                                    d.dismiss();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            else {
-                                Log.d(TAG, "QRCode already saved");
-                                Toast.makeText(FilesListActivity.this,
-                                        getString(R.string.file_already_stored),
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                }
-            });
-            d.show();
-        }
-    }
-
-    /**
-     * get back to the previous directory if any.
-     */
-    private void getBackDirectory() {
-        if (!dbRef.getKey().equals(user.getUid())) {
-            Log.d(TAG, "Removing a directory level");
-            dbRef = dbRef.getParent();
-            storageRef = storageRef.getParent();
-            files.clear();
-            directories.clear();
-            storageElements.clear();
-            notifyAdapters();
-            loadStorageElements();
-        }
-        else {
-            Log.d(TAG, "you are already at root");
-            Toast.makeText(FilesListActivity.this, getString(R.string.already_at_root_level),
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
-     * change the default directory, updating the filesList to show
-     * @param folderName name of the folder to which move to
-     */
-    private void openDirectory(final String folderName) {
-        Log.d(TAG, "changing directory, going to " + folderName);
-        dbRef = dbRef.child(folderName);
-        storageRef = storageRef.child(folderName);
-        files.clear();
-        directories.clear();
-        storageElements.clear();
-        notifyAdapters();
-        loadStorageElements();
-    }
-
-    /**
-     * Notifies the adapters that data has been changed
-     */
-    public void notifyAdapters() {
-        storageAdapter.notifyDataSetChanged();
-    }
-
     /**
      * RecyclerView adapter for the elements' list
      */
-    private class StorageAdapter extends RecyclerView.Adapter<StorageAdapter.dataViewHolder> {
+    private class StorageAdapter extends RecyclerView.Adapter<FilesListFragment.StorageAdapter.dataViewHolder> {
         private LayoutInflater inflater;
         private List<StorageElement> elements;
         private Context context;
@@ -813,14 +711,14 @@ public class FilesListActivity extends AppCompatActivity{
 
         @NonNull
         @Override
-        public dataViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public FilesListFragment.StorageAdapter.dataViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             //TODO: rearrange item file layout
             View view = inflater.inflate(R.layout.item_storage_element, parent, false);
-            return new dataViewHolder(view);
+            return new FilesListFragment.StorageAdapter.dataViewHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull final dataViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull final FilesListFragment.StorageAdapter.dataViewHolder holder, int position) {
             holder.bindData(elements.get(position));
         }
 

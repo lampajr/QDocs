@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/files_main_layout"
-    tools:context=".activities.FilesListActivity">
-
-    <include layout="@layout/toolbar_layout"
-        android:id="@+id/toolbar_widget" />
+    tools:context=".fragments.FilesListFragment">
 
     <!-- FILES RECYCLER VIEW -->
     <android.support.v7.widget.RecyclerView

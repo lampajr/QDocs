@@ -10,7 +10,6 @@ import android.util.Log;
 
 import com.polimi.proj.qdocs.activities.GenericFileActivity;
 import com.polimi.proj.qdocs.activities.PlayAudioActivity;
-import com.polimi.proj.qdocs.activities.FilesListActivity;
 import com.polimi.proj.qdocs.activities.ShowImageActivity;
 
 import java.util.ArrayList;
@@ -25,8 +24,8 @@ import java.util.List;
  * download file.
  *
  * @see ResultReceiver
- * @see com.polimi.proj.qdocs.activities.ScannerActivity
- * @see FilesListActivity
+ * @see com.polimi.proj.qdocs.fragments.ScannerFragment
+ * @see com.polimi.proj.qdocs.fragments.FilesListFragment
  * @see DownloadFileService
  */
 
