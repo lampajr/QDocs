@@ -6,13 +6,15 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/qrcode_iamge"
-        android:layout_gravity="center" />
+        android:id="@+id/qrcode_image"
+        android:layout_gravity="center"
+        android:contentDescription="TODO" />
 
-    <Button
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SAVE"
+        android:src="@drawable/ic_file_download_black_24dp"
         android:id="@+id/save_button"
-        android:layout_gravity="center_horizontal"/>
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="TODO" />
 </LinearLayout>

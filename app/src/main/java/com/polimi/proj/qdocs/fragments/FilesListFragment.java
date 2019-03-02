@@ -507,10 +507,10 @@ public class FilesListFragment extends Fragment {
             final Dialog d = new Dialog(context);
             d.setTitle(getString(R.string.pathname_chooser));
             d.setCancelable(true);
-            d.setContentView(R.layout.show_qrcode_dialog);
-            ImageView qrcodeImage = d.findViewById(R.id.qrcode_iamge);
+            d.setContentView(R.layout.dialog_show_qrcode);
+            ImageView qrcodeImage = d.findViewById(R.id.qrcode_image);
             qrcodeImage.setImageBitmap(qrCode);
-            Button saveButton = d.findViewById(R.id.save_button);
+            ImageView saveButton = d.findViewById(R.id.save_button);
             saveButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -610,7 +610,7 @@ public class FilesListFragment extends Fragment {
         final Dialog d = new Dialog(context);
         d.setTitle(getString(R.string.pathname_chooser));
         d.setCancelable(true);
-        d.setContentView(R.layout.pathname_chooser_dialog);
+        d.setContentView(R.layout.dialog_pathname_chooser);
 
         final EditText pathnameText = d.findViewById(R.id.pathname_text);
 
