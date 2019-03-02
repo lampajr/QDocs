@@ -47,6 +47,7 @@
     <string name="save_file_string">Save File</string>
     <string name="delete_file_string">Delete File</string>
     <string name="get_qrcode_string">Get QR Code</string>
+    <string name="dot_string">.</string>
 
 
 </resources>

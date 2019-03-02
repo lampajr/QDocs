@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -103,6 +104,11 @@ public class FilesListFragment extends Fragment {
 
     private NumberProgressBar uploadProgressBar;
 
+    private LinearLayout directoryLayout;
+    private ImageView getBackDirectoryButton;
+    private TextView directoryPathText;
+    private RelativeLayout.LayoutParams params;
+
     private FloatingActionMenu floatingMenu;
     private FloatingActionButton uploadGenericFileFloatingButton;
 
@@ -147,6 +153,12 @@ public class FilesListFragment extends Fragment {
         // get progress bar
         uploadProgressBar = view.findViewById(R.id.number_progress_bar);
 
+        directoryLayout = view.findViewById(R.id.directory_layout);
+        directoryPathText = view.findViewById(R.id.directory_path_text);
+        getBackDirectoryButton = view.findViewById(R.id.get_back_directory);
+
+        setupDirectoryLayout();
+
         // RecyclerView for elements
         storageView = view.findViewById(R.id.files_view);
         loadStorageElements();
@@ -185,6 +197,20 @@ public class FilesListFragment extends Fragment {
 
 
     //////////////////// PRIVATE METHODS //////////////////////////////
+
+    /**
+     * setup the layout that will show the current folder
+     * if it is at root level this layout is made invisible
+     */
+    private void setupDirectoryLayout() {
+        directoryLayout.setVisibility(View.INVISIBLE);
+        getBackDirectoryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getBackDirectory();
+            }
+        });
+    }
 
     /**
      * Initialize the Floating Action Button Menu that is in charge to
@@ -544,8 +570,18 @@ public class FilesListFragment extends Fragment {
             files.clear();
             directories.clear();
             storageElements.clear();
+            //TODO: change directory text
+            String pastText = directoryPathText.getText().toString();
+            directoryPathText.setText(pastText.substring(0, pastText.lastIndexOf("/")));
             notifyAdapters();
             loadStorageElements();
+            if (dbRef.getKey().equals(user.getUid())) {
+                //TODO: make directory layout invisible
+                directoryLayout.setVisibility(View.INVISIBLE);
+                //TODO: remove layout_below attribute to filesView
+                params.removeRule(RelativeLayout.BELOW);
+                storageView.setLayoutParams(params);
+            }
         }
         else {
             Log.d(TAG, "you are already at root");
@@ -559,6 +595,9 @@ public class FilesListFragment extends Fragment {
      * @param folderName name of the folder to which move to
      */
     private void openDirectory(final String folderName) {
+        if (dbRef.getKey().equals(user.getUid())) {
+            directoryLayout.setVisibility(View.VISIBLE);
+        }
         Log.d(TAG, "changing directory, going to " + folderName);
         dbRef = dbRef.child(folderName);
         storageRef = storageRef.child(folderName);
@@ -567,6 +606,13 @@ public class FilesListFragment extends Fragment {
         storageElements.clear();
         notifyAdapters();
         loadStorageElements();
+        //TODO: change directory text
+        String path = directoryPathText.getText().toString() + "/" + folderName;
+        directoryPathText.setText(path);
+        //TODO: add layout_below attribute
+        params= new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.BELOW, R.id.directory_layout);
+        storageView.setLayoutParams(params);
     }
 
     /**
