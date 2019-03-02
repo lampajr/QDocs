@@ -26,6 +26,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -115,6 +116,12 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     private MainActivity parentActivity;
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    // drag-and-drop upload file button
+    private final static float CLICK_DRAG_TOLERANCE = 30; // Often, there will be a slight, unintentional, drag when the user taps the FAB, so we need to account for this.
+    private DragAndDropTouchListener dragAndDropListener;
+    private float downRawX, downRawY;
+    private float dX, dY;
+
     /**
      * Required empty public constructor
      */
@@ -140,6 +147,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         View view = inflater.inflate(R.layout.fragment_files_list, container, false);
 
         uploadGenericFileFloatingButton = view.findViewById(R.id.upload_file_button);
+        dragAndDropListener = new DragAndDropTouchListener();
         setupUploadFileFloatingButton();
 
         user = FirebaseAuth.getInstance().getCurrentUser();
@@ -162,7 +170,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         storageView = view.findViewById(R.id.files_view);
         initFilesView();
         //loadStorageElements();
-        //notifyAdapters();
+        //notifyAdapter();
 
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         setupSwipeRefreshListener();
@@ -222,12 +230,9 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
             @Override
             public void run() {
-
-                swipeRefreshLayout.setRefreshing(true);
-
                 // Fetching data from firebase database
                 loadStorageElements();
-                notifyAdapters();
+                notifyAdapter();
             }
         });
     }
@@ -252,6 +257,8 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * of the mobile phone
      */
     private void setupUploadFileFloatingButton() {
+        uploadGenericFileFloatingButton.setOnTouchListener(dragAndDropListener);
+
         // upload image button
         SubActionButton uploadImageButton = generateSubActionButton(R.drawable.galley);
         uploadImageButton.setOnClickListener(new View.OnClickListener() {
@@ -412,16 +419,16 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                     MyFile file = dataSnapshot.getValue(MyFile.class);
                     if (file != null) {
                         Log.d(TAG, "adding new file: " + file.getFilename());
-                        storageElements.add(file);
+                        addElement(file);
                     }
                 }
                 else {
                     // the element is a directory
                     Log.d(TAG, "adding new folder..");
                     Directory dir = new Directory(dataSnapshot.getKey());
-                    storageElements.add(dir);
+                    addElement(dir);
                 }
-                notifyAdapters();
+                notifyAdapter();
                 swipeRefreshLayout.setRefreshing(false);
             }
 
@@ -450,7 +457,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                         storageElements.remove(dir);
                     }
                 }
-                notifyAdapters();
+                notifyAdapter();
                 swipeRefreshLayout.setRefreshing(false);
             }
 
@@ -600,14 +607,14 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
             //TODO: change directory text
             String pastText = directoryPathText.getText().toString();
             directoryPathText.setText(pastText.substring(0, pastText.lastIndexOf("/")));
-            notifyAdapters();
+            notifyAdapter();
             loadStorageElements();
             if (isAtRoot()) {
                 //TODO: make directory layout invisible
                 directoryLayout.setVisibility(View.INVISIBLE);
                 //TODO: remove layout_below attribute to filesView
                 params.removeRule(RelativeLayout.BELOW);
-                storageView.setLayoutParams(params);
+                swipeRefreshLayout.setLayoutParams(params);
             }
         }
         else {
@@ -629,7 +636,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         dbRef = dbRef.child(folderName);
         storageRef = storageRef.child(folderName);
         storageElements.clear();
-        notifyAdapters();
+        notifyAdapter();
         loadStorageElements();
         //TODO: change directory text
         String path = directoryPathText.getText().toString() + "/" + folderName;
@@ -637,7 +644,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         //TODO: add layout_below attribute
         params= new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.BELOW, R.id.directory_layout);
-        storageView.setLayoutParams(params);
+        swipeRefreshLayout.setLayoutParams(params);
     }
 
     /**
@@ -691,7 +698,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     /**
      * Notifies the adapters that data has been changed
      */
-    public void notifyAdapters() {
+    public void notifyAdapter() {
         storageAdapter.notifyDataSetChanged();
     }
 
@@ -769,6 +776,22 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
             }
         }
         return null;
+    }
+
+    /**
+     * add the current element to the storageElement list
+     * preserving the order: directories as first then files
+     * @param elem curr element to add
+     */
+    private void addElement(StorageElement elem) {
+        if (elem instanceof MyFile) {
+            // add file in the tail of list
+            storageElements.add(elem);
+        }
+        else {
+            // add directory in the head of list
+            storageElements.add(0, elem);
+        }
     }
 
     /**
@@ -943,6 +966,71 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
                     //TODO: add popup settings menu for the directory
                 }
+            }
+        }
+    }
+
+    /**
+     * Drag & Drop touch listener
+     */
+    private class DragAndDropTouchListener implements View.OnTouchListener {
+        @Override
+        public boolean onTouch(View view, MotionEvent event) {
+            int action = event.getAction();
+            if (action == MotionEvent.ACTION_DOWN) {
+
+                downRawX = event.getRawX();
+                downRawY = event.getRawY();
+                dX = view.getX() - downRawX;
+                dY = view.getY() - downRawY;
+
+                return true; // Consumed
+
+            }
+            else if (action == MotionEvent.ACTION_MOVE) {
+
+                int viewWidth = view.getWidth();
+                int viewHeight = view.getHeight();
+
+                View viewParent = (View)view.getParent();
+                int parentWidth = viewParent.getWidth();
+                int parentHeight = viewParent.getHeight();
+
+                float newX = event.getRawX() + dX;
+                newX = Math.max(0, newX); // Don't allow the FAB past the left hand side of the parent
+                newX = Math.min(parentWidth - viewWidth, newX); // Don't allow the FAB past the right hand side of the parent
+
+                float newY = event.getRawY() + dY;
+                newY = Math.max(0, newY); // Don't allow the FAB past the top of the parent
+                newY = Math.min(parentHeight - viewHeight, newY); // Don't allow the FAB past the bottom of the parent
+
+                view.animate()
+                        .x(newX)
+                        .y(newY)
+                        .setDuration(0)
+                        .start();
+
+                return true; // Consumed
+
+            }
+            else if (action == MotionEvent.ACTION_UP) {
+
+                float upRawX = event.getRawX();
+                float upRawY = event.getRawY();
+
+                float upDX = upRawX - downRawX;
+                float upDY = upRawY - downRawY;
+
+                if (Math.abs(upDX) < CLICK_DRAG_TOLERANCE && Math.abs(upDY) < CLICK_DRAG_TOLERANCE) { // A click
+                    return view.performClick();
+                }
+                else { // A drag
+                    return true; // Consumed
+                }
+
+            }
+            else {
+                return view.onTouchEvent(event);
             }
         }
     }
