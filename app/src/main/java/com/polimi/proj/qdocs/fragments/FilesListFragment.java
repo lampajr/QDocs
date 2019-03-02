@@ -18,13 +18,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -95,8 +93,6 @@ public class FilesListFragment extends Fragment {
 
     private StorageReference storageRef;
 
-    private final List<MyFile> files = new ArrayList<>();
-    private final List<Directory> directories = new ArrayList<>();
     //TODO: order elements, as first folder then files
     private final List<StorageElement> storageElements = new ArrayList<>();
     private FilesListFragment.StorageAdapter storageAdapter;
@@ -161,8 +157,9 @@ public class FilesListFragment extends Fragment {
 
         // RecyclerView for elements
         storageView = view.findViewById(R.id.files_view);
+        initFilesView();
         loadStorageElements();
-        initFilesList();
+        notifyAdapters();
 
         return view;
     }
@@ -303,9 +300,6 @@ public class FilesListFragment extends Fragment {
         storageView.setLayoutParams(params);
         uploadProgressBar.setVisibility(View.VISIBLE);
 
-        int fileSize = Integer.parseInt(String.valueOf((new File(absoluteFilePath)).length()/1024));
-        //uploadProgressBar.setMax(fileSize);
-
         Log.d(TAG, "starting uploading");
         // Register observers to listen for when the download is done or if it fails
         parentActivity.runOnUiThread(new Runnable() {
@@ -351,7 +345,7 @@ public class FilesListFragment extends Fragment {
      * initialize the List View that will show the list of all user's elements stored in the Firebase
      * Storage, it will add the listener on the items
      */
-    private void initFilesList() {
+    private void initFilesView() {
         Log.d(TAG, "Creating filesList adapter");
 
         storageView.setHasFixedSize(true);
@@ -372,16 +366,11 @@ public class FilesListFragment extends Fragment {
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Log.d(TAG, "onChildAdded : key found -> " + dataSnapshot.getKey());
-                if (dataSnapshot.getKey().matches("\\d+")) {
+                if (isFile(dataSnapshot)) {
                     // the element is a file
-                    Log.d(TAG, "adding new file..");
                     MyFile file = dataSnapshot.getValue(MyFile.class);
                     if (file != null) {
-                        Log.d(TAG, "Found new file: " + file.getKey() + "; " + file.getFilename() +
-                                "; " + file.getContentType() + "; " + file.getSize() +
-                                "; " + file.getTime());
-                        files.add(file);
+                        Log.d(TAG, "adding new file: " + file.getFilename());
                         storageElements.add(file);
                     }
                 }
@@ -389,7 +378,6 @@ public class FilesListFragment extends Fragment {
                     // the element is a directory
                     Log.d(TAG, "adding new folder..");
                     Directory dir = new Directory(dataSnapshot.getKey());
-                    directories.add(dir);
                     storageElements.add(dir);
                 }
                 notifyAdapters();
@@ -409,7 +397,6 @@ public class FilesListFragment extends Fragment {
                     Log.d(TAG, "removing new file..");
                     MyFile file = retrieveFileByKey(dataSnapshot.getValue(MyFile.class).getKey());
                     if (file != null) {
-                        files.remove(file);
                         storageElements.remove(file);
                     }
                 }
@@ -418,7 +405,6 @@ public class FilesListFragment extends Fragment {
                     Log.d(TAG, "removing new folder..");
                     Directory dir = retrieveDirectoryByName(dataSnapshot.getKey());
                     if (dir != null) {
-                        directories.remove(dir);
                         storageElements.remove(dir);
                     }
                 }
@@ -563,19 +549,17 @@ public class FilesListFragment extends Fragment {
      * get back to the previous directory if any.
      */
     private void getBackDirectory() {
-        if (!dbRef.getKey().equals(user.getUid())) {
+        if (!isAtRoot()) {
             Log.d(TAG, "Removing a directory level");
             dbRef = dbRef.getParent();
             storageRef = storageRef.getParent();
-            files.clear();
-            directories.clear();
             storageElements.clear();
             //TODO: change directory text
             String pastText = directoryPathText.getText().toString();
             directoryPathText.setText(pastText.substring(0, pastText.lastIndexOf("/")));
             notifyAdapters();
             loadStorageElements();
-            if (dbRef.getKey().equals(user.getUid())) {
+            if (isAtRoot()) {
                 //TODO: make directory layout invisible
                 directoryLayout.setVisibility(View.INVISIBLE);
                 //TODO: remove layout_below attribute to filesView
@@ -595,14 +579,12 @@ public class FilesListFragment extends Fragment {
      * @param folderName name of the folder to which move to
      */
     private void openDirectory(final String folderName) {
-        if (dbRef.getKey().equals(user.getUid())) {
+        if (isAtRoot()) {
             directoryLayout.setVisibility(View.VISIBLE);
         }
         Log.d(TAG, "changing directory, going to " + folderName);
         dbRef = dbRef.child(folderName);
         storageRef = storageRef.child(folderName);
-        files.clear();
-        directories.clear();
         storageElements.clear();
         notifyAdapters();
         loadStorageElements();
@@ -700,14 +682,18 @@ public class FilesListFragment extends Fragment {
         }
     }
 
+
     /**
      * Retrieve a MyFile object matching the filename passed as paramater
      * @param filename name of the file to retrieve
      * @return the MyFile instance if exists, null otherwise
      */
     public MyFile retrieveFileByName(String filename) {
-        for(MyFile f : files) {
-            if (f.getFilename().equals(filename)) return f;
+        for(StorageElement el : storageElements) {
+            if (el instanceof MyFile) {
+                MyFile f = (MyFile) el;
+                if (f.getFilename().equals(filename)) return f;
+            }
         }
         return null;
     }
@@ -718,9 +704,11 @@ public class FilesListFragment extends Fragment {
      * @return the MyFile instance if exists, null otherwise
      */
     public MyFile retrieveFileByKey(String key) {
-        for(MyFile f : files) {
-            if (f != null && f.getKey() != null
-                    && f.getKey().equals(key)) return f;
+        for(StorageElement el : storageElements) {
+            if (el instanceof MyFile) {
+                MyFile f = (MyFile) el;
+                if (f.getKey() != null && f.getKey().equals(key)) return f;
+            }
         }
         return null;
     }
@@ -731,11 +719,30 @@ public class FilesListFragment extends Fragment {
      * @return the Directory obj
      */
     public Directory retrieveDirectoryByName(String name) {
-        for(Directory d : directories) {
-            if (d != null && d.getDirectoryName() != null
-                    && d.getDirectoryName().equals(name)) return d;
+        for(StorageElement el : storageElements) {
+            if (el instanceof Directory) {
+                Directory d = (Directory) el;
+                if (d.getDirectoryName() != null && d.getDirectoryName().equals(name)) return d;
+            }
         }
         return null;
+    }
+
+    /**
+     * tells if the user is in the root directory or not
+     * @return true if root dir, false otherwise
+     */
+    private boolean isAtRoot() {
+        return dbRef.getKey().equals(user.getUid());
+    }
+
+    /**
+     * tells if the current datasnapshot stores a file
+     * @param dataSnapshot datasnapshot to check
+     * @return true if it is a file, false otherwise
+     */
+    private boolean isFile(DataSnapshot dataSnapshot) {
+        return dataSnapshot.getKey().matches("\\d+");
     }
 
     /**
