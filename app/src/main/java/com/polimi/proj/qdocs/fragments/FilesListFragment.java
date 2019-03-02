@@ -17,6 +17,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -78,7 +79,7 @@ import java.util.Calendar;
 import java.util.List;
 
 
-public class FilesListFragment extends Fragment {
+public class FilesListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "FILES_LIST_FRAGMENT";
 
@@ -112,6 +113,7 @@ public class FilesListFragment extends Fragment {
     private DatabaseReference dbRef;
     private Context context;
     private MainActivity parentActivity;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     /**
      * Required empty public constructor
@@ -153,13 +155,17 @@ public class FilesListFragment extends Fragment {
         directoryPathText = view.findViewById(R.id.directory_path_text);
         getBackDirectoryButton = view.findViewById(R.id.get_back_directory);
 
+
         setupDirectoryLayout();
 
         // RecyclerView for elements
         storageView = view.findViewById(R.id.files_view);
         initFilesView();
-        loadStorageElements();
-        notifyAdapters();
+        //loadStorageElements();
+        //notifyAdapters();
+
+        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        setupSwipeRefreshListener();
 
         return view;
     }
@@ -193,7 +199,38 @@ public class FilesListFragment extends Fragment {
     }
 
 
+    @Override
+    public void onRefresh() {
+        storageElements.clear();
+        loadStorageElements();
+    }
+
     //////////////////// PRIVATE METHODS //////////////////////////////
+
+
+    private void setupSwipeRefreshListener() {
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+
+
+        // Showing Swipe Refresh animation on activity create
+        // As animation won't start on onCreate, post runnable is used
+        swipeRefreshLayout.post(new Runnable() {
+
+            @Override
+            public void run() {
+
+                swipeRefreshLayout.setRefreshing(true);
+
+                // Fetching data from firebase database
+                loadStorageElements();
+                notifyAdapters();
+            }
+        });
+    }
 
     /**
      * setup the layout that will show the current folder
@@ -297,8 +334,9 @@ public class FilesListFragment extends Fragment {
 
         final RelativeLayout.LayoutParams params= new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.ABOVE, R.id.upload_file_button);
-        storageView.setLayoutParams(params);
+        swipeRefreshLayout.setLayoutParams(params);
         uploadProgressBar.setVisibility(View.VISIBLE);
+        uploadProgressBar.setMax(100);
 
         Log.d(TAG, "starting uploading");
         // Register observers to listen for when the download is done or if it fails
@@ -314,7 +352,7 @@ public class FilesListFragment extends Fragment {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         Log.d(TAG, "Upload complete");
-                        uploadProgressBar.setProgress(1000);
+                        uploadProgressBar.setProgress(100);
                         uploadProgressBar.setVisibility(View.INVISIBLE);
                         uploadProgressBar.setProgress(0);
                         params.removeRule(RelativeLayout.ABOVE);
@@ -332,9 +370,9 @@ public class FilesListFragment extends Fragment {
                 }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                        final double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                        final int progress = (int)((100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
                         Log.d(TAG, "PROGRESS -> " + progress);
-                        uploadProgressBar.setProgress((int)progress * 10);
+                        uploadProgressBar.setProgress(progress);
                     }
                 });
             }
@@ -363,6 +401,9 @@ public class FilesListFragment extends Fragment {
      */
     private void loadStorageElements() {
 
+        // Showing refresh animation before making requests to firebase server
+        swipeRefreshLayout.setRefreshing(true);
+
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -381,6 +422,7 @@ public class FilesListFragment extends Fragment {
                     storageElements.add(dir);
                 }
                 notifyAdapters();
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
@@ -409,6 +451,7 @@ public class FilesListFragment extends Fragment {
                     }
                 }
                 notifyAdapters();
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
