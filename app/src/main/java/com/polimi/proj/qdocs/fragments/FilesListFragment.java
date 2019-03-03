@@ -3,6 +3,7 @@ package com.polimi.proj.qdocs.fragments;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,6 +25,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -38,7 +41,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.daimajia.numberprogressbar.NumberProgressBar;
+import com.cocosw.bottomsheet.BottomSheet;
 import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -95,12 +98,9 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
     private StorageReference storageRef;
 
-    //TODO: order elements, as first folder then files
     private final List<StorageElement> storageElements = new ArrayList<>();
     private FilesListFragment.StorageAdapter storageAdapter;
     private RecyclerView storageView;
-
-    private NumberProgressBar uploadProgressBar;
 
     private LinearLayout directoryLayout;
     private ImageView getBackDirectoryButton;
@@ -160,9 +160,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         dbRef = FirebaseDatabase.getInstance().getReference()
                 .child(BASE_REFERENCE).child(user.getUid());
 
-        // get progress bar
-        uploadProgressBar = view.findViewById(R.id.number_progress_bar);
-
         directoryLayout = view.findViewById(R.id.directory_layout);
         directoryPathText = view.findViewById(R.id.directory_path_text);
         getBackDirectoryButton = view.findViewById(R.id.get_back_directory);
@@ -172,7 +169,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
         // RecyclerView for elements
         storageView = view.findViewById(R.id.files_view);
-        initFilesView();
+        setupStorageView();
         //loadStorageElements();
         //notifyAdapter();
 
@@ -344,10 +341,13 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
         final UploadTask uploadTask = fileRef.putFile(file, metadata);
 
-        params.addRule(RelativeLayout.ABOVE, R.id.upload_file_button);
-        swipeRefreshLayout.setLayoutParams(params);
-        uploadProgressBar.setVisibility(View.VISIBLE);
-        uploadProgressBar.setMax(100);
+        final ProgressDialog progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage("Uploading file..");
+        progressDialog.setIcon(R.drawable.download_icon);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setProgress(0);
+        progressDialog.setMax(100);
+        progressDialog.show();
 
         Log.d(TAG, "starting uploading");
         // Register observers to listen for when the download is done or if it fails
@@ -363,10 +363,8 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         Log.d(TAG, "Upload complete");
-                        uploadProgressBar.setProgress(100);
-                        uploadProgressBar.setVisibility(View.INVISIBLE);
-                        uploadProgressBar.setProgress(0);
-                        params.removeRule(RelativeLayout.ABOVE);
+                        progressDialog.setProgress(100);
+                        progressDialog.dismiss();
                     }
                 }).addOnCanceledListener(new OnCanceledListener() {
                     @Override
@@ -383,7 +381,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                     public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                         final int progress = (int)((100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
                         Log.d(TAG, "PROGRESS -> " + progress);
-                        uploadProgressBar.setProgress(progress);
+                        progressDialog.setProgress(progress);
                     }
                 });
             }
@@ -394,7 +392,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * initialize the List View that will show the list of all user's elements stored in the Firebase
      * Storage, it will add the listener on the items
      */
-    private void initFilesView() {
+    private void setupStorageView() {
         Log.d(TAG, "Creating filesList adapter");
 
         storageView.setHasFixedSize(true);
@@ -402,6 +400,29 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         storageAdapter = new FilesListFragment.StorageAdapter(context, storageElements);
         // set the adapter for the elements
         storageView.setAdapter(storageAdapter);
+
+        // set OnItemTouch listener
+        storageView.addOnItemTouchListener(new RecyclerTouchListener(context, storageView, new ClickListener() {
+            @Override
+            public void onClick(View v, int position) {
+                //TODO: implement this if needed
+            }
+
+            @Override
+            public void onLongClick(View v, int position) {
+                Log.d(TAG, "long click of " + position + " item");
+                StorageElement elem = storageElements.get(position);
+                if (elem instanceof MyFile) {
+                    // this is a file so the click triggers opening the file
+                    //showPopupSettings(v, (MyFile)elem);
+                    showBottomSheetMenu((MyFile) elem);
+                }
+                else {
+                    // this is a directory, the click triggers opening directory
+                    //TODO: implement long click on directories, showing directory options
+                }
+            }
+        }));
     }
 
     /**
@@ -798,6 +819,77 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         }
     }
 
+    //TODO: choose between the two popup menu!!
+
+    /**
+     * shows the bottom menu providing settings about the specific file
+     * @param file file for which show settings
+     */
+    private void showBottomSheetMenu(final MyFile file) {
+        new BottomSheet.Builder(parentActivity)
+                .title(R.string.settings_string)
+                .sheet(R.menu.file_settings_menu)
+                .listener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        String name = file.getFilename();
+                        switch (item.getItemId()) {
+                            case R.id.delete_option:
+                                deletePersonalFile(name);
+                                break;
+
+                            case R.id.save_option:
+                                startingSavingFileService(name);
+                                break;
+
+                            case R.id.get_qrcode_option:
+                                showQrCode(name);
+                                break;
+                        }
+                        return false;
+                    }
+                }).show();
+    }
+
+    /**
+     * show popupmenu
+     * @param v View from which generate the popupmenu
+     * @param file file for which provide
+     */
+    private void showPopupSettings(View v, final MyFile file) {
+        // will show popup menu here
+        PopupMenu fileSettingsPopup = new PopupMenu(context, v);
+        fileSettingsPopup.inflate(R.menu.file_settings_menu);
+
+        fileSettingsPopup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                String name = file.getFilename();
+                switch (menuItem.getItemId()) {
+                    case R.id.delete_option:
+                        deletePersonalFile(name);
+                        break;
+
+                    case R.id.save_option:
+                        startingSavingFileService(name);
+                        break;
+
+                    case R.id.get_qrcode_option:
+                        showQrCode(name);
+                        break;
+                }
+                return false;
+            }
+        });
+
+        if (fileSettingsPopup.getMenu() instanceof MenuBuilder) {
+            MenuBuilder helper = (MenuBuilder) fileSettingsPopup.getMenu();
+            helper.setOptionalIconsVisible(true);
+        }
+
+        fileSettingsPopup.show();
+    }
+
     /**
      * tells if the user is in the root directory or not
      * @return true if root dir, false otherwise
@@ -914,40 +1006,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                         @Override
                         public void onClick(View v) {
                             // will show popup menu here
-                            PopupMenu fileSettingsPopup = new PopupMenu(context, elementOptionView);
-                            fileSettingsPopup.inflate(R.menu.file_settings_menu);
-
-                            fileSettingsPopup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                                @Override
-                                public boolean onMenuItemClick(MenuItem menuItem) {
-                                    String name = file.getFilename();
-                                    switch (menuItem.getItemId()) {
-                                        case R.id.delete_option:
-                                            deletePersonalFile(name);
-                                            break;
-
-                                        case R.id.save_option:
-                                            startingSavingFileService(name);
-                                            break;
-
-                                        case R.id.get_qrcode_option:
-                                            showQrCode(name);
-                                            break;
-                                    }
-                                    return false;
-                                }
-                            });
-
-                            if (fileSettingsPopup.getMenu() instanceof MenuBuilder) {
-                                MenuBuilder helper = (MenuBuilder) fileSettingsPopup.getMenu();
-                                helper.setOptionalIconsVisible(true);
-                            }
-                            /*
-                            MenuPopupHelper fileSettingsMenuHelper = new MenuPopupHelper(context, (MenuBuilder) fileSettingsPopup.getMenu(), elementOptionView);
-                            fileSettingsMenuHelper.setForceShowIcon(true);
-
-                            fileSettingsMenuHelper.show();*/
-                            fileSettingsPopup.show();
+                            showPopupSettings(elementOptionView, file);
                         }
                     });
                 }
@@ -1037,5 +1096,56 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                 return view.onTouchEvent(event);
             }
         }
+    }
+
+    /**
+     * OnItemTouch listener used in the recycler view to handle touch event
+     */
+    private class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
+
+        private ClickListener clickListener;
+        private GestureDetector gestureDetector;
+
+        RecyclerTouchListener(Context context, final RecyclerView recyclerView,
+                              final ClickListener clickListener) {
+            this.clickListener = clickListener;
+            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    return true;
+                }
+
+                @Override
+                public void onLongPress(MotionEvent e) {
+                    View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
+                    if (child != null && clickListener != null)
+                        clickListener.onLongClick(child, recyclerView.getChildAdapterPosition(child));
+                }
+            });
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+            View child = rv.findChildViewUnder(e.getX(), e.getY());
+            if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
+                clickListener.onClick(child, rv.getChildAdapterPosition(child));
+            }
+            return false;
+        }
+
+        @Override
+        public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {}
+
+        @Override
+        public void onRequestDisallowInterceptTouchEvent(boolean b) {}
+
+    }
+
+    /**
+     * ClickListener interface
+     */
+    private interface ClickListener {
+        void onClick(View v, int position);
+        void onLongClick(View v, int position);
     }
 }

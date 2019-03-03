@@ -50,6 +50,7 @@
     <string name="dot_string">.</string>
     <string name="google_sign_in_failed">Sign in failed! try again..</string>
     <string name="me_string">ME</string>
+    <string name="settings_string">SETTINGS</string>
 
 
 </resources>
