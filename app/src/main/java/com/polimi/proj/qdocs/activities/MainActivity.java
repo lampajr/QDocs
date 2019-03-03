@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.fragments.FilesListFragment;
+import com.polimi.proj.qdocs.fragments.HomeFragment;
 import com.polimi.proj.qdocs.fragments.ScannerFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,7 +35,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean cameraPermissionGranted;
     private boolean filesPermissionGranted;
 
-    private static final int SCANNER_ID = 1, FILES_ID = 2;
+    private static final int SCANNER_ID = 1, FILES_ID = 2, HOME_ID = 3;
+    private static final String SCANNER_TAG = "scanner", FILES_TAG = "files", HOME_TAG = "home";
 
     private BottomNavigationView navigationBar;
     private Fragment currentFragment;
@@ -52,6 +55,13 @@ public class MainActivity extends AppCompatActivity {
 
         mainFrame = findViewById(R.id.main_frame);
 
+        //checks whether there is already a fragment in the transaction
+        Fragment pastFrag = getPastFragment();
+        if (pastFrag != null) {
+            Log.d(TAG, "there already exists a fragment.. load it");
+            currentFragment = pastFrag;
+        }
+
         // get navigation view
         navigationBar = findViewById(R.id.main_navigation_bar);
         setupNavigationBar();
@@ -59,6 +69,20 @@ public class MainActivity extends AppCompatActivity {
         cameraPermissionGranted = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
         filesPermissionGranted = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /**
+     * checks whether in the restarted activity there already exists a fragment
+     * if yer retrieve it and return
+     * @return the fragment or null
+     */
+    private Fragment getPastFragment() {
+        FragmentManager manager = getSupportFragmentManager();
+        Fragment res;
+        if ((res=manager.findFragmentByTag(FILES_TAG)) != null) return res;
+        if ((res=manager.findFragmentByTag(HOME_TAG)) != null) return res;
+        if ((res=manager.findFragmentByTag(SCANNER_TAG)) != null) return res;
+        return null;
     }
 
     /**
@@ -87,13 +111,14 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (menuItem.getItemId()) {
                     case R.id.files_item:
-                        //TODO: creates files fragment
                         if (filesPermissionGranted)
-                            applyFragment(FilesListFragment.newInstance(), FILES_ID);
+                            applyFragment(FilesListFragment.newInstance(), FILES_ID, FILES_TAG);
                         break;
                     case R.id.scanner_item:
-                        //TODO: creates scanner fragment
-                        applyFragment(ScannerFragment.newInstance(getIntent()), SCANNER_ID);
+                        applyFragment(ScannerFragment.newInstance(getIntent()), SCANNER_ID, SCANNER_TAG);
+                        break;
+                    case R.id.personal_page:
+                        applyFragment(HomeFragment.newInstance(), HOME_ID, HOME_TAG);
                         break;
                 }
                 return true;
@@ -105,13 +130,13 @@ public class MainActivity extends AppCompatActivity {
      * apply the fragment to the main layout
      * @param fr fragment to be applied
      */
-    private void applyFragment(Fragment fr, int id) {
+    private void applyFragment(Fragment fr, int id, String tag) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         if (fr != null && id != currentFragmentId) {
             if (currentFragment != null) {
                 transaction.remove(currentFragment);
             }
-            transaction.add(R.id.main_frame, fr, "fragment changed");
+            transaction.add(R.id.main_frame, fr, tag);
             transaction.commit();
             currentFragmentId = id;
             currentFragment = fr;
@@ -133,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         if (cameraPermissionGranted && filesPermissionGranted) {
             // as first fragment create the scanner fragment
             if (currentFragment == null)
-                applyFragment(ScannerFragment.newInstance(getIntent()), SCANNER_ID);
+                applyFragment(ScannerFragment.newInstance(getIntent()), SCANNER_ID, SCANNER_TAG);
         }
         else if (!cameraPermissionGranted)requestCameraPermission();
         else requestFilesPermission();

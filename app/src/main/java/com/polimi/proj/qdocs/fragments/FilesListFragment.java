@@ -132,12 +132,16 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         return fragment;
     }
 
+    //TODO: handle on change configuration
 
     //////////////////// OVERRIDE METHODS //////////////////////////
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // retain this fragment
+        setRetainInstance(true);
     }
 
     @Override
@@ -257,6 +261,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * of the mobile phone
      */
     private void setupUploadFileFloatingButton() {
+        //TODO: remove if unnecessary
         uploadGenericFileFloatingButton.setOnTouchListener(dragAndDropListener);
 
         // upload image button
@@ -339,7 +344,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
         final UploadTask uploadTask = fileRef.putFile(file, metadata);
 
-        final RelativeLayout.LayoutParams params= new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.ABOVE, R.id.upload_file_button);
         swipeRefreshLayout.setLayoutParams(params);
         uploadProgressBar.setVisibility(View.VISIBLE);

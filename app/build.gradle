@@ -68,6 +68,9 @@ dependencies {
 
     // Number progress bar
     implementation 'com.daimajia.numberprogressbar:library:1.4@aar'
+
+    // Circular image view
+    implementation 'de.hdodenhof:circleimageview:3.0.0'
 }
 
 

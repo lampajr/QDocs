@@ -2,10 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/personal_page"
+        android:icon="@drawable/ic_person_black_24dp"
+        android:title="@string/me_string"
+        android:checked="false" />
+
+    <item
         android:id="@+id/scanner_item"
         android:icon="@drawable/ic_center_focus_scan_24dp"
         android:title="@string/scanner_string"
         android:checked="true"/>
+
     <item
         android:id="@+id/files_item"
         android:icon="@drawable/ic_tmp_pdf_24dp"

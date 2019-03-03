@@ -49,6 +49,7 @@
     <string name="get_qrcode_string">Get QR Code</string>
     <string name="dot_string">.</string>
     <string name="google_sign_in_failed">Sign in failed! try again..</string>
+    <string name="me_string">ME</string>
 
 
 </resources>

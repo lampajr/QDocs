@@ -137,6 +137,9 @@ public class ScannerFragment extends Fragment {
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         dbRef = FirebaseDatabase.getInstance().getReference().child(BASE_REFERENCE);
+
+        // retain this fragment
+        setRetainInstance(true);
     }
 
     @Override
