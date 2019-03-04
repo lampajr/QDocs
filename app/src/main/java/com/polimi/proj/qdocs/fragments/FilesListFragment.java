@@ -118,6 +118,8 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     private MainActivity parentActivity;
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    private OnSwipeTouchListener onSwipeListener;
+
     // drag-and-drop upload file button
     private final static float CLICK_DRAG_TOLERANCE = 30; // Often, there will be a slight, unintentional, drag when the user taps the FAB, so we need to account for this.
     private DragAndDropTouchListener dragAndDropListener;
@@ -167,6 +169,28 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         getBackDirectoryButton = view.findViewById(R.id.get_back_directory);
 
         setupDirectoryLayout();
+
+        onSwipeListener = new OnSwipeTouchListener(context) {
+            @Override
+            public void onSwipeBottom() {
+                Toast.makeText(parentActivity, "swipe bottom", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                Toast.makeText(parentActivity, "swipe left", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSwipeRight() {
+                mSwipeListener.onFilesSwipe();
+            }
+
+            @Override
+            public void onSwipeTop() {
+                Toast.makeText(parentActivity, "swipe top", Toast.LENGTH_SHORT).show();
+            }
+        };
 
         // RecyclerView for elements
         storageView = view.findViewById(R.id.files_view);
@@ -224,27 +248,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * setup the swipe listener in order to change the current fragment
      */
     private void setupSwipeListener() {
-        storageView.setOnTouchListener(new OnSwipeTouchListener(context) {
-            @Override
-            public void onSwipeBottom() {
-                Toast.makeText(parentActivity, "swipe bottom", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onSwipeLeft() {
-                Toast.makeText(parentActivity, "swipe left", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onSwipeRight() {
-                mSwipeListener.onFilesSwipe();
-            }
-
-            @Override
-            public void onSwipeTop() {
-                Toast.makeText(parentActivity, "swipe top", Toast.LENGTH_SHORT).show();
-            }
-        });
+        storageView.setOnTouchListener(onSwipeListener);
     }
 
     private void setupSwipeRefreshListener() {
@@ -439,7 +443,8 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * in order to react in case of db operation.
      */
     private void loadStorageElements() {
-
+        if (!storageElements.isEmpty())
+            storageElements.clear();
         // Showing refresh animation before making requests to firebase server
         swipeRefreshLayout.setRefreshing(true);
 
@@ -1009,27 +1014,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                         }
                     });
 
-                    elementCardView.setOnTouchListener(new OnSwipeTouchListener(context) {
-                        @Override
-                        public void onSwipeBottom() {
-                            Toast.makeText(parentActivity, "swipe bottom", Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onSwipeLeft() {
-                            Toast.makeText(parentActivity, "swipe left", Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onSwipeRight() {
-                            mSwipeListener.onFilesSwipe();
-                        }
-
-                        @Override
-                        public void onSwipeTop() {
-                            Toast.makeText(parentActivity, "swipe top", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    elementCardView.setOnTouchListener(onSwipeListener);
 
                     elementOptionView.setOnClickListener(new View.OnClickListener() {
                         @Override

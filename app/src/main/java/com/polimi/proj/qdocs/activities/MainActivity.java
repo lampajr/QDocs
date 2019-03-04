@@ -25,6 +25,9 @@ import com.polimi.proj.qdocs.fragments.FilesListFragment;
 import com.polimi.proj.qdocs.fragments.HomeFragment;
 import com.polimi.proj.qdocs.fragments.ScannerFragment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnHomeFragmentSwipe, FilesListFragment.OnFilesFragmentSwipe, ScannerFragment.OnScannerFragmentSwipe {
 
     private static final String TAG = "MAIN_ACTIVITY";
@@ -34,12 +37,14 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
     private boolean cameraPermissionGranted;
     private boolean filesPermissionGranted;
 
-    private static final int SCANNER_ID = 1, FILES_ID = 2, HOME_ID = 3;
+    private static final int HOME_ID = 0, SCANNER_ID = 1, FILES_ID = 2;
     private static final String SCANNER_TAG = "scanner", FILES_TAG = "files", HOME_TAG = "home";
 
     private BottomNavigationView navigationBar;
     private Fragment currentFragment;
     private FrameLayout mainFrame;
+
+    private List<Fragment> fragments;
 
     private int currentFragmentId;
 
@@ -56,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
 
         mainFrame = findViewById(R.id.main_frame);
 
+        setupFragments();
+
         //checks whether there is already a fragment in the transaction
         Fragment pastFrag = getPastFragment();
         if (pastFrag != null) {
@@ -70,6 +77,16 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
         cameraPermissionGranted = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
         filesPermissionGranted = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void setupFragments() {
+        fragments = new ArrayList<>();
+        Fragment homeFrag = HomeFragment.newInstance();
+        fragments.add(homeFrag);
+        Fragment scannerFrag = ScannerFragment.newInstance(getIntent());
+        fragments.add(scannerFrag);
+        Fragment filesFrag = FilesListFragment.newInstance();
+        fragments.add(filesFrag);
     }
 
     /**
@@ -113,13 +130,13 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
                 switch (menuItem.getItemId()) {
                     case R.id.files_item:
                         if (filesPermissionGranted)
-                            applyFragment(FilesListFragment.newInstance(), FILES_ID, FILES_TAG);
+                            applyFragment(FILES_ID, FILES_TAG);
                         break;
                     case R.id.scanner_item:
-                        applyFragment(ScannerFragment.newInstance(getIntent()), SCANNER_ID, SCANNER_TAG);
+                        applyFragment(SCANNER_ID, SCANNER_TAG);
                         break;
                     case R.id.home_item:
-                        applyFragment(HomeFragment.newInstance(), HOME_ID, HOME_TAG);
+                        applyFragment(HOME_ID, HOME_TAG);
                         break;
                 }
                 return true;
@@ -129,10 +146,11 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
 
     /**
      * apply the fragment to the main layout
-     * @param fr fragment to be applied
      */
-    private void applyFragment(Fragment fr, int id, String tag) {
+    private void applyFragment(int id, String tag) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        // get the corresponding fragment
+        Fragment fr = fragments.get(id);
         if (fr != null && id != currentFragmentId) {
             if (currentFragment != null) {
                 transaction.remove(currentFragment);
@@ -159,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
         if (cameraPermissionGranted && filesPermissionGranted) {
             // as first fragment create the scanner fragment
             if (currentFragment == null)
-                applyFragment(ScannerFragment.newInstance(getIntent()), SCANNER_ID, SCANNER_TAG);
+                applyFragment(SCANNER_ID, SCANNER_TAG);
         }
         else if (!cameraPermissionGranted)requestCameraPermission();
         else requestFilesPermission();
@@ -247,27 +265,27 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
     @Override
     public void onFilesSwipe() {
         //TODO: open Scanner fragment
-        applyFragment(ScannerFragment.newInstance(getIntent()), SCANNER_ID, SCANNER_TAG);
+        applyFragment(SCANNER_ID, SCANNER_TAG);
         navigationBar.setSelectedItemId(R.id.scanner_item);
     }
 
     @Override
     public void onScannerSwipeLeft() {
         //TODO: open Home fragment
-        applyFragment(HomeFragment.newInstance(), HOME_ID, HOME_TAG);
+        applyFragment(HOME_ID, HOME_TAG);
         navigationBar.setSelectedItemId(R.id.home_item);
     }
 
     public void onScannerSwipeRight() {
         //TODO: open FilesList fragment
-        applyFragment(FilesListFragment.newInstance(), FILES_ID, FILES_TAG);
+        applyFragment(FILES_ID, FILES_TAG);
         navigationBar.setSelectedItemId(R.id.files_item);
     }
 
     @Override
     public void onHomeSwipe() {
         //TODO: open Scanner fragment
-        applyFragment(ScannerFragment.newInstance(getIntent()), SCANNER_ID, SCANNER_TAG);
+        applyFragment(SCANNER_ID, SCANNER_TAG);
         navigationBar.setSelectedItemId(R.id.scanner_item);
     }
 }

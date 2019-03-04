@@ -1,6 +1,7 @@
 package com.polimi.proj.qdocs.support;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -9,14 +10,17 @@ import android.view.View.OnTouchListener;
 
 public class OnSwipeTouchListener implements OnTouchListener {
 
+    private static final String TAG = "ON_SWIPE_TOUCH_LISTENER";
+
     private final GestureDetector gestureDetector;
 
-    public OnSwipeTouchListener (Context ctx){
+    protected OnSwipeTouchListener(Context ctx){
         gestureDetector = new GestureDetector(ctx, new GestureListener());
     }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_UP) v.performClick();
         return gestureDetector.onTouchEvent(event);
     }
 
