@@ -22,7 +22,15 @@ import com.google.firebase.database.IgnoreExtraProperties;
  */
 
 @IgnoreExtraProperties
-public class MyFile implements StorageElement{
+public class MyFile extends StorageElement{
+
+    public static final String KEY = "key";
+    public static final String FILENAME = "filename";
+    public static final String CONTENT_TYPE = "contentType";
+    public static final String SIZE = "size";
+    public static final String TIME = "time";
+    public static final String LAST_ACCESS = "lastAccess";
+
 
     // file's attribute stored in the database
     private String key;
@@ -67,4 +75,6 @@ public class MyFile implements StorageElement{
     public String getLastAccess() {
         return lastAccess;
     }
+
+    //////// STATIC METHODS ON FILES ////////
 }

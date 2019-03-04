@@ -24,6 +24,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -81,6 +82,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 
@@ -91,7 +93,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     private static final String BASE_REFERENCE = "documents";
     private static final String KEY_METADATA = "key_metadata";
     private static final String UID_METADATA = "uid_metadata";
-
 
     private static final int IMG_PRV = 100;
     private static final int AUD_PRV = 200;
@@ -136,7 +137,8 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         return fragment;
     }
 
-    //TODO: handle on change configuration
+    //TODO: add on the settings menu of the file the information about it
+    //TODO: add settings on directories
 
     //////////////////// OVERRIDE METHODS //////////////////////////
 
@@ -481,7 +483,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                 if (dataSnapshot.getKey().matches("\\d+")) {
                     // the element to remove is a file
                     Log.d(TAG, "removing new file..");
-                    MyFile file = retrieveFileByKey(dataSnapshot.getValue(MyFile.class).getKey());
+                    MyFile file = StorageElement.retrieveFileByKey(dataSnapshot.getValue(MyFile.class).getKey(), storageElements);
                     if (file != null) {
                         storageElements.remove(file);
                     }
@@ -489,7 +491,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                 else {
                     // the element to remove is a directory
                     Log.d(TAG, "removing new folder..");
-                    Directory dir = retrieveDirectoryByName(dataSnapshot.getKey());
+                    Directory dir = StorageElement.retrieveDirectoryByName(dataSnapshot.getKey(), storageElements);
                     if (dir != null) {
                         storageElements.remove(dir);
                     }
@@ -514,19 +516,47 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * start the FileViewer which will show the file
      * @param filename name of the file to show
      */
-    private void startShowingFileService(String filename) {
+    private void startShowingFileService(final String filename) {
         Log.d(TAG, "showing file " + filename);
         Intent viewerIntentService = new Intent(parentActivity, DownloadFileService.class);
 
+        //TODO: set lastAccess attribute of the file into Firebase db
         viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
 
-        filename = getCurrentPath(dbRef) + "/" + filename;
+        updateLastAccess(StorageElement.retrieveFileByName(filename, storageElements).getKey());
+
+        String pathname = getCurrentPath(dbRef) + "/" + filename;
 
         // create the result receiver for the IntentService
         ShowFileReceiver receiver = new ShowFileReceiver(context, new Handler());
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
-        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, pathname);
         context.startService(viewerIntentService);
+    }
+
+    private void updateLastAccess(final String key) {
+        dbRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if (dataSnapshot.getKey().equals(key)) {
+                    // i've found the File to update
+                    dataSnapshot.child(MyFile.LAST_ACCESS).getRef()
+                            .setValue(DateFormat.format("yyyy-MM-dd hh:mm:ss a", new Date()));
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
+        });
     }
 
     /**
@@ -587,7 +617,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      */
     private void showQrCode(final String filename) {
         Log.d(TAG, "getting qrcode");
-        MyFile f = retrieveFileByName(filename);
+        MyFile f = StorageElement.retrieveFileByName(filename, storageElements);
         final Bitmap qrCode = generateQrCode(f.getKey());
         if (qrCode != null) {
             Log.d(TAG, "showing qrcode dialog..");
@@ -767,52 +797,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
             e.printStackTrace();
             return null;
         }
-    }
-
-
-    /**
-     * Retrieve a MyFile object matching the filename passed as paramater
-     * @param filename name of the file to retrieve
-     * @return the MyFile instance if exists, null otherwise
-     */
-    public MyFile retrieveFileByName(String filename) {
-        for(StorageElement el : storageElements) {
-            if (el instanceof MyFile) {
-                MyFile f = (MyFile) el;
-                if (f.getFilename().equals(filename)) return f;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Retrieve a MyFile object matching the key passed as paramater
-     * @param key key of the file to retrieve
-     * @return the MyFile instance if exists, null otherwise
-     */
-    public MyFile retrieveFileByKey(String key) {
-        for(StorageElement el : storageElements) {
-            if (el instanceof MyFile) {
-                MyFile f = (MyFile) el;
-                if (f.getKey() != null && f.getKey().equals(key)) return f;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Retrieve a Directory object from the filesList attribute
-     * @param name name to check, is unique for folders
-     * @return the Directory obj
-     */
-    public Directory retrieveDirectoryByName(String name) {
-        for(StorageElement el : storageElements) {
-            if (el instanceof Directory) {
-                Directory d = (Directory) el;
-                if (d.getDirectoryName() != null && d.getDirectoryName().equals(name)) return d;
-            }
-        }
-        return null;
     }
 
     /**

@@ -1,6 +1,6 @@
 package com.polimi.proj.qdocs.support;
 
-public class Directory implements StorageElement {
+public class Directory extends StorageElement {
 
     private String directoryName;
 
