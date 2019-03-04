@@ -72,6 +72,7 @@ import com.polimi.proj.qdocs.services.SaveFileReceiver;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
 import com.polimi.proj.qdocs.support.Directory;
 import com.polimi.proj.qdocs.support.MyFile;
+import com.polimi.proj.qdocs.support.OnSwipeTouchListener;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageElement;
 
@@ -113,6 +114,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     private FirebaseUser user;
     private DatabaseReference dbRef;
     private Context context;
+    private OnFilesFragmentSwipe mSwipeListener;
     private MainActivity parentActivity;
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -164,12 +166,12 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         directoryPathText = view.findViewById(R.id.directory_path_text);
         getBackDirectoryButton = view.findViewById(R.id.get_back_directory);
 
-
         setupDirectoryLayout();
 
         // RecyclerView for elements
         storageView = view.findViewById(R.id.files_view);
         setupStorageView();
+        setupSwipeListener();
         //loadStorageElements();
         //notifyAdapter();
 
@@ -184,6 +186,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         super.onAttach(context);
         this.context = context;
         this.parentActivity = (MainActivity) context;
+        this.mSwipeListener = (OnFilesFragmentSwipe) context;
     }
 
     @Override
@@ -216,6 +219,33 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
     //////////////////// PRIVATE METHODS //////////////////////////////
 
+
+    /**
+     * setup the swipe listener in order to change the current fragment
+     */
+    private void setupSwipeListener() {
+        storageView.setOnTouchListener(new OnSwipeTouchListener(context) {
+            @Override
+            public void onSwipeBottom() {
+                Toast.makeText(parentActivity, "swipe bottom", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                Toast.makeText(parentActivity, "swipe left", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSwipeRight() {
+                mSwipeListener.onFilesSwipe();
+            }
+
+            @Override
+            public void onSwipeTop() {
+                Toast.makeText(parentActivity, "swipe top", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     private void setupSwipeRefreshListener() {
         swipeRefreshLayout.setOnRefreshListener(this);
@@ -400,29 +430,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         storageAdapter = new FilesListFragment.StorageAdapter(context, storageElements);
         // set the adapter for the elements
         storageView.setAdapter(storageAdapter);
-
-        // set OnItemTouch listener
-        storageView.addOnItemTouchListener(new RecyclerTouchListener(context, storageView, new ClickListener() {
-            @Override
-            public void onClick(View v, int position) {
-                //TODO: implement this if needed
-            }
-
-            @Override
-            public void onLongClick(View v, int position) {
-                Log.d(TAG, "long click of " + position + " item");
-                StorageElement elem = storageElements.get(position);
-                if (elem instanceof MyFile) {
-                    // this is a file so the click triggers opening the file
-                    //showPopupSettings(v, (MyFile)elem);
-                    showBottomSheetMenu((MyFile) elem);
-                }
-                else {
-                    // this is a directory, the click triggers opening directory
-                    //TODO: implement long click on directories, showing directory options
-                }
-            }
-        }));
     }
 
     /**
@@ -1002,11 +1009,34 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                         }
                     });
 
+                    elementCardView.setOnTouchListener(new OnSwipeTouchListener(context) {
+                        @Override
+                        public void onSwipeBottom() {
+                            Toast.makeText(parentActivity, "swipe bottom", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onSwipeLeft() {
+                            Toast.makeText(parentActivity, "swipe left", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onSwipeRight() {
+                            mSwipeListener.onFilesSwipe();
+                        }
+
+                        @Override
+                        public void onSwipeTop() {
+                            Toast.makeText(parentActivity, "swipe top", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
                     elementOptionView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             // will show popup menu here
-                            showPopupSettings(elementOptionView, file);
+                            //showPopupSettings(elementOptionView, file);
+                            showBottomSheetMenu(file);
                         }
                     });
                 }
@@ -1099,53 +1129,10 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     }
 
     /**
-     * OnItemTouch listener used in the recycler view to handle touch event
+     * interface that has to be implemented by the main activity in order to handle
+     * the swipe gesture on the FilesListFragment
      */
-    private class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
-
-        private ClickListener clickListener;
-        private GestureDetector gestureDetector;
-
-        RecyclerTouchListener(Context context, final RecyclerView recyclerView,
-                              final ClickListener clickListener) {
-            this.clickListener = clickListener;
-            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-                @Override
-                public boolean onSingleTapUp(MotionEvent e) {
-                    return true;
-                }
-
-                @Override
-                public void onLongPress(MotionEvent e) {
-                    View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
-                    if (child != null && clickListener != null)
-                        clickListener.onLongClick(child, recyclerView.getChildAdapterPosition(child));
-                }
-            });
-        }
-
-        @Override
-        public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-            View child = rv.findChildViewUnder(e.getX(), e.getY());
-            if (child != null && clickListener != null && gestureDetector.onTouchEvent(e)) {
-                clickListener.onClick(child, rv.getChildAdapterPosition(child));
-            }
-            return false;
-        }
-
-        @Override
-        public void onTouchEvent(@NonNull RecyclerView recyclerView, @NonNull MotionEvent motionEvent) {}
-
-        @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean b) {}
-
-    }
-
-    /**
-     * ClickListener interface
-     */
-    private interface ClickListener {
-        void onClick(View v, int position);
-        void onLongClick(View v, int position);
+    public interface OnFilesFragmentSwipe {
+        void onFilesSwipe();
     }
 }

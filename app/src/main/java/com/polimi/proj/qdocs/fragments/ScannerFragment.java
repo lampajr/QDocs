@@ -33,6 +33,7 @@ import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
 import com.polimi.proj.qdocs.support.MyFile;
+import com.polimi.proj.qdocs.support.OnSwipeTouchListener;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,6 +62,7 @@ public class ScannerFragment extends Fragment {
 
     private Context context;
     private MainActivity parentActivity;
+    private OnScannerFragmentSwipe mSwipeListener;
 
     private static final int REQUEST_CAMERA_PERMISSION = 1;
 
@@ -151,9 +153,37 @@ public class ScannerFragment extends Fragment {
         // get the barcode view
         barcodeView = (DecoratedBarcodeView) scannerView.findViewById(R.id.barcode_view);
 
+        setupSwipeListener();
+
         return scannerView;
     }
 
+    /**
+     * setup the swipe listener in order to change the current fragment
+     */
+    private void setupSwipeListener() {
+        barcodeView.setOnTouchListener(new OnSwipeTouchListener(context) {
+            @Override
+            public void onSwipeBottom() {
+                Toast.makeText(parentActivity, "swipe bottom", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                mSwipeListener.onScannerSwipeRight();
+            }
+
+            @Override
+            public void onSwipeRight() {
+                mSwipeListener.onScannerSwipeLeft();
+            }
+
+            @Override
+            public void onSwipeTop() {
+                Toast.makeText(parentActivity, "swipe top", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     /**
      * start the FileViewer which will show the file
@@ -246,6 +276,7 @@ public class ScannerFragment extends Fragment {
 
         this.context = context;
         this.parentActivity = (MainActivity) context;
+        this.mSwipeListener = (OnScannerFragmentSwipe) context;
     }
 
     @Override
@@ -277,5 +308,15 @@ public class ScannerFragment extends Fragment {
         super.onPause();
         Log.d(TAG, "On Pause!");
         barcodeView.pause();
+    }
+
+
+    /**
+     * interface that has to be implemented by the main activity in order to handle
+     * the swipe gesture on the ScannerFragment
+     */
+    public interface OnScannerFragmentSwipe {
+        void onScannerSwipeLeft();
+        void onScannerSwipeRight();
     }
 }

@@ -13,11 +13,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.activities.MainActivity;
+import com.polimi.proj.qdocs.support.OnSwipeTouchListener;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -33,8 +37,12 @@ public class HomeFragment extends Fragment {
     private static final String TAG = "HOME_FRAGMENT";
 
     private Context context;
+    private MainActivity parentActivity;
+    private OnHomeFragmentSwipe mSwipeListener;
 
     private FirebaseUser user;
+
+    private RelativeLayout mainLayout;
 
     private ListView personalList;
     private CircleImageView profileImage;
@@ -74,6 +82,8 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
+        mainLayout = view.findViewById(R.id.main_layout);
+
         personalList = view.findViewById(R.id.personal_list);
         profileImage = view.findViewById(R.id.profile_image);
         displayName = view.findViewById(R.id.display_name);
@@ -81,6 +91,7 @@ public class HomeFragment extends Fragment {
 
         setupProfile();
         setupList();
+        setupSwipeListener();
 
         return view;
     }
@@ -89,6 +100,8 @@ public class HomeFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
+        this.parentActivity = (MainActivity) context;
+        this.mSwipeListener = (OnHomeFragmentSwipe) context;
     }
 
     @Override
@@ -114,6 +127,33 @@ public class HomeFragment extends Fragment {
 
         displayName.setText(user.getDisplayName());
         personalEmail.setText(user.getEmail());
+    }
+
+    /**
+     * setup the swipe listener in order to change the current fragment
+     */
+    private void setupSwipeListener() {
+        mainLayout.setOnTouchListener(new OnSwipeTouchListener(context) {
+            @Override
+            public void onSwipeBottom() {
+                Toast.makeText(parentActivity, "swipe bottom", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                mSwipeListener.onHomeSwipe();
+            }
+
+            @Override
+            public void onSwipeRight() {
+                Toast.makeText(parentActivity, "swipe right", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onSwipeTop() {
+                Toast.makeText(parentActivity, "swipe top", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**
@@ -199,5 +239,13 @@ public class HomeFragment extends Fragment {
         interface Listener {
             void onSuccess(Bitmap profileBitmap);
         }
+    }
+
+    /**
+     * interface that has to be implemented by the main activity in order to handle
+     * the swipe gesture on the HomeFragment
+     */
+    public interface OnHomeFragmentSwipe {
+        void onHomeSwipe();
     }
 }

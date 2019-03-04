@@ -17,6 +17,7 @@ import com.google.firebase.database.IgnoreExtraProperties;
  * 		contentType : object.contentType,
  * 		size : object.size,
  * 		time : object.timeCreated
+ * 	    lastAccess: initialized at object.timeCreated
  * 	};
  */
 
@@ -29,15 +30,18 @@ public class MyFile implements StorageElement{
     private String contentType;
     private String size;
     private String time;
+    private String lastAccess;
 
     public MyFile() {}
 
-    public MyFile(String filename, String contentType, String key, String size, String time) {
+    public MyFile(String filename, String contentType, String key,
+                  String size, String time, String lastAccess) {
         this.filename = filename;
         this.contentType = contentType;
         this.size = size;
         this.time = time;
         this.key = key;
+        this.lastAccess = lastAccess;
     }
 
     public String getKey() {
@@ -58,5 +62,9 @@ public class MyFile implements StorageElement{
 
     public String getTime() {
         return time;
+    }
+
+    public String getLastAccess() {
+        return lastAccess;
     }
 }

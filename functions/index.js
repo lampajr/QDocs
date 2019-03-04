@@ -26,7 +26,8 @@ exports.insertFileTrigger = functions.storage.object().onFinalize((object) => {
         key : object.metadata[KEY_METADATA],
 		contentType : object.contentType,
 		size : object.size,
-		time : object.timeCreated
+        time : object.timeCreated,
+        lastAccess : object.timeCreated
     };
     
     admin.database().ref(path).set(fileObj);

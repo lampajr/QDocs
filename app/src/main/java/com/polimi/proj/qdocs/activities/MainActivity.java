@@ -3,7 +3,6 @@ package com.polimi.proj.qdocs.activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -26,7 +25,7 @@ import com.polimi.proj.qdocs.fragments.FilesListFragment;
 import com.polimi.proj.qdocs.fragments.HomeFragment;
 import com.polimi.proj.qdocs.fragments.ScannerFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements HomeFragment.OnHomeFragmentSwipe, FilesListFragment.OnFilesFragmentSwipe, ScannerFragment.OnScannerFragmentSwipe {
 
     private static final String TAG = "MAIN_ACTIVITY";
 
@@ -45,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     private int currentFragmentId;
 
     private FirebaseUser user;
+
+    //TODO: create fragments only once!!!!!!!!
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.scanner_item:
                         applyFragment(ScannerFragment.newInstance(getIntent()), SCANNER_ID, SCANNER_TAG);
                         break;
-                    case R.id.personal_page:
+                    case R.id.home_item:
                         applyFragment(HomeFragment.newInstance(), HOME_ID, HOME_TAG);
                         break;
                 }
@@ -241,5 +242,32 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onFilesSwipe() {
+        //TODO: open Scanner fragment
+        applyFragment(ScannerFragment.newInstance(getIntent()), SCANNER_ID, SCANNER_TAG);
+        navigationBar.setSelectedItemId(R.id.scanner_item);
+    }
+
+    @Override
+    public void onScannerSwipeLeft() {
+        //TODO: open Home fragment
+        applyFragment(HomeFragment.newInstance(), HOME_ID, HOME_TAG);
+        navigationBar.setSelectedItemId(R.id.home_item);
+    }
+
+    public void onScannerSwipeRight() {
+        //TODO: open FilesList fragment
+        applyFragment(FilesListFragment.newInstance(), FILES_ID, FILES_TAG);
+        navigationBar.setSelectedItemId(R.id.files_item);
+    }
+
+    @Override
+    public void onHomeSwipe() {
+        //TODO: open Scanner fragment
+        applyFragment(ScannerFragment.newInstance(getIntent()), SCANNER_ID, SCANNER_TAG);
+        navigationBar.setSelectedItemId(R.id.scanner_item);
     }
 }
