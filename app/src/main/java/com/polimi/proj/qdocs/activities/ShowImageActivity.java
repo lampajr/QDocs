@@ -1,6 +1,8 @@
 package com.polimi.proj.qdocs.activities;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -8,11 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import com.ortiz.touchview.TouchImageView;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.services.DownloadFileService;
-
 import java.io.IOException;
 
 public class ShowImageActivity extends AppCompatActivity {
@@ -30,7 +33,17 @@ public class ShowImageActivity extends AppCompatActivity {
 
         //Take the bitmap from the bundle
         Bundle bundle = getIntent().getExtras();
+        readParameter(bundle);
+        checkParameter();
+        createBitmap();
+        Log.d(TAG, "bitmap received");
+        setImage();
+        setupToolbar();
+    }
 
+
+
+    private void readParameter(Bundle bundle) {
         if (bundle != null) {
             fileUri = (Uri) bundle.get(DownloadFileService.RESULT_KEY_URI);
             mimeType = bundle.getString(DownloadFileService.RESULT_KEY_EXTENSION);
@@ -39,15 +52,6 @@ public class ShowImageActivity extends AppCompatActivity {
 
         Log.d(TAG, "file uri: " + fileUri);
         Log.d(TAG, "mimeType: " + mimeType);
-
-        checkParameter();
-
-        createBitmap();
-        Log.d(TAG, "bitmap received");
-
-        setImage();
-
-        createToolbar();
     }
 
     /**
@@ -59,9 +63,16 @@ public class ShowImageActivity extends AppCompatActivity {
         tuchImageView.setImageDrawable(bitmapDrowalbe);
     }
 
-    private void createToolbar() {
+    private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar_widget);
         setSupportActionBar(toolbar);
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
     }
 
     /**
@@ -102,5 +113,33 @@ public class ShowImageActivity extends AppCompatActivity {
 
             finish();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.app_settings_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id=item.getItemId();
+        switch(id)
+        {
+            case R.id.logout_menu:
+                LoginActivity.logout();
+                startLoginActivity();
+                break;
+        }
+        return false;
+    }
+
+    /**
+     * start the login Activity
+     */
+    private void startLoginActivity() {
+        Intent loginIntent = new Intent(this, LoginActivity.class);
+        startActivity(loginIntent);
+        finish();
     }
 }

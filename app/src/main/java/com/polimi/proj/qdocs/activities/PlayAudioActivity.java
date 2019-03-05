@@ -1,12 +1,16 @@
 package com.polimi.proj.qdocs.activities;
 
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -26,7 +30,7 @@ public class PlayAudioActivity extends AppCompatActivity {
     private String fileName;
     private SeekBar seekbar;
     private Handler myHandler = new Handler();    //used to managed the position of the seekbar
-    private PlayAudioActivity.UpdateSongTime updateSongTime; //Runnable object launched by the andler
+    private PlayAudioActivity.UpdateSongTime updateSongTime; //Runnable object launched by the handler
     private final Object updateState= new Object();
     private boolean onlyOne = true;
     private Uri fileUri;
@@ -41,10 +45,23 @@ public class PlayAudioActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         readParameter(bundle);
 
+        setupToolbar();
         checkParameter();
         setMediaPlayer();
         setViewElement();
 
+    }
+
+    private void setupToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar_widget);
+        setSupportActionBar(toolbar);
+
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
     }
 
     private void setViewElement() {
@@ -170,6 +187,34 @@ public class PlayAudioActivity extends AppCompatActivity {
             Log.d(TAG, "stopping the runnable updateSongTime");
         }
         seekbar.setProgress(0);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.app_settings_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id=item.getItemId();
+        switch(id)
+        {
+            case R.id.logout_menu:
+                LoginActivity.logout();
+                startLoginActivity();
+                break;
+        }
+        return false;
+    }
+
+    /**
+     * start the login Activity
+     */
+    private void startLoginActivity() {
+        Intent loginIntent = new Intent(this, LoginActivity.class);
+        startActivity(loginIntent);
+        finish();
     }
 
     private class UpdateSongTime implements Runnable{
