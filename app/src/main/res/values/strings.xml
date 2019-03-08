@@ -51,6 +51,9 @@
     <string name="google_sign_in_failed">Sign in failed! try again..</string>
     <string name="me_string">ME</string>
     <string name="settings_string">SETTINGS</string>
+    <string name="directory_deleted">Directory successfully deleted</string>
+    <string name="delete_directory">Delete Directory</string>
+    <string name="info_string">Info</string>
 
 
 </resources>

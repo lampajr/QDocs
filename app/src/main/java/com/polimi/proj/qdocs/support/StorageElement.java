@@ -9,7 +9,7 @@ import java.util.List;
 public abstract class StorageElement {
 
     /**
-     * Retrieve a MyFile object matching the filename passed as paramater
+     * Retrieve a MyFile object matching the filename passed as parameter
      * @param filename name of the file to retrieve
      * @return the MyFile instance if exists, null otherwise
      */

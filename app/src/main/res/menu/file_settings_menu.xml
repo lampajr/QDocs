@@ -17,4 +17,9 @@
         android:icon="@drawable/ic_get_qrcode_24dp"
         android:title="@string/get_qrcode_string" />
 
+    <item
+        android:id="@+id/info_option"
+        android:icon="@drawable/ic_info_black_24dp"
+        android:title="@string/info_string" />
+
 </menu>

@@ -19,15 +19,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -592,11 +588,15 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * Deletes a file from list
      * @param filename name of the file to delete
      */
-    private void deletePersonalFile(final String filename) {
+    private void deletePersonalFile(final String filename, StorageReference ref) {
         //TODO: implement "are you sure?" dialog
 
         Log.d(TAG, "deleting file: " + filename);
-        storageRef.child(filename).delete().addOnFailureListener(new OnFailureListener() {
+        if (ref == null) {
+            // remove the file from the current directory
+            ref = storageRef;
+        }
+        ref.child(filename).delete().addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.d(TAG, "Failure occurred during file removing");
@@ -608,6 +608,46 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
             public void onComplete(@NonNull Task<Void> task) {
                 Log.d(TAG, "File correctly removed!");
             }
+        });
+    }
+
+    /**
+     * Deletes a single directory, deleting all its sub-elements
+     * @param path name of the directory to remove, or deep path of directories
+     */
+    private void deletePersonalDirectory(final String path) {
+        //TODO: implement "are you sure?" dialog
+
+        DatabaseReference ref = path == null ? dbRef : dbRef.child(path);
+
+        // starts removing element from the current directory
+        ref.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if (isFile(dataSnapshot)) {
+                    // if it is a file delete it
+                    MyFile f = dataSnapshot.getValue(MyFile.class);
+                    StorageReference sr = path == null ? null : storageRef.child(path);
+                    deletePersonalFile(f.getFilename(), sr);
+                }
+                else {
+                    // if it is a directory recursively call this function
+                    String newPath = path == null ? dataSnapshot.getKey() : path + "/" + dataSnapshot.getKey();
+                    deletePersonalDirectory(newPath);
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
         });
     }
 
@@ -821,7 +861,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * shows the bottom menu providing settings about the specific file
      * @param file file for which show settings
      */
-    private void showBottomSheetMenu(final MyFile file) {
+    private void showFileBottomSheetMenu(final MyFile file) {
         new BottomSheet.Builder(parentActivity)
                 .title(R.string.settings_string)
                 .sheet(R.menu.file_settings_menu)
@@ -831,7 +871,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                         String name = file.getFilename();
                         switch (item.getItemId()) {
                             case R.id.delete_option:
-                                deletePersonalFile(name);
+                                deletePersonalFile(name, null);
                                 break;
 
                             case R.id.save_option:
@@ -841,6 +881,10 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                             case R.id.get_qrcode_option:
                                 showQrCode(name);
                                 break;
+
+                            case R.id.info_option:
+                                //TODO: show dialog about file infos
+                                break;
                         }
                         return false;
                     }
@@ -848,42 +892,41 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     }
 
     /**
-     * show popupmenu
-     * @param v View from which generate the popupmenu
-     * @param file file for which provide
+     * Shows the setting menu for a directory
+     * @param dir directory object
      */
-    private void showPopupSettings(View v, final MyFile file) {
-        // will show popup menu here
-        PopupMenu fileSettingsPopup = new PopupMenu(context, v);
-        fileSettingsPopup.inflate(R.menu.file_settings_menu);
+    private void showDirectoryBottomSheetMenu(final Directory dir) {
+        new BottomSheet.Builder(parentActivity)
+                .title(getString(R.string.settings_string))
+                .sheet(R.menu.directory_settings_menu)
+                .listener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.delete_option:
+                                deletePersonalDirectory(dir.getDirectoryName());
+                                break;
 
-        fileSettingsPopup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                String name = file.getFilename();
-                switch (menuItem.getItemId()) {
-                    case R.id.delete_option:
-                        deletePersonalFile(name);
-                        break;
+                            case R.id.info_option:
+                                //TODO: show dialog about file infos
+                                break;
+                        }
+                        return false;
+                    }
+                }).show();
+    }
 
-                    case R.id.save_option:
-                        startingSavingFileService(name);
-                        break;
+    /**
+     * Shows a dialog which will show to user the infos
+     * about the specific file
+     * @param file file from which get infos
+     */
+    private void showFileInfoDialog(MyFile file) {
+        //TODO: show infos about file
+    }
 
-                    case R.id.get_qrcode_option:
-                        showQrCode(name);
-                        break;
-                }
-                return false;
-            }
-        });
-
-        if (fileSettingsPopup.getMenu() instanceof MenuBuilder) {
-            MenuBuilder helper = (MenuBuilder) fileSettingsPopup.getMenu();
-            helper.setOptionalIconsVisible(true);
-        }
-
-        fileSettingsPopup.show();
+    private void showDirInfoDialog(Directory dir) {
+        //TODO: show infos about directory
     }
 
     /**
@@ -1003,9 +1046,8 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                     elementOptionView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            // will show popup menu here
-                            //showPopupSettings(elementOptionView, file);
-                            showBottomSheetMenu(file);
+                            // will show the bottom menu here
+                            showFileBottomSheetMenu(file);
                         }
                     });
                 }
@@ -1014,8 +1056,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                     final Directory dir = (Directory) element;
                     elementNameView.setText(dir.getDirectoryName());
                     elementDescriptionView.setText(getString(R.string.empty_string));
-
-                    //TODO: add changing color onPressed
 
                     elementCardView.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -1026,7 +1066,13 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
                     elementImage.setImageResource(R.drawable.ic_folder_24dp);
 
-                    //TODO: add popup settings menu for the directory
+                    elementOptionView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // will shoe the bottom menu here
+                            showDirectoryBottomSheetMenu(dir);
+                        }
+                    });
                 }
             }
         }
