@@ -32,11 +32,15 @@
         android:layout_marginBottom="@dimen/personal_page_dim"
         android:text="email used"/>
 
-    <ListView
-        android:id="@+id/personal_list"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/personal_email"
-        android:layout_centerHorizontal="true"/>
+        android:layout_below="@id/personal_email">
+
+        <include android:id="@+id/logout_option" layout="@layout/home_option_item" />
+        <include android:id="@+id/about_option" layout="@layout/home_option_item" />
+
+    </LinearLayout>
 
 </RelativeLayout>

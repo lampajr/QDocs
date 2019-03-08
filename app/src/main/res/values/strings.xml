@@ -54,6 +54,7 @@
     <string name="directory_deleted">Directory successfully deleted</string>
     <string name="delete_directory">Delete Directory</string>
     <string name="info_string">Info</string>
+    <string name="logout_string">Log out</string>
 
 
 </resources>

@@ -57,8 +57,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setupToolbar();
-
         mainFrame = findViewById(R.id.main_frame);
 
         setupFragments();
@@ -101,21 +99,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
         if ((res=manager.findFragmentByTag(HOME_TAG)) != null) return res;
         if ((res=manager.findFragmentByTag(SCANNER_TAG)) != null) return res;
         return null;
-    }
-
-    /**
-     * setup the topmost toolbar
-     */
-    private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar_widget);
-        setSupportActionBar(toolbar);
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
     }
 
     /**
@@ -212,25 +195,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
     protected void onStart() {
         super.onStart();
         initialization();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.app_settings_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id=item.getItemId();
-        switch(id)
-        {
-            case R.id.logout_menu:
-                LoginActivity.logout();
-                startLoginActivity();
-                break;
-        }
-        return false;
     }
 
     @Override

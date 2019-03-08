@@ -1,6 +1,7 @@
 package com.polimi.proj.qdocs.fragments;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -171,12 +172,12 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         onSwipeListener = new OnSwipeTouchListener(context) {
             @Override
             public void onSwipeBottom() {
-                Toast.makeText(parentActivity, "swipe bottom", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "swipe bottom");
             }
 
             @Override
             public void onSwipeLeft() {
-                Toast.makeText(parentActivity, "swipe left", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "swipe left");
             }
 
             @Override
@@ -186,7 +187,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
             @Override
             public void onSwipeTop() {
-                Toast.makeText(parentActivity, "swipe top", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "swipe top");
             }
         };
 
@@ -245,6 +246,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     /**
      * setup the swipe listener in order to change the current fragment
      */
+    @SuppressLint("ClickableViewAccessibility")
     private void setupSwipeListener() {
         storageView.setOnTouchListener(onSwipeListener);
     }
@@ -1003,6 +1005,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                 elementCardView = itemView.findViewById(R.id.element_card);
             }
 
+            @SuppressLint("ClickableViewAccessibility")
             void bindData(final StorageElement element) {
                 elementImage.setImageDrawable(null);
                 //TODO: set onClick animation on the items

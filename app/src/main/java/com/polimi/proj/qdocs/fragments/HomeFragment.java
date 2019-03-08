@@ -1,6 +1,8 @@
 package com.polimi.proj.qdocs.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -12,21 +14,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.activities.LoginActivity;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.support.OnSwipeTouchListener;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -44,10 +46,11 @@ public class HomeFragment extends Fragment {
 
     private RelativeLayout mainLayout;
 
-    private ListView personalList;
     private CircleImageView profileImage;
     private TextView displayName, personalEmail;
+    private LinearLayout logoutOption, aboutOption;
 
+    private OnSwipeTouchListener onSwipeTouchListener;
 
 
     /**
@@ -76,6 +79,7 @@ public class HomeFragment extends Fragment {
         setRetainInstance(true);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -84,16 +88,52 @@ public class HomeFragment extends Fragment {
 
         mainLayout = view.findViewById(R.id.main_layout);
 
-        personalList = view.findViewById(R.id.personal_list);
         profileImage = view.findViewById(R.id.profile_image);
         displayName = view.findViewById(R.id.display_name);
         personalEmail = view.findViewById(R.id.personal_email);
+
+        logoutOption = view.findViewById(R.id.logout_option);
+        setupLogout();
+        aboutOption = view.findViewById(R.id.about_option);
+        setupAbout();
 
         setupProfile();
         setupList();
         setupSwipeListener();
 
+        mainLayout.setOnTouchListener(onSwipeTouchListener);
+
         return view;
+    }
+
+    private void setupAbout() {
+        //TODO: implement about option
+    }
+
+    /**
+     * setup the logout option
+     */
+    private void setupLogout() {
+        logoutOption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LoginActivity.logout();
+                startLoginActivity();
+            }
+        });
+        ImageView img = logoutOption.findViewById(R.id.option_image);
+        //img.setImageResource(R.drawable.ic_logout_24dp);
+        TextView textOption = logoutOption.findViewById(R.id.option_text);
+        textOption.setText(getString(R.string.logout_string));
+    }
+
+    /**
+     * start the login Activity
+     */
+    private void startLoginActivity() {
+        Intent loginIntent = new Intent(context, LoginActivity.class);
+        startActivity(loginIntent);
+        parentActivity.finish();
     }
 
     @Override
@@ -133,10 +173,10 @@ public class HomeFragment extends Fragment {
      * setup the swipe listener in order to change the current fragment
      */
     private void setupSwipeListener() {
-        mainLayout.setOnTouchListener(new OnSwipeTouchListener(context) {
+        onSwipeTouchListener = new OnSwipeTouchListener(context) {
             @Override
             public void onSwipeBottom() {
-                Toast.makeText(parentActivity, "swipe bottom", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "swipe bottom");
             }
 
             @Override
@@ -146,14 +186,14 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onSwipeRight() {
-                Toast.makeText(parentActivity, "swipe right", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "swipe right");
             }
 
             @Override
             public void onSwipeTop() {
-                Toast.makeText(parentActivity, "swipe top", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "swipe top");
             }
-        });
+        };
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.polimi.proj.qdocs.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -76,6 +77,8 @@ public class ScannerFragment extends Fragment {
     private BeepManager beepManager;
     private String lastText;
 
+    private OnSwipeTouchListener onSwipeTouchListener;
+
     // swipe data
     private double previousX=0.0, previousY=0.0;
     private double offset = 20;
@@ -144,16 +147,18 @@ public class ScannerFragment extends Fragment {
         setRetainInstance(true);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View scannerView = inflater.inflate(R.layout.fragment_scanner, container, false);
 
-        // get the barcode view
-        barcodeView = (DecoratedBarcodeView) scannerView.findViewById(R.id.barcode_view);
-
         setupSwipeListener();
+
+        // get the barcode view
+        barcodeView = scannerView.findViewById(R.id.barcode_view);
+        barcodeView.setOnTouchListener(onSwipeTouchListener);
 
         return scannerView;
     }
@@ -162,10 +167,10 @@ public class ScannerFragment extends Fragment {
      * setup the swipe listener in order to change the current fragment
      */
     private void setupSwipeListener() {
-        barcodeView.setOnTouchListener(new OnSwipeTouchListener(context) {
+        onSwipeTouchListener = new OnSwipeTouchListener(context) {
             @Override
             public void onSwipeBottom() {
-                Toast.makeText(parentActivity, "swipe bottom", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "swipe bottom");
             }
 
             @Override
@@ -180,9 +185,9 @@ public class ScannerFragment extends Fragment {
 
             @Override
             public void onSwipeTop() {
-                Toast.makeText(parentActivity, "swipe top", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "swipe top");
             }
-        });
+        };
     }
 
     /**
