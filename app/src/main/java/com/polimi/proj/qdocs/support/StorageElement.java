@@ -1,5 +1,7 @@
 package com.polimi.proj.qdocs.support;
 
+import com.google.firebase.database.DataSnapshot;
+
 import java.util.List;
 
 /**
@@ -51,5 +53,14 @@ public abstract class StorageElement {
             }
         }
         return null;
+    }
+
+    /**
+     * tells if the current datasnapshot stores a file
+     * @param dataSnapshot datasnapshot to check
+     * @return true if it is a file, false otherwise
+     */
+    public static boolean isFile(DataSnapshot dataSnapshot) {
+        return dataSnapshot.getKey().matches("\\d+");
     }
 }

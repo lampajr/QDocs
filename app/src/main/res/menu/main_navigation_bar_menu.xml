@@ -8,6 +8,12 @@
         android:checked="false" />
 
     <item
+        android:id="@+id/offline_item"
+        android:icon="@drawable/ic_file_download_black_24dp"
+        android:title="@string/offline_string"
+        android:checked="false" />
+
+    <item
         android:id="@+id/scanner_item"
         android:icon="@drawable/ic_center_focus_scan_24dp"
         android:title="@string/scanner_string"

@@ -30,6 +30,7 @@ public class MyFile extends StorageElement{
     public static final String SIZE = "size";
     public static final String TIME = "time";
     public static final String LAST_ACCESS = "lastAccess";
+    public static final String OFFLINE = "offline";
 
 
     // file's attribute stored in the database
@@ -39,17 +40,19 @@ public class MyFile extends StorageElement{
     private String size;
     private String time;
     private String lastAccess;
+    private boolean offline;
 
     public MyFile() {}
 
     public MyFile(String filename, String contentType, String key,
-                  String size, String time, String lastAccess) {
+                  String size, String time, String lastAccess, boolean offline) {
         this.filename = filename;
         this.contentType = contentType;
         this.size = size;
         this.time = time;
         this.key = key;
         this.lastAccess = lastAccess;
+        this.offline = offline;
     }
 
     public String getKey() {
@@ -76,5 +79,7 @@ public class MyFile extends StorageElement{
         return lastAccess;
     }
 
-    //////// STATIC METHODS ON FILES ////////
+    public boolean isOffline() {
+        return offline;
+    }
 }

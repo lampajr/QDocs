@@ -3,7 +3,6 @@ package com.polimi.proj.qdocs.fragments;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -34,7 +33,7 @@ import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
 import com.polimi.proj.qdocs.support.MyFile;
-import com.polimi.proj.qdocs.support.OnSwipeTouchListener;
+import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 
 import java.util.Arrays;
 import java.util.Collection;

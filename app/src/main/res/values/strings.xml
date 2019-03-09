@@ -55,6 +55,7 @@
     <string name="delete_directory">Delete Directory</string>
     <string name="info_string">Info</string>
     <string name="logout_string">Log out</string>
+    <string name="offline_string">OFFLINE</string>
 
 
 </resources>

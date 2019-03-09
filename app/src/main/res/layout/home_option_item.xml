@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="horizontal"
-    android:layout_width="match_parent" android:layout_height="@dimen/single_item_dimension">
+    android:layout_width="match_parent" android:layout_height="50dp">
 
     <ImageView
         android:id="@+id/option_image"
-        android:layout_width="@dimen/single_item_dimension"
+        android:layout_width="50dp"
         android:layout_height="match_parent"
         android:contentDescription="TODO" />
 
@@ -14,7 +14,7 @@
         android:id="@+id/option_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingStart="45dp"
+        android:paddingStart="25dp"
         android:gravity="center_vertical"
         android:textSize="20sp"
         android:text="option"/>

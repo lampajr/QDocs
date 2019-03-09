@@ -23,12 +23,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.fragments.FilesListFragment;
 import com.polimi.proj.qdocs.fragments.HomeFragment;
+import com.polimi.proj.qdocs.fragments.OfflineFilesFragment;
 import com.polimi.proj.qdocs.fragments.ScannerFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements HomeFragment.OnHomeFragmentSwipe, FilesListFragment.OnFilesFragmentSwipe, ScannerFragment.OnScannerFragmentSwipe {
+public class MainActivity extends AppCompatActivity implements HomeFragment.OnHomeFragmentSwipe,
+        FilesListFragment.OnFilesFragmentSwipe, ScannerFragment.OnScannerFragmentSwipe,
+        OfflineFilesFragment.OnOfflineFilesFragmentSwipe {
 
     private static final String TAG = "MAIN_ACTIVITY";
 
@@ -37,8 +40,9 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
     private boolean cameraPermissionGranted;
     private boolean filesPermissionGranted;
 
-    private static final int HOME_ID = 0, SCANNER_ID = 1, FILES_ID = 2;
-    private static final String SCANNER_TAG = "scanner", FILES_TAG = "files", HOME_TAG = "home";
+    private static final int HOME_ID = 0, OFFLINE_ID = 1, SCANNER_ID = 2, FILES_ID = 3;
+    private static final String SCANNER_TAG = "scanner", FILES_TAG = "files",
+            HOME_TAG = "home", OFFLINE_TAG = "offline";
 
     private BottomNavigationView navigationBar;
     private Fragment currentFragment;
@@ -50,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
 
     private FirebaseUser user;
 
-    //TODO: create fragments only once!!!!!!!!
+    //TODO: add OfflineFilesFragment
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
         fragments = new ArrayList<>();
         Fragment homeFrag = HomeFragment.newInstance();
         fragments.add(homeFrag);
+        Fragment offlineFrag = OfflineFilesFragment.newInstance();
+        fragments.add(offlineFrag);
         Fragment scannerFrag = ScannerFragment.newInstance(getIntent());
         fragments.add(scannerFrag);
         Fragment filesFrag = FilesListFragment.newInstance();
@@ -121,6 +127,10 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
                     case R.id.home_item:
                         applyFragment(HOME_ID, HOME_TAG);
                         break;
+                    case R.id.offline_item:
+                        if (filesPermissionGranted)
+                            applyFragment(OFFLINE_ID, OFFLINE_TAG);
+                        break;
                 }
                 return true;
             }
@@ -138,6 +148,14 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
             if (currentFragment != null) {
                 transaction.remove(currentFragment);
             }
+            /*if (id == SCANNER_ID) {
+                // set navigation bar invisible
+                navigationBar.setVisibility(View.INVISIBLE);
+            }
+            else {
+                // make navigation bar already visible
+                navigationBar.setVisibility(View.VISIBLE);
+            }*/
             transaction.add(R.id.main_frame, fr, tag);
             transaction.commit();
             currentFragmentId = id;
@@ -228,28 +246,37 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
 
     @Override
     public void onFilesSwipe() {
-        //TODO: open Scanner fragment
         applyFragment(SCANNER_ID, SCANNER_TAG);
         navigationBar.setSelectedItemId(R.id.scanner_item);
     }
 
     @Override
     public void onScannerSwipeLeft() {
-        //TODO: open Home fragment
-        applyFragment(HOME_ID, HOME_TAG);
-        navigationBar.setSelectedItemId(R.id.home_item);
+        applyFragment(OFFLINE_ID, OFFLINE_TAG);
+        navigationBar.setSelectedItemId(R.id.offline_item);
     }
 
     public void onScannerSwipeRight() {
-        //TODO: open FilesList fragment
         applyFragment(FILES_ID, FILES_TAG);
         navigationBar.setSelectedItemId(R.id.files_item);
     }
 
     @Override
     public void onHomeSwipe() {
-        //TODO: open Scanner fragment
         applyFragment(SCANNER_ID, SCANNER_TAG);
         navigationBar.setSelectedItemId(R.id.scanner_item);
     }
+
+    @Override
+    public void onRightOfflineSwipe() {
+        applyFragment(SCANNER_ID, SCANNER_TAG);
+        navigationBar.setSelectedItemId(R.id.scanner_item);
+    }
+
+    @Override
+    public void onLeftOfflineSwipe() {
+        applyFragment(HOME_ID, HOME_TAG);
+        navigationBar.setSelectedItemId(R.id.home_item);
+    }
+
 }

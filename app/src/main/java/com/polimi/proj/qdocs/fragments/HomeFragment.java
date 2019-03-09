@@ -24,7 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.LoginActivity;
 import com.polimi.proj.qdocs.activities.MainActivity;
-import com.polimi.proj.qdocs.support.OnSwipeTouchListener;
+import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

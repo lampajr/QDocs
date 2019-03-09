@@ -36,7 +36,7 @@
 
         <!-- FILES RECYCLER VIEW -->
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/files_view"
+            android:id="@+id/storage_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 

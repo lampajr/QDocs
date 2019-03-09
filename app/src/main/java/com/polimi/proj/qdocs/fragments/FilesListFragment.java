@@ -20,14 +20,12 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -38,7 +36,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.cocosw.bottomsheet.BottomSheet;
 import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -69,9 +66,11 @@ import com.polimi.proj.qdocs.services.DownloadFileService;
 import com.polimi.proj.qdocs.services.SaveFileReceiver;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
 import com.polimi.proj.qdocs.support.Directory;
+import com.polimi.proj.qdocs.listeners.DragAndDropTouchListener;
 import com.polimi.proj.qdocs.support.MyFile;
-import com.polimi.proj.qdocs.support.OnSwipeTouchListener;
+import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 import com.polimi.proj.qdocs.support.PathResolver;
+import com.polimi.proj.qdocs.support.StorageAdapter;
 import com.polimi.proj.qdocs.support.StorageElement;
 
 import java.io.File;
@@ -81,6 +80,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+//TODO: separate delete operation from this class in order to reuse them in offlineFilesFragment
 
 
 public class FilesListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -98,7 +99,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     private StorageReference storageRef;
 
     private final List<StorageElement> storageElements = new ArrayList<>();
-    private FilesListFragment.StorageAdapter storageAdapter;
+    private StorageAdapter myStorageAdapter;
     private RecyclerView storageView;
 
     private LinearLayout directoryLayout;
@@ -119,10 +120,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     private OnSwipeTouchListener onSwipeListener;
 
     // drag-and-drop upload file button
-    private final static float CLICK_DRAG_TOLERANCE = 30; // Often, there will be a slight, unintentional, drag when the user taps the FAB, so we need to account for this.
     private DragAndDropTouchListener dragAndDropListener;
-    private float downRawX, downRawY;
-    private float dX, dY;
 
     /**
      * Required empty public constructor
@@ -192,7 +190,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         };
 
         // RecyclerView for elements
-        storageView = view.findViewById(R.id.files_view);
+        storageView = view.findViewById(R.id.storage_view);
         setupStorageView();
         setupSwipeListener();
         //loadStorageElements();
@@ -431,9 +429,32 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
         storageView.setHasFixedSize(true);
         storageView.setLayoutManager(new LinearLayoutManager(context));
-        storageAdapter = new FilesListFragment.StorageAdapter(context, storageElements);
+        //myStorageAdapter = new MyStorageAdapter(context, storageElements);
+        myStorageAdapter = new StorageAdapter(context, storageElements, onSwipeListener, storageRef) {
+
+            @Override
+            public void onFileClick(MyFile file) {
+                startShowingFileService(file.getFilename());
+            }
+
+            @Override
+            public void onFileOptionClick(MyFile file) {
+                showFileBottomSheetMenu(file);
+            }
+
+            @Override
+            public void onDirectoryClick(Directory dir) {
+                openDirectory(dir.getDirectoryName());
+                myStorageAdapter.updateStorageReference(storageRef);
+            }
+
+            @Override
+            public void onDirectoryOptionClick(Directory dir) {
+                showDirectoryBottomSheetMenu(dir);
+            }
+        };
         // set the adapter for the elements
-        storageView.setAdapter(storageAdapter);
+        storageView.setAdapter(myStorageAdapter);
     }
 
     /**
@@ -451,7 +472,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if (isFile(dataSnapshot)) {
+                if (StorageElement.isFile(dataSnapshot)) {
                     // the element is a file
                     MyFile file = dataSnapshot.getValue(MyFile.class);
                     if (file != null) {
@@ -532,6 +553,30 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         context.startService(viewerIntentService);
     }
 
+    /**
+     * Start the service that will store the file on the public storage
+     * @param filename name of the file
+     */
+    private void startingSavingFileService(String filename) {
+        Intent viewerIntentService = new Intent(parentActivity, DownloadFileService.class);
+
+        viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
+
+        updateOffline(StorageElement.retrieveFileByName(filename, storageElements).getKey());
+
+        filename = getCurrentPath(dbRef) + "/" + filename;
+
+        // create the result receiver for the IntentService
+        SaveFileReceiver receiver = new SaveFileReceiver(context, new Handler());
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
+        context.startService(viewerIntentService);
+    }
+
+    /**
+     * updates the lasAccess attribute of a file
+     * @param key key of the file to update
+     */
     private void updateLastAccess(final String key) {
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
@@ -558,21 +603,32 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     }
 
     /**
-     * Start the service that will store the file on the public storage
-     * @param filename name of the file
+     * set the offline attributes to the specific file
+     * @param key file's key to update
      */
-    private void startingSavingFileService(String filename) {
-        Intent viewerIntentService = new Intent(parentActivity, DownloadFileService.class);
+    private void updateOffline(final String key) {
+        dbRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if (dataSnapshot.getKey().equals(key)) {
+                    // i've found the File to update
+                    dataSnapshot.child(MyFile.OFFLINE).getRef()
+                            .setValue(true);
+                }
+            }
 
-        viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
 
-        filename = getCurrentPath(dbRef) + "/" + filename;
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
 
-        // create the result receiver for the IntentService
-        SaveFileReceiver receiver = new SaveFileReceiver(context, new Handler());
-        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
-        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
-        context.startService(viewerIntentService);
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
+        });
     }
 
     /**
@@ -626,7 +682,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         ref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if (isFile(dataSnapshot)) {
+                if (StorageElement.isFile(dataSnapshot)) {
                     // if it is a file delete it
                     MyFile f = dataSnapshot.getValue(MyFile.class);
                     StorageReference sr = path == null ? null : storageRef.child(path);
@@ -725,6 +781,9 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                 params.removeRule(RelativeLayout.BELOW);
                 swipeRefreshLayout.setLayoutParams(params);
             }
+
+            // update the storage adapter
+            myStorageAdapter.updateStorageReference(storageRef);
         }
         else {
             Log.d(TAG, "you are already at root");
@@ -735,20 +794,20 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
     /**
      * change the default directory, updating the filesList to show
-     * @param folderName name of the folder to which move to
+     * @param directoryName name of the folder to which move to
      */
-    private void openDirectory(final String folderName) {
+    private void openDirectory(final String directoryName) {
         if (isAtRoot()) {
             directoryLayout.setVisibility(View.VISIBLE);
         }
-        Log.d(TAG, "changing directory, going to " + folderName);
-        dbRef = dbRef.child(folderName);
-        storageRef = storageRef.child(folderName);
+        Log.d(TAG, "changing directory, going to " + directoryName);
+        dbRef = dbRef.child(directoryName);
+        storageRef = storageRef.child(directoryName);
         storageElements.clear();
         notifyAdapter();
         loadStorageElements();
         //TODO: change directory text
-        String path = directoryPathText.getText().toString() + "/" + folderName;
+        String path = directoryPathText.getText().toString() + "/" + directoryName;
         directoryPathText.setText(path);
         //TODO: add layout_below attribute
         params= new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -808,7 +867,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * Notifies the adapters that data has been changed
      */
     public void notifyAdapter() {
-        storageAdapter.notifyDataSetChanged();
+        myStorageAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -847,7 +906,8 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * @param elem curr element to add
      */
     private void addElement(StorageElement elem) {
-        if (elem instanceof MyFile) {
+        if (elem instanceof MyFile &&
+                StorageElement.retrieveFileByName(((MyFile)elem).getFilename(), storageElements) != null) {
             // add file in the tail of list
             storageElements.add(elem);
         }
@@ -939,212 +999,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         return dbRef.getKey().equals(user.getUid());
     }
 
-    /**
-     * tells if the current datasnapshot stores a file
-     * @param dataSnapshot datasnapshot to check
-     * @return true if it is a file, false otherwise
-     */
-    private boolean isFile(DataSnapshot dataSnapshot) {
-        return dataSnapshot.getKey().matches("\\d+");
-    }
-
-    /**
-     * RecyclerView adapter for the elements' list
-     */
-    private class StorageAdapter extends RecyclerView.Adapter<FilesListFragment.StorageAdapter.dataViewHolder> {
-        private LayoutInflater inflater;
-        private List<StorageElement> elements;
-        private Context context;
-
-        StorageAdapter(Context context, List<StorageElement> elements) {
-            this.inflater = LayoutInflater.from(context);
-            this.elements = elements;
-            this.context = context;
-
-            setHasStableIds(true);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @NonNull
-        @Override
-        public FilesListFragment.StorageAdapter.dataViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            //TODO: rearrange item file layout
-            View view = inflater.inflate(R.layout.item_storage_element, parent, false);
-            return new FilesListFragment.StorageAdapter.dataViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull final FilesListFragment.StorageAdapter.dataViewHolder holder, int position) {
-            holder.bindData(elements.get(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            return elements.size();
-        }
-
-        /**
-         * Holder for the File element
-         */
-        class dataViewHolder extends RecyclerView.ViewHolder{
-            // Item-row elements
-            TextView elementNameView, elementDescriptionView, elementOptionView;
-            ImageView elementImage;
-            CardView elementCardView;
-
-            dataViewHolder(@NonNull View itemView) {
-                super(itemView);
-                elementNameView = itemView.findViewById(R.id.element_name);
-                elementDescriptionView = itemView.findViewById(R.id.element_description);
-                elementOptionView = itemView.findViewById(R.id.element_options);
-                elementImage = itemView.findViewById(R.id.element_image);
-                elementCardView = itemView.findViewById(R.id.element_card);
-            }
-
-            @SuppressLint("ClickableViewAccessibility")
-            void bindData(final StorageElement element) {
-                elementImage.setImageDrawable(null);
-                //TODO: set onClick animation on the items
-                if (element instanceof MyFile) {
-                    final MyFile file = (MyFile) element;
-                    elementNameView.setText(file.getFilename());
-                    elementDescriptionView.setText(file.getContentType());
-
-                    if (file.getContentType().contains("image")) {
-                        // preview image for image file
-                        storageRef.child(file.getFilename()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                Log.d(TAG, "preview image loaded successfully");
-                                Glide.with(context).load(uri).into(elementImage);
-                            }
-                        });
-                    }
-                    else if (file.getContentType().contains("audio")) {
-                        // image for audio
-                        elementImage.setImageResource(R.drawable.ic_mic_24dp);
-                    }
-                    else if (file.getContentType().contains("pdf")) {
-                        //TODO: set image for pdf
-                        elementImage.setImageResource(R.drawable.ic_tmp_pdf_24dp);
-                    }
-                    else {
-                        //TODO: set image for another file type
-                        elementImage.setImageResource(R.drawable.ic_unsupported_file_24dp);
-                    }
-
-                    elementCardView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startShowingFileService(file.getFilename());
-                        }
-                    });
-
-                    elementCardView.setOnTouchListener(onSwipeListener);
-
-                    elementOptionView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            // will show the bottom menu here
-                            showFileBottomSheetMenu(file);
-                        }
-                    });
-                }
-                else {
-                    // the current element is a directory
-                    final Directory dir = (Directory) element;
-                    elementNameView.setText(dir.getDirectoryName());
-                    elementDescriptionView.setText(getString(R.string.empty_string));
-
-                    elementCardView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            openDirectory(dir.getDirectoryName());
-                        }
-                    });
-
-                    elementImage.setImageResource(R.drawable.ic_folder_24dp);
-
-                    elementOptionView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            // will shoe the bottom menu here
-                            showDirectoryBottomSheetMenu(dir);
-                        }
-                    });
-                }
-            }
-        }
-    }
-
-    /**
-     * Drag & Drop touch listener
-     */
-    private class DragAndDropTouchListener implements View.OnTouchListener {
-        @Override
-        public boolean onTouch(View view, MotionEvent event) {
-            int action = event.getAction();
-            if (action == MotionEvent.ACTION_DOWN) {
-
-                downRawX = event.getRawX();
-                downRawY = event.getRawY();
-                dX = view.getX() - downRawX;
-                dY = view.getY() - downRawY;
-
-                return true; // Consumed
-
-            }
-            else if (action == MotionEvent.ACTION_MOVE) {
-
-                int viewWidth = view.getWidth();
-                int viewHeight = view.getHeight();
-
-                View viewParent = (View)view.getParent();
-                int parentWidth = viewParent.getWidth();
-                int parentHeight = viewParent.getHeight();
-
-                float newX = event.getRawX() + dX;
-                newX = Math.max(0, newX); // Don't allow the FAB past the left hand side of the parent
-                newX = Math.min(parentWidth - viewWidth, newX); // Don't allow the FAB past the right hand side of the parent
-
-                float newY = event.getRawY() + dY;
-                newY = Math.max(0, newY); // Don't allow the FAB past the top of the parent
-                newY = Math.min(parentHeight - viewHeight, newY); // Don't allow the FAB past the bottom of the parent
-
-                view.animate()
-                        .x(newX)
-                        .y(newY)
-                        .setDuration(0)
-                        .start();
-
-                return true; // Consumed
-
-            }
-            else if (action == MotionEvent.ACTION_UP) {
-
-                float upRawX = event.getRawX();
-                float upRawY = event.getRawY();
-
-                float upDX = upRawX - downRawX;
-                float upDY = upRawY - downRawY;
-
-                if (Math.abs(upDX) < CLICK_DRAG_TOLERANCE && Math.abs(upDY) < CLICK_DRAG_TOLERANCE) { // A click
-                    return view.performClick();
-                }
-                else { // A drag
-                    return true; // Consumed
-                }
-
-            }
-            else {
-                return view.onTouchEvent(event);
-            }
-        }
-    }
 
     /**
      * interface that has to be implemented by the main activity in order to handle
