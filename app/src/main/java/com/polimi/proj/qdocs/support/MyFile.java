@@ -2,6 +2,11 @@ package com.polimi.proj.qdocs.support;
 
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.firebase.storage.StorageReference;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author Andrea Lamparelli
@@ -39,8 +44,9 @@ public class MyFile extends StorageElement{
     private String contentType;
     private String size;
     private String time;
-    private String lastAccess;
+    //private long lastAccess;
     private boolean offline;
+    private StorageReference reference = null;
 
     public MyFile() {}
 
@@ -82,4 +88,14 @@ public class MyFile extends StorageElement{
     public boolean isOffline() {
         return offline;
     }
+
+    @Exclude
+    public StorageReference getReference() {
+        return reference;
+    }
+
+    public void setReference(StorageReference reference) {
+        this.reference = reference;
+    }
+
 }

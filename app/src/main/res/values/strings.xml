@@ -56,6 +56,7 @@
     <string name="info_string">Info</string>
     <string name="logout_string">Log out</string>
     <string name="offline_string">OFFLINE</string>
+    <string name="recent_string">RECENT</string>
 
 
 </resources>

@@ -111,9 +111,11 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                 elementNameView.setText(file.getFilename());
                 elementDescriptionView.setText(file.getContentType());
 
+                final StorageReference refUsed = file.getReference() == null ? ref : file.getReference();
+
                 if (file.getContentType().contains("image")) {
                     // preview image for image file
-                    ref.child(file.getFilename()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    refUsed.child(file.getFilename()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
                             Log.d(TAG, "preview image loaded successfully");

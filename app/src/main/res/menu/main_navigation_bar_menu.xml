@@ -20,6 +20,12 @@
         android:checked="true"/>
 
     <item
+        android:id="@+id/recent_item"
+        android:icon="@drawable/ic_recent_files_24dp"
+        android:title="@string/recent_string"
+        android:checked="false" />
+
+    <item
         android:id="@+id/files_item"
         android:icon="@drawable/ic_tmp_pdf_24dp"
         android:title="@string/files_string"

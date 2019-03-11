@@ -67,6 +67,7 @@ import com.polimi.proj.qdocs.services.SaveFileReceiver;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
 import com.polimi.proj.qdocs.support.Directory;
 import com.polimi.proj.qdocs.listeners.DragAndDropTouchListener;
+import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 import com.polimi.proj.qdocs.support.PathResolver;
@@ -88,7 +89,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
     private static final String TAG = "FILES_LIST_FRAGMENT";
 
-    private static final String BASE_REFERENCE = "documents";
     private static final String KEY_METADATA = "key_metadata";
     private static final String UID_METADATA = "uid_metadata";
 
@@ -96,7 +96,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     private static final int AUD_PRV = 200;
     private static final int FILE_PRV = 300;
 
-    private StorageReference storageRef;
+    private FirebaseHelper fbHelper;
 
     private final List<StorageElement> storageElements = new ArrayList<>();
     private StorageAdapter myStorageAdapter;
@@ -110,8 +110,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     private FloatingActionMenu floatingMenu;
     private FloatingActionButton uploadGenericFileFloatingButton;
 
-    private FirebaseUser user;
-    private DatabaseReference dbRef;
     private Context context;
     private OnFilesFragmentSwipe mSwipeListener;
     private MainActivity parentActivity;
@@ -155,11 +153,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         dragAndDropListener = new DragAndDropTouchListener();
         setupUploadFileFloatingButton();
 
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        storageRef = FirebaseStorage.getInstance().getReference().child(user.getUid());
-
-        dbRef = FirebaseDatabase.getInstance().getReference()
-                .child(BASE_REFERENCE).child(user.getUid());
+        fbHelper = new FirebaseHelper();
 
         directoryLayout = view.findViewById(R.id.directory_layout);
         directoryPathText = view.findViewById(R.id.directory_path_text);
@@ -359,8 +353,8 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         final Uri file = Uri.fromFile(new File(absoluteFilePath));
 
         StorageReference fileRef = !pathname.equals("") ?
-                storageRef.child(pathname).child(file.getLastPathSegment())
-                : storageRef.child(file.getLastPathSegment());
+                fbHelper.getStorageReference().child(pathname).child(file.getLastPathSegment())
+                : fbHelper.getStorageReference().child(file.getLastPathSegment());
 
         // file information
         final String contentType = context.getContentResolver().getType(fileUri);
@@ -368,7 +362,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         StorageMetadata metadata = new StorageMetadata.Builder()
                 .setContentType(contentType)
                 .setCustomMetadata(KEY_METADATA, generateCode())
-                .setCustomMetadata(UID_METADATA, user.getUid())
+                .setCustomMetadata(UID_METADATA, fbHelper.getUserId())
                 .build();
 
         final UploadTask uploadTask = fileRef.putFile(file, metadata);
@@ -430,7 +424,8 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         storageView.setHasFixedSize(true);
         storageView.setLayoutManager(new LinearLayoutManager(context));
         //myStorageAdapter = new MyStorageAdapter(context, storageElements);
-        myStorageAdapter = new StorageAdapter(context, storageElements, onSwipeListener, storageRef) {
+        myStorageAdapter = new StorageAdapter(context, storageElements,
+                onSwipeListener, fbHelper.getStorageReference()) {
 
             @Override
             public void onFileClick(MyFile file) {
@@ -445,7 +440,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
             @Override
             public void onDirectoryClick(Directory dir) {
                 openDirectory(dir.getDirectoryName());
-                myStorageAdapter.updateStorageReference(storageRef);
+                myStorageAdapter.updateStorageReference(fbHelper.getStorageReference());
             }
 
             @Override
@@ -469,7 +464,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         // Showing refresh animation before making requests to firebase server
         swipeRefreshLayout.setRefreshing(true);
 
-        dbRef.addChildEventListener(new ChildEventListener() {
+        fbHelper.getDatabaseReference().addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 if (StorageElement.isFile(dataSnapshot)) {
@@ -529,6 +524,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                 Log.e(TAG, "database error occurred: onCanceled");
             }
         });
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     /**
@@ -544,7 +540,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
         updateLastAccess(StorageElement.retrieveFileByName(filename, storageElements).getKey());
 
-        String pathname = getCurrentPath(dbRef) + "/" + filename;
+        String pathname = getCurrentPath(fbHelper.getDatabaseReference()) + "/" + filename;
 
         // create the result receiver for the IntentService
         ShowFileReceiver receiver = new ShowFileReceiver(context, new Handler());
@@ -564,7 +560,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
         updateOffline(StorageElement.retrieveFileByName(filename, storageElements).getKey());
 
-        filename = getCurrentPath(dbRef) + "/" + filename;
+        filename = getCurrentPath(fbHelper.getDatabaseReference()) + "/" + filename;
 
         // create the result receiver for the IntentService
         SaveFileReceiver receiver = new SaveFileReceiver(context, new Handler());
@@ -578,13 +574,14 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * @param key key of the file to update
      */
     private void updateLastAccess(final String key) {
-        dbRef.addChildEventListener(new ChildEventListener() {
+        fbHelper.getDatabaseReference().addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 if (dataSnapshot.getKey().equals(key)) {
                     // i've found the File to update
                     dataSnapshot.child(MyFile.LAST_ACCESS).getRef()
-                            .setValue(DateFormat.format("yyyy-MM-dd hh:mm:ss a", new Date()));
+                            .setValue(Calendar.getInstance().getTimeInMillis());
+                            //.setValue(DateFormat.format("yyyy-MM-dd hh:mm:ss a", new Date()));
                 }
             }
 
@@ -607,7 +604,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * @param key file's key to update
      */
     private void updateOffline(final String key) {
-        dbRef.addChildEventListener(new ChildEventListener() {
+        fbHelper.getDatabaseReference().addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 if (dataSnapshot.getKey().equals(key)) {
@@ -636,7 +633,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * @return the path string
      */
     private String getCurrentPath(DatabaseReference ref) {
-        if (ref.getKey().equals(user.getUid()))
+        if (ref.getKey().equals(fbHelper.getUserId()))
             return "";
         else
             return getCurrentPath(ref.getParent()) + "/" + ref.getKey();
@@ -646,13 +643,14 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * Deletes a file from list
      * @param filename name of the file to delete
      */
+    //TODO: remove from this class
     private void deletePersonalFile(final String filename, StorageReference ref) {
         //TODO: implement "are you sure?" dialog
 
         Log.d(TAG, "deleting file: " + filename);
         if (ref == null) {
             // remove the file from the current directory
-            ref = storageRef;
+            ref = fbHelper.getStorageReference();
         }
         ref.child(filename).delete().addOnFailureListener(new OnFailureListener() {
             @Override
@@ -676,7 +674,8 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     private void deletePersonalDirectory(final String path) {
         //TODO: implement "are you sure?" dialog
 
-        DatabaseReference ref = path == null ? dbRef : dbRef.child(path);
+        DatabaseReference ref = path == null ? fbHelper.getDatabaseReference()
+                : fbHelper.getDatabaseReference().child(path);
 
         // starts removing element from the current directory
         ref.addChildEventListener(new ChildEventListener() {
@@ -685,7 +684,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                 if (StorageElement.isFile(dataSnapshot)) {
                     // if it is a file delete it
                     MyFile f = dataSnapshot.getValue(MyFile.class);
-                    StorageReference sr = path == null ? null : storageRef.child(path);
+                    StorageReference sr = path == null ? null : fbHelper.getStorageReference().child(path);
                     deletePersonalFile(f.getFilename(), sr);
                 }
                 else {
@@ -764,17 +763,17 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * get back to the previous directory if any.
      */
     private void getBackDirectory() {
-        if (!isAtRoot()) {
+        if (!fbHelper.isAtRoot()) {
             Log.d(TAG, "Removing a directory level");
-            dbRef = dbRef.getParent();
-            storageRef = storageRef.getParent();
+            fbHelper.backwardDatabaseDirectory();
+            fbHelper.backwardStorageDirectory();
             storageElements.clear();
             //TODO: change directory text
             String pastText = directoryPathText.getText().toString();
             directoryPathText.setText(pastText.substring(0, pastText.lastIndexOf("/")));
             notifyAdapter();
             loadStorageElements();
-            if (isAtRoot()) {
+            if (fbHelper.isAtRoot()) {
                 //TODO: make directory layout invisible
                 directoryLayout.setVisibility(View.INVISIBLE);
                 //TODO: remove layout_below attribute to filesView
@@ -783,7 +782,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
             }
 
             // update the storage adapter
-            myStorageAdapter.updateStorageReference(storageRef);
+            myStorageAdapter.updateStorageReference(fbHelper.getStorageReference());
         }
         else {
             Log.d(TAG, "you are already at root");
@@ -797,19 +796,19 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * @param directoryName name of the folder to which move to
      */
     private void openDirectory(final String directoryName) {
-        if (isAtRoot()) {
+        if (fbHelper.isAtRoot()) {
             directoryLayout.setVisibility(View.VISIBLE);
         }
         Log.d(TAG, "changing directory, going to " + directoryName);
-        dbRef = dbRef.child(directoryName);
-        storageRef = storageRef.child(directoryName);
+        fbHelper.updateDatabaseReference(directoryName);
+        fbHelper.updateStorageReference(directoryName);
         storageElements.clear();
         notifyAdapter();
         loadStorageElements();
         //TODO: change directory text
         String path = directoryPathText.getText().toString() + "/" + directoryName;
         directoryPathText.setText(path);
-        //TODO: add layout_below attribute
+        //add layout_below attribute
         params= new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.BELOW, R.id.directory_layout);
         swipeRefreshLayout.setLayoutParams(params);
@@ -990,15 +989,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     private void showDirInfoDialog(Directory dir) {
         //TODO: show infos about directory
     }
-
-    /**
-     * tells if the user is in the root directory or not
-     * @return true if root dir, false otherwise
-     */
-    private boolean isAtRoot() {
-        return dbRef.getKey().equals(user.getUid());
-    }
-
 
     /**
      * interface that has to be implemented by the main activity in order to handle

@@ -1,6 +1,7 @@
 package com.polimi.proj.qdocs.support;
 
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.Exclude;
 
 import java.util.List;
 
@@ -8,7 +9,20 @@ import java.util.List;
  * Interface that represents either a file or a directory,
  * used in order to display the hierarchy of the user's files
  */
-public abstract class StorageElement {
+public abstract class StorageElement implements Comparable<StorageElement>{
+
+    String lastAccess;
+
+    /**
+     * the compaison is made in according to the lastAccess
+     * @param o object to compare with
+     * @return -1, 0 or 1
+     */
+    @Exclude
+    @Override
+    public int compareTo(StorageElement o) {
+        return Long.compare(Long.valueOf(lastAccess), Long.valueOf(o.lastAccess));
+    }
 
     /**
      * Retrieve a MyFile object matching the filename passed as parameter

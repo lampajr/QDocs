@@ -12,20 +12,23 @@ import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.StorageElement;
 
+import java.util.Collections;
+
 
 /**
  * @author Lamparelli Andrea
  * @author Chittò Pietro
  *
- * Activity that will show the list of user's offline files
+ * Activity that will show the list of user's recent files
  *
  * @see ListFragment
  */
-public class OfflineFilesFragment extends ListFragment {
-    private static final String TAG = "OFFLINE_FILES_FRAGMENT";
+public class RecentFilesFragment extends ListFragment {
+    private static final String TAG = "RECENT_FILES_FRAGMENT";
+    private static final int N_RECENT_FILES = 5; // number of recent files to show
 
     /**
-     * Loads all the user's offline files
+     * Loads all the user's recent files
      * @param ref reference from which retrieve files
      */
     @Override
@@ -35,11 +38,11 @@ public class OfflineFilesFragment extends ListFragment {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 if (StorageElement.isFile(dataSnapshot)) {
                     MyFile file = dataSnapshot.getValue(MyFile.class);
-                    if (file != null && file.isOffline() &&
+                    if (file != null &&
                             StorageElement.retrieveFileByName(file.getFilename(), files) == null) {
                         Log.d(TAG, "new offline file found: " + storageReference.toString());
                         file.setReference(storageReference);
-                        files.add(file);
+                        addFileInOrder(file);
                     }
                     swipeRefreshLayout.setRefreshing(false);
                 }
@@ -66,12 +69,28 @@ public class OfflineFilesFragment extends ListFragment {
     }
 
     /**
+     * if the size of files is less than N_RECENT_FILES then the new file is simply added
+     * else the new files is added at specific index such that the list is ordered by
+     * lastAccess attribute of the files, then if the size is greater than N_RECENT_FILES remove
+     * the last file
+     * @param file new file to be added if recent
+     */
+    private void addFileInOrder(MyFile file) {
+        files.add(file);
+        Collections.sort(files);
+        if (files.size() > N_RECENT_FILES) {
+            // remove last file
+            files.remove(files.size());
+        }
+    }
+
+    /**
      * interface that has to be implemented by the main activity in order to handle
      * the swipe gesture on the OfflineFilesFragment
      */
-    public interface OnOfflineFilesFragmentSwipe {
+    public interface OnRecentFilesFragmentSwipe {
         // TODO: Update argument type and name
-        void onRightOfflineSwipe();
-        void onLeftOfflineSwipe();
+        void onRightRecentSwipe();
+        void onLeftRecentSwipe();
     }
 }
