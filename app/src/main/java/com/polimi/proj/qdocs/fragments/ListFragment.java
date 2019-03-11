@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
-    private static final String TAG = "OFFLINE_FILES_FRAGMENT";
+    public final String TAG = "LIST_FRAGMENT";
 
     private Context context;
     private MainActivity parentActivity;
@@ -47,15 +47,6 @@ public abstract class ListFragment extends Fragment implements SwipeRefreshLayou
      * Required empty public constructor
      */
     public ListFragment() {}
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static OfflineFilesFragment newInstance() {
-        return new OfflineFilesFragment();
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

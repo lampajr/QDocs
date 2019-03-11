@@ -24,8 +24,16 @@ import java.util.Collections;
  * @see ListFragment
  */
 public class RecentFilesFragment extends ListFragment {
-    private static final String TAG = "RECENT_FILES_FRAGMENT";
+    public final String TAG = "RECENT_FILES_FRAGMENT";
     private static final int N_RECENT_FILES = 5; // number of recent files to show
+
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     */
+    public static RecentFilesFragment newInstance() {
+        return new RecentFilesFragment();
+    }
 
     /**
      * Loads all the user's recent files
@@ -76,6 +84,7 @@ public class RecentFilesFragment extends ListFragment {
      * @param file new file to be added if recent
      */
     private void addFileInOrder(MyFile file) {
+        Log.d(TAG, "new file to add: " + file.getLastAccess());
         files.add(file);
         Collections.sort(files);
         if (files.size() > N_RECENT_FILES) {

@@ -11,7 +11,7 @@ import java.util.List;
  */
 public abstract class StorageElement implements Comparable<StorageElement>{
 
-    String lastAccess;
+    Long lastAccess;
 
     /**
      * the compaison is made in according to the lastAccess
@@ -21,7 +21,7 @@ public abstract class StorageElement implements Comparable<StorageElement>{
     @Exclude
     @Override
     public int compareTo(StorageElement o) {
-        return Long.compare(Long.valueOf(lastAccess), Long.valueOf(o.lastAccess));
+        return Long.compare(lastAccess, o.lastAccess);
     }
 
     /**

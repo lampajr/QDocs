@@ -22,7 +22,15 @@ import com.polimi.proj.qdocs.support.StorageElement;
  * @see ListFragment
  */
 public class OfflineFilesFragment extends ListFragment {
-    private static final String TAG = "OFFLINE_FILES_FRAGMENT";
+    private final String TAG = "OFFLINE_FILES_FRAGMENT";
+
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     */
+    public static OfflineFilesFragment newInstance() {
+        return new OfflineFilesFragment();
+    }
 
     /**
      * Loads all the user's offline files

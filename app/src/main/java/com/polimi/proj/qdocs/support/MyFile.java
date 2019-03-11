@@ -51,7 +51,7 @@ public class MyFile extends StorageElement{
     public MyFile() {}
 
     public MyFile(String filename, String contentType, String key,
-                  String size, String time, String lastAccess, boolean offline) {
+                  String size, String time, Long lastAccess, boolean offline) {
         this.filename = filename;
         this.contentType = contentType;
         this.size = size;
@@ -81,7 +81,7 @@ public class MyFile extends StorageElement{
         return time;
     }
 
-    public String getLastAccess() {
+    public Long getLastAccess() {
         return lastAccess;
     }
 

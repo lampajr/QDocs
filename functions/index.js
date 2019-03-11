@@ -18,9 +18,10 @@ exports.insertFileTrigger = functions.storage.object().onFinalize((object) => {
     // add to the absolute path the encoding
     path = DOCUMENTS + path + '/' + object.metadata[KEY_METADATA] + '/';
 
-    console.log('new file added: ', filePath);
     var d = new Date();
-    const lastAccess = d.getMilliseconds;
+    const lastAccess = d.getTime();
+    console.log('new file added: ', filePath);
+    console.log('lastAccess: ', lastAccess);
 
     // object that describes the file, to add in the firebase database
     var fileObj = {
@@ -29,7 +30,7 @@ exports.insertFileTrigger = functions.storage.object().onFinalize((object) => {
 		contentType : object.contentType,
 		size : object.size,
         time : object.timeCreated,
-        lastAccess : lastAccess.toString(),
+        lastAccess : lastAccess,
         offline : false
     };
     
@@ -40,7 +41,7 @@ exports.insertFileTrigger = functions.storage.object().onFinalize((object) => {
 
 
 // [START storage onDelete Trigger]
-exports.deleteFileTrigger = functions.storage.object().onDelete((object, context) => {
+exports.deleteFileTrig = functions.storage.object().onDelete((object, context) => {
     const filePath = object.name; // file path in the bucket
     var path = filePath.substring(0, filePath.lastIndexOf('/'));
 
