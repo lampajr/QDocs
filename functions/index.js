@@ -41,7 +41,7 @@ exports.insertFileTrigger = functions.storage.object().onFinalize((object) => {
 
 
 // [START storage onDelete Trigger]
-exports.deleteFileTrig = functions.storage.object().onDelete((object, context) => {
+exports.deleteFileTrigger = functions.storage.object().onDelete((object, context) => {
     const filePath = object.name; // file path in the bucket
     var path = filePath.substring(0, filePath.lastIndexOf('/'));
 
