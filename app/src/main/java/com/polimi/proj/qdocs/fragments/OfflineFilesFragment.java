@@ -9,6 +9,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
+import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.StorageElement;
 
@@ -30,6 +31,31 @@ public class OfflineFilesFragment extends ListFragment {
      */
     public static OfflineFilesFragment newInstance() {
         return new OfflineFilesFragment();
+    }
+
+    @Override
+    void setupListener() {
+        onItemSwipeListener = new OnSwipeTouchListener(context) {
+            @Override
+            public void onSwipeBottom() {
+                Log.d(TAG, "swipe bottom");
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                parentActivity.onRightOfflineSwipe();
+            }
+
+            @Override
+            public void onSwipeRight() {
+                parentActivity.onLeftOfflineSwipe();
+            }
+
+            @Override
+            public void onSwipeTop() {
+                Log.d(TAG, "swipe top");
+            }
+        };
     }
 
     /**
@@ -78,7 +104,6 @@ public class OfflineFilesFragment extends ListFragment {
      * the swipe gesture on the OfflineFilesFragment
      */
     public interface OnOfflineFilesFragmentSwipe {
-        // TODO: Update argument type and name
         void onRightOfflineSwipe();
         void onLeftOfflineSwipe();
     }

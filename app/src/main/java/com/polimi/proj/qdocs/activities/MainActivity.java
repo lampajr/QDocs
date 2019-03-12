@@ -272,8 +272,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
 
     @Override
     public void onHomeSwipe() {
-        applyFragment(SCANNER_ID, SCANNER_TAG);
-        navigationBar.setSelectedItemId(R.id.scanner_item);
+        applyFragment(OFFLINE_ID, OFFLINE_TAG);
+        navigationBar.setSelectedItemId(R.id.offline_item);
     }
 
     @Override
@@ -290,13 +290,13 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
 
     @Override
     public void onRightRecentSwipe() {
-        applyFragment(SCANNER_ID, SCANNER_TAG);
-        navigationBar.setSelectedItemId(R.id.scanner_item);
+        applyFragment(FILES_ID, FILES_TAG);
+        navigationBar.setSelectedItemId(R.id.files_item);
     }
 
     @Override
     public void onLeftRecentSwipe() {
-        applyFragment(FILES_ID, FILES_TAG);
-        navigationBar.setSelectedItemId(R.id.files_item);
+        applyFragment(SCANNER_ID, SCANNER_TAG);
+        navigationBar.setSelectedItemId(R.id.scanner_item);
     }
 }

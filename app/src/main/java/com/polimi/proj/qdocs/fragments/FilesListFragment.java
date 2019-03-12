@@ -470,7 +470,8 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                 if (StorageElement.isFile(dataSnapshot)) {
                     // the element is a file
                     MyFile file = dataSnapshot.getValue(MyFile.class);
-                    if (file != null) {
+                    if (file != null &&
+                            StorageElement.retrieveFileByName(file.getFilename(), storageElements) == null) {
                         Log.d(TAG, "adding new file: " + file.getFilename());
                         addElement(file);
                     }
@@ -479,9 +480,11 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                     // the element is a directory
                     Log.d(TAG, "adding new folder..");
                     Directory dir = new Directory(dataSnapshot.getKey());
-                    addElement(dir);
+                    if (StorageElement.retrieveDirectoryByName(dir.getDirectoryName(), storageElements) == null) {
+                        addElement(dir);
+                    }
                 }
-                notifyAdapter();
+                //notifyAdapter();
                 swipeRefreshLayout.setRefreshing(false);
             }
 
@@ -909,10 +912,12 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                 StorageElement.retrieveFileByName(((MyFile)elem).getFilename(), storageElements) != null) {
             // add file in the tail of list
             storageElements.add(elem);
+            myStorageAdapter.notifyItemInserted(storageElements.size() - 1);
         }
         else {
             // add directory in the head of list
             storageElements.add(0, elem);
+            myStorageAdapter.notifyItemInserted(0);
         }
     }
 

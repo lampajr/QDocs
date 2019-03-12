@@ -9,6 +9,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
+import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.StorageElement;
 
@@ -35,6 +36,32 @@ public class RecentFilesFragment extends ListFragment {
         return new RecentFilesFragment();
     }
 
+
+    @Override
+    void setupListener() {
+        onItemSwipeListener = new OnSwipeTouchListener(context) {
+            @Override
+            public void onSwipeBottom() {
+                Log.d(TAG, "swipe bottom");
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                parentActivity.onRightRecentSwipe();
+            }
+
+            @Override
+            public void onSwipeRight() {
+                parentActivity.onLeftRecentSwipe();
+            }
+
+            @Override
+            public void onSwipeTop() {
+                Log.d(TAG, "swipe top");
+            }
+        };
+    }
+
     /**
      * Loads all the user's recent files
      * @param ref reference from which retrieve files
@@ -48,7 +75,7 @@ public class RecentFilesFragment extends ListFragment {
                     MyFile file = dataSnapshot.getValue(MyFile.class);
                     if (file != null &&
                             StorageElement.retrieveFileByName(file.getFilename(), files) == null) {
-                        Log.d(TAG, "new offline file found: " + storageReference.toString());
+                        Log.d(TAG, "new offline file found: " + storageReference.toString() + "/" + file.getFilename());
                         file.setReference(storageReference);
                         addFileInOrder(file);
                     }
@@ -87,9 +114,10 @@ public class RecentFilesFragment extends ListFragment {
         Log.d(TAG, "new file to add: " + file.getLastAccess());
         files.add(file);
         Collections.sort(files);
+        Collections.reverse(files);
         if (files.size() > N_RECENT_FILES) {
             // remove last file
-            files.remove(files.size());
+            files.remove(files.size() - 1);
         }
     }
 

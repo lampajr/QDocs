@@ -31,9 +31,8 @@ import java.util.List;
 public abstract class ListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
     public final String TAG = "LIST_FRAGMENT";
 
-    private Context context;
-    private MainActivity parentActivity;
-    private OfflineFilesFragment.OnOfflineFilesFragmentSwipe mSwipeListener;
+    Context context;
+    MainActivity parentActivity;
     private FirebaseHelper fbHelper;  // Firebase Helper object
 
     SwipeRefreshLayout swipeRefreshLayout;
@@ -41,7 +40,7 @@ public abstract class ListFragment extends Fragment implements SwipeRefreshLayou
     private StorageAdapter myStorageAdapter;
 
     List<StorageElement> files;
-    private OnSwipeTouchListener onItemSwipeListener;
+    OnSwipeTouchListener onItemSwipeListener;
 
     /**
      * Required empty public constructor
@@ -65,6 +64,7 @@ public abstract class ListFragment extends Fragment implements SwipeRefreshLayou
 
         // load files for the first time
         setupSwipeRefresh();
+        setupListener();
         setupStorageView();
 
         return view;
@@ -81,7 +81,6 @@ public abstract class ListFragment extends Fragment implements SwipeRefreshLayou
         super.onAttach(context);
         this.context = context;
         this.parentActivity = (MainActivity) context;
-        this.mSwipeListener = (OfflineFilesFragment.OnOfflineFilesFragmentSwipe) context;
     }
 
     @Override
@@ -119,33 +118,16 @@ public abstract class ListFragment extends Fragment implements SwipeRefreshLayou
     }
 
     /**
+     * must be implemented to setup the onItemSwipeListener
+     */
+    abstract void setupListener();
+
+    /**
      * setup the storage view setting up the adapter
      */
     @SuppressLint("ClickableViewAccessibility")
     private void setupStorageView() {
         Log.d(TAG, "setting up the storage view");
-
-        onItemSwipeListener = new OnSwipeTouchListener(context) {
-            @Override
-            public void onSwipeBottom() {
-                Log.d(TAG, "swipe bottom");
-            }
-
-            @Override
-            public void onSwipeLeft() {
-                mSwipeListener.onRightOfflineSwipe();
-            }
-
-            @Override
-            public void onSwipeRight() {
-                mSwipeListener.onLeftOfflineSwipe();
-            }
-
-            @Override
-            public void onSwipeTop() {
-                Log.d(TAG, "swipe top");
-            }
-        };
 
         storageView.setOnTouchListener(onItemSwipeListener);
 

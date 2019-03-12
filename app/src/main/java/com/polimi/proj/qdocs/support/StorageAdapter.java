@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,15 +24,18 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
 
     private static final String TAG = "STORAGE_ADAPTER";
 
+    private final int FILE = 0;
+    private final int DIRECTORY = 1;
+
     private LayoutInflater inflater;
     private List<StorageElement> elements;
     private Context context;
     private OnSwipeTouchListener onItemSwipeTouchListener;
     private StorageReference storageRef;
 
-    public StorageAdapter(Context context, List<StorageElement> elements,
-                          OnSwipeTouchListener onItemSwipeTouchListener,
-                          StorageReference storageRef) {
+    protected StorageAdapter(Context context, List<StorageElement> elements,
+                             OnSwipeTouchListener onItemSwipeTouchListener,
+                             StorageReference storageRef) {
         this.inflater = LayoutInflater.from(context);
         this.elements = elements;
         this.context = context;
@@ -59,9 +61,22 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
     @NonNull
     @Override
     public StorageAdapter.dataViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        //TODO: rearrange item file layout
-        View view = inflater.inflate(R.layout.item_storage_element, parent, false);
+        //TODO: change layout according to the viewType
+        View view;
+        if (viewType == FILE) {
+            view = inflater.inflate(R.layout.single_file_layout, parent, false);
+        }
+        else {
+            view = inflater.inflate(R.layout.single_directory_layout, parent, false);
+        }
         return new StorageAdapter.dataViewHolder(view);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (elements.get(position) instanceof MyFile)
+            return FILE;
+        else return DIRECTORY;
     }
 
     @Override
@@ -88,15 +103,16 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
         // Item-row elements
         TextView elementNameView, elementDescriptionView, elementOptionView;
         ImageView elementImage;
-        CardView elementCardView;
+        View mainLayout;
 
         dataViewHolder(@NonNull View itemView) {
             super(itemView);
-            elementNameView = itemView.findViewById(R.id.element_name);
-            elementDescriptionView = itemView.findViewById(R.id.element_description);
-            elementOptionView = itemView.findViewById(R.id.element_options);
-            elementImage = itemView.findViewById(R.id.element_image);
-            elementCardView = itemView.findViewById(R.id.element_card);
+            View contentView = itemView.findViewById(R.id.content);
+            elementNameView = contentView.findViewById(R.id.element_name);
+            elementDescriptionView = contentView.findViewById(R.id.element_description);
+            elementOptionView = contentView.findViewById(R.id.element_options);
+            elementImage = contentView.findViewById(R.id.element_image);
+            mainLayout = itemView.findViewById(R.id.layout);
         }
 
         @SuppressLint("ClickableViewAccessibility")
@@ -137,14 +153,14 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                     elementImage.setImageResource(R.drawable.ic_unsupported_file_24dp);
                 }
 
-                elementCardView.setOnClickListener(new View.OnClickListener() {
+                mainLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         onFileClick(file);
                     }
                 });
 
-                elementCardView.setOnTouchListener(onItemSwipeListener);
+                mainLayout.setOnTouchListener(onItemSwipeListener);
 
                 elementOptionView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -160,7 +176,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                 elementNameView.setText(dir.getDirectoryName());
                 elementDescriptionView.setText(context.getString(R.string.empty_string));
 
-                elementCardView.setOnClickListener(new View.OnClickListener() {
+                mainLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         onDirectoryClick(dir);
