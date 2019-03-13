@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -24,16 +25,19 @@ import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.StorageAdapter;
 import com.polimi.proj.qdocs.support.StorageElement;
+import com.polimi.proj.qdocs.support.Utility;
 
 import java.util.ArrayList;
 import java.util.List;
+
+//TODO: implement files option and method
 
 public abstract class ListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
     public final String TAG = "LIST_FRAGMENT";
 
     Context context;
     MainActivity parentActivity;
-    private FirebaseHelper fbHelper;  // Firebase Helper object
+    FirebaseHelper fbHelper;  // Firebase Helper object
 
     SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView storageView;
@@ -118,11 +122,6 @@ public abstract class ListFragment extends Fragment implements SwipeRefreshLayou
     }
 
     /**
-     * must be implemented to setup the onItemSwipeListener
-     */
-    abstract void setupListener();
-
-    /**
      * setup the storage view setting up the adapter
      */
     @SuppressLint("ClickableViewAccessibility")
@@ -137,12 +136,12 @@ public abstract class ListFragment extends Fragment implements SwipeRefreshLayou
         myStorageAdapter = new StorageAdapter(context, files, onItemSwipeListener, FirebaseStorage.getInstance().getReference()) {
             @Override
             public void onFileClick(MyFile file) {
-                //TODO: implement showing file
+                showFile(file);
             }
 
             @Override
             public void onFileOptionClick(MyFile file) {
-                //TODO: implement showing file options
+                showFileSettingsMenu(file);
             }
 
             @Override
@@ -158,6 +157,43 @@ public abstract class ListFragment extends Fragment implements SwipeRefreshLayou
 
         storageView.setAdapter(myStorageAdapter);
     }
+
+    /**
+     * show the given file
+     * @param file file to show
+     */
+    private void showFile(final MyFile file) {
+        Log.d(TAG, "Showing file: " + file.getFilename());
+        fbHelper.updateLastAccessAttribute(StorageElement.retrieveFileByName(file.getFilename(), files).getKey());
+        Utility.showFile(context, fbHelper.getCurrentPath(file.getDbReference()) + "/" + file.getFilename());
+    }
+
+    /**
+     * show the bottom sheet menu for the given file
+     * @param file file for which show settings
+     */
+    private void showFileSettingsMenu(final MyFile file) {
+        Log.d(TAG, "Showing file settings menu: " + file.getFilename());
+        Utility.generateBottomSheetMenu(parentActivity, parentActivity.getString(R.string.settings_string), getMenuId(), getOnItemMenuClickListener(file)).show();
+    }
+
+    /**
+     * must be implemented to setup the onItemSwipeListener
+     */
+    abstract void setupListener();
+
+    /**
+     * provide a listener for the menu item's click
+     * @param file file for which show its settings
+     * @return OnMenuItemClickListener obj
+     */
+    abstract MenuItem.OnMenuItemClickListener getOnItemMenuClickListener(final MyFile file);
+
+    /**
+     * provide the resource id of the menu to inflate
+     * @return resource id
+     */
+    abstract int getMenuId();
 
     /**
      * Loads all the user's offline files

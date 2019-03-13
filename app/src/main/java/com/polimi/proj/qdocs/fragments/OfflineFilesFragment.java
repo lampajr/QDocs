@@ -3,12 +3,14 @@ package com.polimi.proj.qdocs.fragments;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
+import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.StorageElement;
@@ -58,6 +60,23 @@ public class OfflineFilesFragment extends ListFragment {
         };
     }
 
+    @Override
+    MenuItem.OnMenuItemClickListener getOnItemMenuClickListener(MyFile file) {
+        return new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                //TODO: handle the new menu
+                return false;
+            }
+        };
+    }
+
+    @Override
+    int getMenuId() {
+        //TODO: change menu since save option should not be here
+        return R.menu.file_settings_menu;
+    }
+
     /**
      * Loads all the user's offline files
      * @param ref reference from which retrieve files
@@ -72,7 +91,8 @@ public class OfflineFilesFragment extends ListFragment {
                     if (file != null && file.isOffline() &&
                             StorageElement.retrieveFileByName(file.getFilename(), files) == null) {
                         Log.d(TAG, "new offline file found: " + storageReference.toString());
-                        file.setReference(storageReference);
+                        file.setStReference(storageReference);
+                        file.setDbReference(ref);
                         files.add(file);
                     }
                     swipeRefreshLayout.setRefreshing(false);
