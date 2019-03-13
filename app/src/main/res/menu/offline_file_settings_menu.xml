@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/delete_option"
+        android:icon="@drawable/ic_delete_24dp"
+        android:title="@string/delete_file_string" />
+
+    <item
+        android:id="@+id/get_qrcode_option"
+        android:icon="@drawable/ic_get_qrcode_24dp"
+        android:title="@string/get_qrcode_string" />
+
+    <item
+        android:id="@+id/info_option"
+        android:icon="@drawable/ic_info_black_24dp"
+        android:title="@string/info_string" />
+</menu>

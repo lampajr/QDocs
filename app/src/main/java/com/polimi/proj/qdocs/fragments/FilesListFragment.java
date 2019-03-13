@@ -540,7 +540,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     private void saveFile(String filename) {
         Log.d(TAG, "Saving file: " + filename);
         fbHelper.updateLastAccessAttribute(StorageElement.retrieveFileByName(filename, storageElements).getKey());
-        fbHelper.updateOfflineAttribute(StorageElement.retrieveFileByName(filename, storageElements).getKey());
+        fbHelper.madeOfflineFile(StorageElement.retrieveFileByName(filename, storageElements).getKey());
 
         Utility.saveFile(context,
                 fbHelper.getCurrentPath(fbHelper.getDatabaseReference()) + "/" + filename);
@@ -594,6 +594,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * Generates a new qrcode bitmap
      * @param filename text to encode
      */
+    //TODO: separate this method from this class
     private void showQrCode(final String filename) {
         Log.d(TAG, "getting qrcode");
         MyFile f = StorageElement.retrieveFileByName(filename, storageElements);

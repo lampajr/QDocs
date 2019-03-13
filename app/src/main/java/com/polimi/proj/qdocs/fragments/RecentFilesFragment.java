@@ -171,7 +171,7 @@ public class RecentFilesFragment extends ListFragment {
     private void saveFile(final MyFile file) {
         Log.d(TAG, "Saving file: " + file.getFilename());
         fbHelper.updateLastAccessAttribute(StorageElement.retrieveFileByName(file.getFilename(), files).getKey());
-        fbHelper.updateOfflineAttribute(StorageElement.retrieveFileByName(file.getFilename(), files).getKey());
+        fbHelper.madeOfflineFile(StorageElement.retrieveFileByName(file.getFilename(), files).getKey());
 
         Utility.saveFile(context,
                 fbHelper.getCurrentPath(file.getDbReference()) + "/" + file.getFilename());

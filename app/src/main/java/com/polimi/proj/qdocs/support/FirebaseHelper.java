@@ -86,14 +86,22 @@ public class FirebaseHelper {
      * set the offline attribute to true for the file that has the specific key
      * @param key key of the file
      */
-    public void updateOfflineAttribute(final String key) {
+    public void madeOfflineFile(final String key) {
+        updateOfflineAttribute(key, true);
+    }
+
+    /**
+     * set the offline attribute to true for the file that has the specific key
+     * @param key key of the file
+     */
+    public void updateOfflineAttribute(final String key, final boolean newValue) {
         databaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 if (dataSnapshot.getKey().equals(key)) {
                     // i've found the File to update
                     dataSnapshot.child(MyFile.OFFLINE).getRef()
-                            .setValue(true);
+                            .setValue(newValue);
                 }
             }
 

@@ -13,7 +13,12 @@ import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 import com.polimi.proj.qdocs.support.MyFile;
+import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageElement;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.util.Arrays;
 
 
 /**
@@ -61,11 +66,23 @@ public class OfflineFilesFragment extends ListFragment {
     }
 
     @Override
-    MenuItem.OnMenuItemClickListener getOnItemMenuClickListener(MyFile file) {
+    MenuItem.OnMenuItemClickListener getOnItemMenuClickListener(final MyFile file) {
         return new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                //TODO: handle the new menu
+                switch (item.getItemId()) {
+                    case R.id.delete_option:
+                        deleteOfflineFile(file);
+                        break;
+
+                    case R.id.get_qrcode_option:
+                        //showQrCode(name);
+                        break;
+
+                    case R.id.info_option:
+                        //TODO: show dialog about file infos
+                        break;
+                }
                 return false;
             }
         };
@@ -73,8 +90,7 @@ public class OfflineFilesFragment extends ListFragment {
 
     @Override
     int getMenuId() {
-        //TODO: change menu since save option should not be here
-        return R.menu.file_settings_menu;
+        return R.menu.offline_file_settings_menu;
     }
 
     /**
@@ -117,6 +133,48 @@ public class OfflineFilesFragment extends ListFragment {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {}
         });
+    }
+
+    /**
+     * Deletes the specific file from the local directory on the smartphone
+     * @param file file to delete
+     */
+    //TODO: update offline attribute to false
+    //TODO: rewrite the code
+    private void deleteOfflineFile(final MyFile file) {
+        Log.d(TAG, "Deleting offline file: " + file.getFilename());
+        File directory = PathResolver.getPublicDocFileDir(context);
+        Log.d(TAG, "list of files under directory: " + Arrays.toString(directory.list()));
+        File toDelete = null;
+        File[] files = directory.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                String pathname = f.getAbsolutePath();
+                Log.d(TAG, "absolute path: " + f.getAbsolutePath());
+                Log.d(TAG, "substring: " + pathname.substring(pathname.lastIndexOf("/") + 1));
+                Log.d(TAG, "filename: " + file.getFilename());
+                return pathname.substring(pathname.lastIndexOf("/") + 1).split("\\.")[0].equals(file.getFilename().split("\\.")[0]);
+            }
+        });
+        if (files.length != 0) {
+            toDelete = files[0];
+        }
+        if (toDelete != null) {
+            Log.d(TAG, "file to delete exist");
+            boolean exist = toDelete.exists();
+            if (exist) {
+                Log.d(TAG, "the file exists, removing it...");
+                boolean result = toDelete.delete();
+                if (result) {
+                    Log.d(TAG, "File deleted successfully");
+                }
+            } else {
+                Log.d(TAG, "The file doesn't exist");
+            }
+        }
+        else {
+            Log.d(TAG, "file not present");
+        }
     }
 
     /**
