@@ -19,12 +19,14 @@ import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import at.markushi.ui.CircleButton;
 
 public class PlayAudioActivity extends AppCompatActivity {
 
-    private static final String TAG = "AUDIO FRAGMENT";
+    static final int DELETE_CODE = 100;
+    private final String TAG = "AUDIO FRAGMENT";
     private MediaPlayer mediaPlayer = null; //used for manage the audio file
     private double startTime = 0;
     private String fileName;
@@ -35,6 +37,8 @@ public class PlayAudioActivity extends AppCompatActivity {
     private boolean onlyOne = true;
     private Uri fileUri;
     private String mimeType;
+    private TextView start_time_text;
+    private TextView end_time_text;
 
 
     @Override
@@ -66,6 +70,9 @@ public class PlayAudioActivity extends AppCompatActivity {
 
     private void setViewElement() {
         final CircleButton playButton = findViewById(R.id.btn_play);
+        start_time_text = findViewById(R.id.start_time_text);
+        end_time_text = findViewById(R.id.end_time_text);
+        updateLabelTime();
         playButton.setOnClickListener(new View.OnClickListener() {
             /**
              *  If the music is stopped then starts play
@@ -96,6 +103,10 @@ public class PlayAudioActivity extends AppCompatActivity {
                     }
 
                 }
+
+                updateLabelTime();
+
+
             }
         });
 
@@ -170,6 +181,23 @@ public class PlayAudioActivity extends AppCompatActivity {
         }
     }
 
+    private void updateLabelTime(){
+        start_time_text.setText(String.format("%d:%d",
+                TimeUnit.MILLISECONDS.toMinutes((long) startTime),
+                TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
+                                startTime)))
+        );
+
+        double finalTime = mediaPlayer.getDuration();
+        end_time_text.setText(String.format("%d:%d",
+                TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
+                TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
+                                finalTime)))
+        );
+    }
+
     @Override
     public void onStop(){
         Log.d(TAG, "OnStop");
@@ -204,6 +232,13 @@ public class PlayAudioActivity extends AppCompatActivity {
                 LoginActivity.logout();
                 startLoginActivity();
                 break;
+
+
+            case R.id.delete_option:
+                Intent data = new Intent();
+                data.putExtra("fileName", fileName);
+                setResult(DELETE_CODE, data);
+                finish();
         }
         return false;
     }
@@ -224,13 +259,12 @@ public class PlayAudioActivity extends AppCompatActivity {
         @Override
         public void run() {
             if(!stop) {
-                if(startTime % 200 == 0)
-                    Log.d(TAG, "updating song time...");
                 synchronized (updateState) {
                     if(mediaPlayer != null) {
                         startTime = mediaPlayer.getCurrentPosition();
                         if (mediaPlayer.isPlaying())
                             seekbar.setProgress((int) startTime);
+                            updateLabelTime();
                     }
                 }
                 myHandler.postDelayed(this, 100);

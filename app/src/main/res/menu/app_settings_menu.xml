@@ -5,5 +5,9 @@
     tools:context="saveourcar.soc.MainActivity">
       <item
             android:id="@+id/logout_menu"
-            android:title="Log out"/>
+            android:title="@string/logout_string"/>
+      <item android:id="@+id/delete_option"
+            android:title="@string/delete_file_string"
+            app:showAsAction="ifRoom"
+            android:icon="@drawable/ic_delete_white_24dp"/>
 </menu>

@@ -20,7 +20,8 @@ import java.io.IOException;
 
 public class ShowImageActivity extends AppCompatActivity {
 
-    private static final String TAG = "IMAGE FRAGMENT";
+    static final int DELETE_CODE = 100;
+    private final String TAG = "IMAGE FRAGMENT";
     private BitmapDrawable bitmapDrowalbe = null;
     private Uri fileUri = null;
     private String mimeType = null;
@@ -66,7 +67,7 @@ public class ShowImageActivity extends AppCompatActivity {
     private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar_widget);
         setSupportActionBar(toolbar);
-
+        toolbar.setBackgroundColor(getResources().getColor(R.color.black));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,6 +131,12 @@ public class ShowImageActivity extends AppCompatActivity {
                 LoginActivity.logout();
                 startLoginActivity();
                 break;
+
+            case R.id.delete_option:
+                Intent data = new Intent();
+                data.putExtra("fileName", fileName);
+                setResult(DELETE_CODE, data);
+                finish();
         }
         return false;
     }
