@@ -22,7 +22,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="android:icon">
         <activity android:name=".activities.GenericFileActivity"></activity>
         <activity android:name=".activities.PlayAudioActivity" />
         <activity android:name=".activities.ShowImageActivity" />

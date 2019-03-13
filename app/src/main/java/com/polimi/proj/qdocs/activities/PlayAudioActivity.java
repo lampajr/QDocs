@@ -1,5 +1,6 @@
 package com.polimi.proj.qdocs.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -16,6 +17,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.dialogs.ConfirmDialog;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 
 import java.io.IOException;
@@ -235,10 +237,16 @@ public class PlayAudioActivity extends AppCompatActivity {
 
 
             case R.id.delete_option:
-                Intent data = new Intent();
-                data.putExtra("fileName", fileName);
-                setResult(DELETE_CODE, data);
-                finish();
+                ConfirmDialog d = new ConfirmDialog(this, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent data = new Intent();
+                        data.putExtra("fileName", fileName);
+                        setResult(DELETE_CODE,data);
+                        finish();
+
+                    }
+                });
         }
         return false;
     }
