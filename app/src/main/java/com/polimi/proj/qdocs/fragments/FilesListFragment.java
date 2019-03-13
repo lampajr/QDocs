@@ -11,7 +11,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
@@ -22,7 +21,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -42,14 +40,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
@@ -62,9 +55,6 @@ import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
-import com.polimi.proj.qdocs.services.DownloadFileService;
-import com.polimi.proj.qdocs.services.SaveFileReceiver;
-import com.polimi.proj.qdocs.services.ShowFileReceiver;
 import com.polimi.proj.qdocs.support.Directory;
 import com.polimi.proj.qdocs.listeners.DragAndDropTouchListener;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
@@ -73,13 +63,13 @@ import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageAdapter;
 import com.polimi.proj.qdocs.support.StorageElement;
+import com.polimi.proj.qdocs.support.Utility;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 //TODO: separate delete operation from this class in order to reuse them in offlineFilesFragment
@@ -344,6 +334,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      *
      */
     private void uploadFile(Intent data, final String pathname) {
+        //TODO: check name of the file, for instance if it contains dot it cannot be uploaded
         uploadGenericFileFloatingButton.performClick();
 
         Uri fileUri = data.getData();
@@ -429,7 +420,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
             @Override
             public void onFileClick(MyFile file) {
-                startShowingFileService(file.getFilename());
+                showFile(file.getFilename());
             }
 
             @Override
@@ -534,135 +525,42 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * start the FileViewer which will show the file
      * @param filename name of the file to show
      */
-    private void startShowingFileService(final String filename) {
-        Log.d(TAG, "showing file " + filename);
-        Intent viewerIntentService = new Intent(parentActivity, DownloadFileService.class);
+    private void showFile(final String filename) {
+        Log.d(TAG, "Showing file " + filename);
+        fbHelper.updateLastAccessAttribute(StorageElement.retrieveFileByName(filename, storageElements).getKey());
 
-        //TODO: set lastAccess attribute of the file into Firebase db
-        viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
-
-        updateLastAccess(StorageElement.retrieveFileByName(filename, storageElements).getKey());
-
-        String pathname = getCurrentPath(fbHelper.getDatabaseReference()) + "/" + filename;
-
-        // create the result receiver for the IntentService
-        ShowFileReceiver receiver = new ShowFileReceiver(context, new Handler());
-        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
-        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, pathname);
-        context.startService(viewerIntentService);
+        Utility.showFile(context,
+                fbHelper.getCurrentPath(fbHelper.getDatabaseReference()) + "/" + filename);
     }
 
     /**
      * Start the service that will store the file on the public storage
      * @param filename name of the file
      */
-    private void startingSavingFileService(String filename) {
-        Intent viewerIntentService = new Intent(parentActivity, DownloadFileService.class);
+    private void saveFile(String filename) {
+        Log.d(TAG, "Saving file: " + filename);
+        fbHelper.updateLastAccessAttribute(StorageElement.retrieveFileByName(filename, storageElements).getKey());
+        fbHelper.updateOfflineAttribute(StorageElement.retrieveFileByName(filename, storageElements).getKey());
 
-        viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
-
-        updateOffline(StorageElement.retrieveFileByName(filename, storageElements).getKey());
-
-        filename = getCurrentPath(fbHelper.getDatabaseReference()) + "/" + filename;
-
-        // create the result receiver for the IntentService
-        SaveFileReceiver receiver = new SaveFileReceiver(context, new Handler());
-        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
-        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
-        context.startService(viewerIntentService);
-    }
-
-    /**
-     * updates the lasAccess attribute of a file
-     * @param key key of the file to update
-     */
-    private void updateLastAccess(final String key) {
-        fbHelper.getDatabaseReference().addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if (dataSnapshot.getKey().equals(key)) {
-                    // i've found the File to update
-                    dataSnapshot.child(MyFile.LAST_ACCESS).getRef()
-                            .setValue(Calendar.getInstance().getTimeInMillis());
-                            //.setValue(DateFormat.format("yyyy-MM-dd hh:mm:ss a", new Date()));
-                }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}
-        });
-    }
-
-    /**
-     * set the offline attributes to the specific file
-     * @param key file's key to update
-     */
-    private void updateOffline(final String key) {
-        fbHelper.getDatabaseReference().addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if (dataSnapshot.getKey().equals(key)) {
-                    // i've found the File to update
-                    dataSnapshot.child(MyFile.OFFLINE).getRef()
-                            .setValue(true);
-                }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}
-        });
-    }
-
-    /**
-     * Return the current path, from the root to the current directory
-     * @return the path string
-     */
-    private String getCurrentPath(DatabaseReference ref) {
-        if (ref.getKey().equals(fbHelper.getUserId()))
-            return "";
-        else
-            return getCurrentPath(ref.getParent()) + "/" + ref.getKey();
+        Utility.saveFile(context,
+                fbHelper.getCurrentPath(fbHelper.getDatabaseReference()) + "/" + filename);
     }
 
     /**
      * Deletes a file from list
      * @param filename name of the file to delete
      */
-    //TODO: remove from this class
-    private void deletePersonalFile(final String filename, StorageReference ref) {
+    private void deletePersonalFile(final String filename) {
         //TODO: implement "are you sure?" dialog
-
-        Log.d(TAG, "deleting file: " + filename);
-        if (ref == null) {
-            // remove the file from the current directory
-            ref = fbHelper.getStorageReference();
-        }
-        ref.child(filename).delete().addOnFailureListener(new OnFailureListener() {
+        Log.d(TAG, "Deleting file: " + filename);
+        fbHelper.deletePersonalFile(null, filename, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.d(TAG, "Failure occurred during file removing");
                 Toast.makeText(context, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
                         .show();
             }
-        }).addOnCompleteListener(new OnCompleteListener<Void>() {
+        }, new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 Log.d(TAG, "File correctly removed!");
@@ -676,38 +574,19 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      */
     private void deletePersonalDirectory(final String path) {
         //TODO: implement "are you sure?" dialog
-
-        DatabaseReference ref = path == null ? fbHelper.getDatabaseReference()
-                : fbHelper.getDatabaseReference().child(path);
-
-        // starts removing element from the current directory
-        ref.addChildEventListener(new ChildEventListener() {
+        Log.d(TAG, "Deleting directory: " + path);
+        fbHelper.deletePersonalDirectory(path, new OnFailureListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if (StorageElement.isFile(dataSnapshot)) {
-                    // if it is a file delete it
-                    MyFile f = dataSnapshot.getValue(MyFile.class);
-                    StorageReference sr = path == null ? null : fbHelper.getStorageReference().child(path);
-                    deletePersonalFile(f.getFilename(), sr);
-                }
-                else {
-                    // if it is a directory recursively call this function
-                    String newPath = path == null ? dataSnapshot.getKey() : path + "/" + dataSnapshot.getKey();
-                    deletePersonalDirectory(newPath);
-                }
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "Failure occurred during file removing");
+                Toast.makeText(context, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
+                        .show();
             }
-
+        }, new OnCompleteListener<Void>() {
             @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d(TAG, "File correctly removed!");
+            }
         });
     }
 
@@ -928,20 +807,20 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * @param file file for which show settings
      */
     private void showFileBottomSheetMenu(final MyFile file) {
-        new BottomSheet.Builder(parentActivity)
-                .title(R.string.settings_string)
-                .sheet(R.menu.file_settings_menu)
-                .listener(new MenuItem.OnMenuItemClickListener() {
+        Utility.generateBottomSheetMenu(parentActivity,
+                "SETTINGS",
+                R.menu.file_settings_menu,
+                new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         String name = file.getFilename();
                         switch (item.getItemId()) {
                             case R.id.delete_option:
-                                deletePersonalFile(name, null);
+                                deletePersonalFile(name);
                                 break;
 
                             case R.id.save_option:
-                                startingSavingFileService(name);
+                                saveFile(name);
                                 break;
 
                             case R.id.get_qrcode_option:

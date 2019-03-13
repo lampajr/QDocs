@@ -3,15 +3,22 @@ package com.polimi.proj.qdocs.fragments;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
+import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.StorageElement;
+import com.polimi.proj.qdocs.support.Utility;
 
 import java.util.Collections;
 
@@ -36,6 +43,37 @@ public class RecentFilesFragment extends ListFragment {
         return new RecentFilesFragment();
     }
 
+    @Override
+    int getMenuId() {
+        return R.menu.file_settings_menu;
+    }
+
+    @Override
+    MenuItem.OnMenuItemClickListener getOnItemMenuClickListener(final MyFile file) {
+        return new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.delete_option:
+                        deletePersonalFile(file);
+                        break;
+
+                    case R.id.save_option:
+                        saveFile(file);
+                        break;
+
+                    case R.id.get_qrcode_option:
+                        //showQrCode(name);
+                        break;
+
+                    case R.id.info_option:
+                        //TODO: show dialog about file infos
+                        break;
+                }
+                return false;
+            }
+        };
+    }
 
     @Override
     void setupListener() {
@@ -76,7 +114,8 @@ public class RecentFilesFragment extends ListFragment {
                     if (file != null &&
                             StorageElement.retrieveFileByName(file.getFilename(), files) == null) {
                         Log.d(TAG, "new offline file found: " + storageReference.toString() + "/" + file.getFilename());
-                        file.setReference(storageReference);
+                        file.setStReference(storageReference);
+                        file.setDbReference(ref);
                         addFileInOrder(file);
                     }
                     swipeRefreshLayout.setRefreshing(false);
@@ -101,6 +140,41 @@ public class RecentFilesFragment extends ListFragment {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {}
         });
+    }
+
+    /**
+     * Deletes a file from list
+     * @param file file to delete
+     */
+    private void deletePersonalFile(final MyFile file) {
+        //TODO: implement "are you sure?" dialog
+        Log.d(TAG, "Deleting file: " + file.getFilename());
+        fbHelper.deletePersonalFile(file.getStReference(), file.getFilename(), new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "Failure occurred during file removing");
+                Toast.makeText(context, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d(TAG, "File correctly removed!");
+            }
+        });
+    }
+
+    /**
+     * Start the service that will store the file on the public storage
+     * @param file file to save
+     */
+    private void saveFile(final MyFile file) {
+        Log.d(TAG, "Saving file: " + file.getFilename());
+        fbHelper.updateLastAccessAttribute(StorageElement.retrieveFileByName(file.getFilename(), files).getKey());
+        fbHelper.updateOfflineAttribute(StorageElement.retrieveFileByName(file.getFilename(), files).getKey());
+
+        Utility.saveFile(context,
+                fbHelper.getCurrentPath(file.getDbReference()) + "/" + file.getFilename());
     }
 
     /**

@@ -22,6 +22,7 @@ import java.io.IOException;
 
 /**
  * @author Andrea Lamparelli
+ * @author Chittò Pietro
  *
  * IntentService that is able to retrieve the file (downloading it from the firebase cloud
  * storage) save it into the cache directory, retrieve its Uri and notify it to the parent

@@ -1,5 +1,8 @@
 package com.polimi.proj.qdocs.support;
 
+import android.content.Context;
+
+import com.cocosw.bottomsheet.BottomSheet;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 

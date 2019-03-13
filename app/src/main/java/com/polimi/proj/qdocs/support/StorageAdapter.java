@@ -127,7 +127,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                 elementNameView.setText(file.getFilename());
                 elementDescriptionView.setText(file.getContentType());
 
-                final StorageReference refUsed = file.getReference() == null ? ref : file.getReference();
+                final StorageReference refUsed = file.getStReference() == null ? ref : file.getStReference();
 
                 if (file.getContentType().contains("image")) {
                     // preview image for image file
