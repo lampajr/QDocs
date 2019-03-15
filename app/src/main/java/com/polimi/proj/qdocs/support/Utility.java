@@ -16,6 +16,8 @@ import com.polimi.proj.qdocs.services.DownloadFileService;
 import com.polimi.proj.qdocs.services.SaveFileReceiver;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
 
+import java.util.Calendar;
+
 
 /**
  * @author Lamparelli Andrea
@@ -94,5 +96,17 @@ public class Utility {
             Log.e(TAG, "Error generating qr code: " + e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * Generate a new code from which provide a new qrcode to
+     * associate to a new file
+     * @return the code
+     */
+    public static String generateCode() {
+        long time = Calendar.getInstance().getTimeInMillis();
+        String code = time + "";// + "" + new Random().nextLong();
+        Log.d(TAG, "new code: " + code);
+        return code;
     }
 }

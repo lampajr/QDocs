@@ -11,6 +11,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
 import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.PathResolver;
@@ -76,7 +77,7 @@ public class OfflineFilesFragment extends ListFragment {
                         break;
 
                     case R.id.get_qrcode_option:
-                        //showQrCode(name);
+                        showQrCode(file);
                         break;
 
                     case R.id.info_option:
@@ -175,6 +176,18 @@ public class OfflineFilesFragment extends ListFragment {
         else {
             Log.d(TAG, "file not present");
         }
+    }
+
+    /**
+     * Generates a new qrcode bitmap and show it through a dialog
+     * where the user can save it locally
+     * @param file file which key has to be encoded
+     */
+    private void showQrCode(final MyFile file) {
+        Log.d(TAG, "Showing QR code");
+        MyFile f = StorageElement.retrieveFileByName(file.getFilename(), files);
+        QrCodeDialog dialog = new QrCodeDialog(context, null, f);
+        dialog.show();
     }
 
     /**

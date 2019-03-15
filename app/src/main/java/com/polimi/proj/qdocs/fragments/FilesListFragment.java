@@ -353,7 +353,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
         StorageMetadata metadata = new StorageMetadata.Builder()
                 .setContentType(contentType)
-                .setCustomMetadata(KEY_METADATA, generateCode())
+                .setCustomMetadata(KEY_METADATA, Utility.generateCode())
                 .setCustomMetadata(UID_METADATA, fbHelper.getUserId())
                 .build();
 
@@ -713,17 +713,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         myStorageAdapter.notifyDataSetChanged();
     }
 
-    /**
-     * Generate a new code from which provide a new qrcode to
-     * associate to a new file
-     * @return the code
-     */
-    private String generateCode() {
-        long time = Calendar.getInstance().getTimeInMillis();
-        String code = time + "";// + "" + new Random().nextLong();
-        Log.d(TAG, "new code: " + code);
-        return code;
-    }
 
     /**
      * add the current element to the storageElement list

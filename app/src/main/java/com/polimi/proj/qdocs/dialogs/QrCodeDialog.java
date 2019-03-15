@@ -20,7 +20,6 @@ import com.polimi.proj.qdocs.support.Utility;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 import static com.polimi.proj.qdocs.dialogs.QrCodeDialog.SaveQRCodeTask.ERROR;
