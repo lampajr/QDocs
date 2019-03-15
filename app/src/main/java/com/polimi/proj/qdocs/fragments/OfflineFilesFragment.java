@@ -185,8 +185,7 @@ public class OfflineFilesFragment extends ListFragment {
      */
     private void showQrCode(final MyFile file) {
         Log.d(TAG, "Showing QR code");
-        MyFile f = StorageElement.retrieveFileByName(file.getFilename(), files);
-        QrCodeDialog dialog = new QrCodeDialog(context, null, f);
+        QrCodeDialog dialog = new QrCodeDialog(context, null, file);
         dialog.show();
     }
 
