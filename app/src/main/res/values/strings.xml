@@ -58,6 +58,10 @@
     <string name="offline_string">OFFLINE</string>
     <string name="recent_string">RECENT</string>
     <string name="are_you_sure_string">Are you Sure</string>
+    <string name="qr_code_dialog_title">QR CODE</string>
+    <string name="qrcode_string">QRCODE</string>
+    <string name="qr_code_saved">QR code successfully saved</string>
+    <string name="qrcode_already_saved">Qr code already saved!</string>
 
 
 </resources>

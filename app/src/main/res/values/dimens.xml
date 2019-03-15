@@ -14,4 +14,5 @@
     <dimen name="button_text_size">20sp</dimen>
 
     <dimen name="personal_page_dim">15dp</dimen>
+    <dimen name="padding_bottom_rec_view">50dp</dimen>
 </resources>

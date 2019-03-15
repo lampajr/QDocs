@@ -55,6 +55,7 @@ import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
+import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
 import com.polimi.proj.qdocs.support.Directory;
 import com.polimi.proj.qdocs.listeners.DragAndDropTouchListener;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
@@ -591,55 +592,15 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     }
 
     /**
-     * Generates a new qrcode bitmap
+     * Generates a new qrcode bitmap and show it through a dialog
+     * where the user can save it locally
      * @param filename text to encode
      */
-    //TODO: separate this method from this class
     private void showQrCode(final String filename) {
-        Log.d(TAG, "getting qrcode");
+        Log.d(TAG, "Showing QR code");
         MyFile f = StorageElement.retrieveFileByName(filename, storageElements);
-        final Bitmap qrCode = generateQrCode(f.getKey());
-        if (qrCode != null) {
-            Log.d(TAG, "showing qrcode dialog..");
-            final Dialog d = new Dialog(context);
-            d.setTitle(getString(R.string.pathname_chooser));
-            d.setCancelable(true);
-            d.setContentView(R.layout.dialog_show_qrcode);
-            ImageView qrcodeImage = d.findViewById(R.id.qrcode_image);
-            qrcodeImage.setImageBitmap(qrCode);
-            ImageView saveButton = d.findViewById(R.id.save_button);
-            saveButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    parentActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            File dst = new File(PathResolver.createPublicDocStorageDir(context).getAbsolutePath(),
-                                    "QRCode-" + filename);
-
-                            //File dst = new File(PathResolver.getPublicDocFileDir(FilesListActivity.this).getAbsolutePath(), "QRCode-" + filename);
-                            if (!dst.exists()) {
-                                //TODO: 2 filesList with same name but different folder cannot produce 2 qr code different
-                                try (FileOutputStream out = new FileOutputStream(dst)) {
-                                    qrCode.compress(Bitmap.CompressFormat.PNG, 100, out); // qrCode is the Bitmap instance
-                                    // PNG is a lossless format, the compression factor (100) is ignored
-                                    d.dismiss();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            else {
-                                Log.d(TAG, "QRCode already saved");
-                                Toast.makeText(context,
-                                        getString(R.string.file_already_stored),
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                }
-            });
-            d.show();
-        }
+        QrCodeDialog dialog = new QrCodeDialog(context, null, f);
+        dialog.show();
     }
 
     /**
@@ -762,24 +723,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         String code = time + "";// + "" + new Random().nextLong();
         Log.d(TAG, "new code: " + code);
         return code;
-    }
-
-    /**
-     * generates a new qrcode
-     * @param key text to encode
-     * @return the qr code bitmap
-     */
-    private Bitmap generateQrCode(String key) {
-        try {
-            Log.d(TAG, "encoding " + key + " into a new QR Code");
-            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            Bitmap bitmapQrCode = barcodeEncoder.encodeBitmap(key, BarcodeFormat.QR_CODE, 400, 400);
-            Log.d(TAG, "QR Code generated!");
-            return bitmapQrCode;
-        } catch (WriterException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     /**
