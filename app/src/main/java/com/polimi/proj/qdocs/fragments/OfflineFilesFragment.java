@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -30,6 +31,7 @@ import java.util.Arrays;
  *
  * @see ListFragment
  */
+//TODO: show qrcode saved locally
 public class OfflineFilesFragment extends ListFragment {
     private final String TAG = "OFFLINE_FILES_FRAGMENT";
 
@@ -140,13 +142,12 @@ public class OfflineFilesFragment extends ListFragment {
      * Deletes the specific file from the local directory on the smartphone
      * @param file file to delete
      */
-    //TODO: update offline attribute to false
-    //TODO: rewrite the code
+    //TODO: rewrite the code in a better way :) you fucking nigger
     private void deleteOfflineFile(final MyFile file) {
         Log.d(TAG, "Deleting offline file: " + file.getFilename());
         File directory = PathResolver.getPublicDocFileDir(context);
         Log.d(TAG, "list of files under directory: " + Arrays.toString(directory.list()));
-        File toDelete = null;
+        File toDelete;
         File[] files = directory.listFiles(new FileFilter() {
             @Override
             public boolean accept(File f) {
@@ -159,15 +160,13 @@ public class OfflineFilesFragment extends ListFragment {
         });
         if (files.length != 0) {
             toDelete = files[0];
-        }
-        if (toDelete != null) {
-            Log.d(TAG, "file to delete exist");
-            boolean exist = toDelete.exists();
-            if (exist) {
+            if (toDelete.exists()) {
                 Log.d(TAG, "the file exists, removing it...");
                 boolean result = toDelete.delete();
                 if (result) {
                     Log.d(TAG, "File deleted successfully");
+                    fbHelper.updateOfflineAttribute(file.getKey(), false);
+                    Toast.makeText(context, "Local file removed!!", Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Log.d(TAG, "The file doesn't exist");
