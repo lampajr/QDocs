@@ -11,6 +11,7 @@
         <item name="buttonStyle">@style/button_Style</item>
         <item name="actionBarStyle">@style/action_bar_style</item>
         <item name="actionOverflowButtonStyle">@style/action_overflow_button_style</item>
+
     </style>
 
     <style name="edit_text_style" parent="@style/Widget.AppCompat.EditText">
@@ -41,5 +42,12 @@
 
     <style name="action_overflow_button_style" parent="@style/Widget.AppCompat.ActionButton.Overflow">
         <item name="android:tint">@color/white</item>
+    </style>
+
+    <style name="bottom_navigation_view_style" parent="@style/Widget.Design.BottomNavigationView">
+        <item name="itemBackground">@drawable/bottom_navigation_view_selector</item>
+        <item name="android:background">@drawable/bottom_navigation_view_shape</item>
+        <item name="android:paddingStart">3dp</item>
+        <item name="android:paddingEnd">3dp</item>
     </style>
 </resources>

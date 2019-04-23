@@ -3,6 +3,7 @@ package com.polimi.proj.qdocs.dialogs;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.Gravity;
 import android.widget.Toast;
 
@@ -16,10 +17,12 @@ public class ConfirmDialog {
         CFAlertDialog.Builder builder = new CFAlertDialog.Builder(context)
                 .setDialogStyle(CFAlertDialog.CFAlertStyle.ALERT)
                 .setTitle("Are You Sure")
+                .setTextColor(1)
                 .setTextGravity(Gravity.CENTER_HORIZONTAL)
-                .setMessage("")
-                .addButton("DELETE", -1, -1,
-                        CFAlertDialog.CFAlertActionStyle.NEGATIVE,
+                .setMessage("\n\n")
+                .addButton("CONFIRM", Color.parseColor("#B5B5BE"),
+                        Color.parseColor("#575E5D"),
+                        CFAlertDialog.CFAlertActionStyle.POSITIVE,
                         CFAlertDialog.CFAlertActionAlignment.CENTER,
                         confirmListener
                 );
