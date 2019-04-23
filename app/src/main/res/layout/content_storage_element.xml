@@ -5,12 +5,12 @@
     android:layout_height="@dimen/single_item_dimension"
     android:padding="4dp">
 
+
     <ImageView
         android:id="@+id/element_image"
         android:layout_width="40dp"
         android:layout_height="match_parent"
         android:layout_alignParentStart="true"
-        android:padding="5dp"
         android:layout_centerInParent="true"
         android:contentDescription="TODO" />
 
@@ -21,7 +21,8 @@
         android:layout_toEndOf="@id/element_image"
         android:orientation="vertical"
         android:layout_centerInParent="true"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:layout_marginStart="4dp">
 
         <TextView
             android:id="@+id/element_name"

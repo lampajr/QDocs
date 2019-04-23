@@ -12,6 +12,7 @@
         <item name="actionBarStyle">@style/action_bar_style</item>
         <item name="actionOverflowButtonStyle">@style/action_overflow_button_style</item>
 
+
     </style>
 
     <style name="edit_text_style" parent="@style/Widget.AppCompat.EditText">
@@ -50,4 +51,6 @@
         <item name="android:paddingStart">3dp</item>
         <item name="android:paddingEnd">3dp</item>
     </style>
+
+
 </resources>
