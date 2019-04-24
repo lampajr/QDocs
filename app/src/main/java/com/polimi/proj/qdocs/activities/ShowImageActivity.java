@@ -27,6 +27,7 @@ public class ShowImageActivity extends AppCompatActivity {
     private Uri fileUri = null;
     private String mimeType = null;
     private String fileName = null;
+    private String extension = null;
     private Toolbar toolbar;
 
     @Override
@@ -56,6 +57,7 @@ public class ShowImageActivity extends AppCompatActivity {
             fileUri = (Uri) bundle.get(DownloadFileService.RESULT_KEY_URI);
             mimeType = bundle.getString(DownloadFileService.RESULT_KEY_MIME_TYPE);
             fileName = bundle.getString(DownloadFileService.RESULT_KEY_FILENAME);
+            extension = bundle.getString(DownloadFileService.RESULT_KEY_EXTENSION);
         }
 
         Log.d(TAG, "file uri: " + fileUri);
@@ -142,7 +144,7 @@ public class ShowImageActivity extends AppCompatActivity {
 
             case R.id.delete_option:
                 Intent data = new Intent();
-                data.putExtra(FILE_NAME, fileName+"."+mimeType.split("/")[1]);
+                data.putExtra(FILE_NAME, fileName+"."+extension);
                 setResult(DELETE_CODE, data);
                 Log.d(TAG, "file deleted: " + fileName);
                 finish();
