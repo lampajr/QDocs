@@ -277,7 +277,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      * of the mobile phone
      */
     private void setupUploadFileFloatingButton() {
-        //TODO: remove if unnecessary
         //uploadGenericFileFloatingButton.setOnTouchListener(dragAndDropListener);
 
         // upload image button

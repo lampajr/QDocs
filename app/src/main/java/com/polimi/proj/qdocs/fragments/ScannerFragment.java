@@ -98,7 +98,7 @@ public class ScannerFragment extends Fragment {
             }
 
             lastText = result.getText();
-            barcodeView.setStatusText(result.getText());
+            //barcodeView.setStatusText(result.getText());
 
             beepManager.playBeepSoundAndVibrate();
 
@@ -158,6 +158,7 @@ public class ScannerFragment extends Fragment {
         // get the barcode view
         barcodeView = scannerView.findViewById(R.id.barcode_view);
         barcodeView.setOnTouchListener(onSwipeTouchListener);
+        barcodeView.setStatusText("");
 
         return scannerView;
     }
