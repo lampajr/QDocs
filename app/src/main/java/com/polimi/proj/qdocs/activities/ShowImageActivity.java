@@ -142,7 +142,7 @@ public class ShowImageActivity extends AppCompatActivity {
 
             case R.id.delete_option:
                 Intent data = new Intent();
-                data.putExtra(FILE_NAME, fileName);
+                data.putExtra(FILE_NAME, fileName+"."+mimeType.split("/")[1]);
                 setResult(DELETE_CODE, data);
                 Log.d(TAG, "file deleted: " + fileName);
                 finish();
