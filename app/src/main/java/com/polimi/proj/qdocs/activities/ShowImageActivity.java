@@ -2,7 +2,6 @@ package com.polimi.proj.qdocs.activities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -17,15 +16,18 @@ import com.ortiz.touchview.TouchImageView;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 import java.io.IOException;
+import java.util.Objects;
 
 public class ShowImageActivity extends AppCompatActivity {
 
     static final int DELETE_CODE = 100;
+    private static final String FILE_NAME = "fileName";
     private final String TAG = "IMAGE FRAGMENT";
     private BitmapDrawable bitmapDrowalbe = null;
     private Uri fileUri = null;
     private String mimeType = null;
     private String fileName = null;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +44,12 @@ public class ShowImageActivity extends AppCompatActivity {
         setupToolbar();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        toolbar.getNavigationIcon().setTint(getResources().getColor(R.color.black));
 
+    }
 
     private void readParameter(Bundle bundle) {
         if (bundle != null) {
@@ -65,7 +72,7 @@ public class ShowImageActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar_widget);
+        toolbar = findViewById(R.id.toolbar_widget);
         setSupportActionBar(toolbar);
         toolbar.setBackgroundColor(getResources().getColor(R.color.black));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -74,7 +81,7 @@ public class ShowImageActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
-        toolbar.getNavigationIcon().setTint(R.color.white);
+        Objects.requireNonNull(toolbar.getNavigationIcon()).setTint(getResources().getColor(R.color.white));
     }
 
     /**
@@ -135,7 +142,7 @@ public class ShowImageActivity extends AppCompatActivity {
 
             case R.id.delete_option:
                 Intent data = new Intent();
-                data.putExtra("fileName", fileName);
+                data.putExtra(FILE_NAME, fileName);
                 setResult(DELETE_CODE, data);
                 finish();
         }
