@@ -33,6 +33,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.FrameLayout.LayoutParams;
 
 import com.cocosw.bottomsheet.BottomSheet;
 import com.google.android.gms.tasks.OnCanceledListener;
@@ -141,6 +142,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         View view = inflater.inflate(R.layout.fragment_files_list, container, false);
 
         uploadGenericFileFloatingButton = view.findViewById(R.id.upload_file_button);
+
         dragAndDropListener = new DragAndDropTouchListener();
         setupUploadFileFloatingButton();
 
@@ -279,7 +281,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         uploadGenericFileFloatingButton.setOnTouchListener(dragAndDropListener);
 
         // upload image button
-        SubActionButton uploadImageButton = generateSubActionButton(R.drawable.galley);
+        SubActionButton uploadImageButton = generateSubActionButton(R.drawable.ic_picture_24dp);
         uploadImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -288,7 +290,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         });
 
         // upload file button
-        SubActionButton uploadFileButton = generateSubActionButton(R.drawable.file_image);
+        SubActionButton uploadFileButton = generateSubActionButton(R.drawable.ic_document_24dp);
         uploadFileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -300,7 +302,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         });
 
         // upload audio button
-        SubActionButton uploadAudioButton = generateSubActionButton(R.drawable.audio_image);
+        SubActionButton uploadAudioButton = generateSubActionButton(R.drawable.ic_note_24dp);
         uploadAudioButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -323,10 +325,12 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      */
     private SubActionButton generateSubActionButton(@DrawableRes int resId) {
         //TODO: change the button dimension
+        LayoutParams params = new LayoutParams(150, 150);
         SubActionButton.Builder subActionBuilder = new SubActionButton.Builder(parentActivity);
         ImageView contentImage = new ImageView(context);
         contentImage.setImageResource(resId);
-        return subActionBuilder.setContentView(contentImage).build();
+        return subActionBuilder.setContentView(contentImage).setLayoutParams(params).
+                setBackgroundDrawable(getResources().getDrawable(R.drawable.sub_button_shape)).build();
     }
 
     /**
@@ -421,6 +425,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
             @Override
             public void onFileClick(MyFile file) {
+                //TODO: change the background
                 showFile(file.getFilename());
             }
 

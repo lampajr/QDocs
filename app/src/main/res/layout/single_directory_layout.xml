@@ -6,7 +6,7 @@
     android:layout_height="@dimen/single_item_dimension"
     android:layout_margin="4dp"
     app:cardCornerRadius="20dp"
-    android:background="?attr/selectableItemBackground"
+    android:background="?android:attr/selectableItemBackground"
     android:elevation="10dp">
 
     <include layout="@layout/content_storage_element" android:id="@+id/content" />

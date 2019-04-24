@@ -41,9 +41,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingBottom="@dimen/padding_bottom_rec_view"
-            android:clipToPadding="false"/>
+            android:clipToPadding="false"
+            />
 
     </android.support.v4.widget.SwipeRefreshLayout>
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/upload_file_button"
@@ -51,8 +53,9 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="15dp"
-        android:src="@drawable/add_img"
-        android:backgroundTint="#a6a6a6"
+        android:src="@drawable/ic_add_24dp"
+        android:padding="5dp"
+        android:backgroundTint="@color/add_button_color"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true" />
 

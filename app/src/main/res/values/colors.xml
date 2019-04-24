@@ -10,4 +10,8 @@
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="orange">#F57403</color>
+    <color name="light_orange">#D3723C</color>
+    <color name="light">#D0C7C7C7</color>
+    <color name="add_button_icon_color">#F57403</color>
+    <color name="add_button_color">#EEEEEE</color>
 </resources>
