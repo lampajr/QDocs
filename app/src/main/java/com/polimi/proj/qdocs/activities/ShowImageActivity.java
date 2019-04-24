@@ -144,6 +144,7 @@ public class ShowImageActivity extends AppCompatActivity {
                 Intent data = new Intent();
                 data.putExtra(FILE_NAME, fileName);
                 setResult(DELETE_CODE, data);
+                Log.d(TAG, "file deleted: " + fileName);
                 finish();
         }
         return false;
