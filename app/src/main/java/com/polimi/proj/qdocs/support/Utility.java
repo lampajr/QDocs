@@ -12,6 +12,7 @@ import com.cocosw.bottomsheet.BottomSheet;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 import com.polimi.proj.qdocs.services.SaveFileReceiver;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
@@ -40,7 +41,7 @@ public class Utility {
                                                        String title,
                                                        int menuId,
                                                        MenuItem.OnMenuItemClickListener listener) {
-        return new BottomSheet.Builder(activity)
+        return new BottomSheet.Builder(activity, R.style.bottom_sheet_style)
                 .title(title)
                 .sheet(menuId)
                 .listener(listener);

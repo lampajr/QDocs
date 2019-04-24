@@ -47,7 +47,7 @@
     <string name="save_file_string">Save File</string>
     <string name="delete_file_string">Delete File</string>
     <string name="get_qrcode_string">Get QR Code</string>
-    <string name="dot_string">.</string>
+    <string name="dot_string">…</string>
     <string name="google_sign_in_failed">Sign in failed! try again..</string>
     <string name="me_string">ME</string>
     <string name="settings_string">SETTINGS</string>
@@ -62,6 +62,7 @@
     <string name="qrcode_string">QRCODE</string>
     <string name="qr_code_saved">QR code successfully saved</string>
     <string name="qrcode_already_saved">Qr code already saved!</string>
+    <string name="go_back_directory_button_description">go-back directory button</string>
 
 
 </resources>

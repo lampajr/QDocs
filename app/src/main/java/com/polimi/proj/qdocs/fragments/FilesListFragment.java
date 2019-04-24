@@ -614,7 +614,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
             storageElements.clear();
             //TODO: change directory text
             String pastText = directoryPathText.getText().toString();
-            directoryPathText.setText(pastText.substring(0, pastText.lastIndexOf("/")));
+            directoryPathText.setText(pastText.substring(0, pastText.lastIndexOf(">")));
             notifyAdapter();
             loadStorageElements();
             if (fbHelper.isAtRoot()) {
@@ -650,7 +650,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         notifyAdapter();
         loadStorageElements();
         //TODO: change directory text
-        String path = directoryPathText.getText().toString() + "/" + directoryName;
+        String path = directoryPathText.getText().toString() + ">" + directoryName;
         directoryPathText.setText(path);
         //add layout_below attribute
         params= new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
