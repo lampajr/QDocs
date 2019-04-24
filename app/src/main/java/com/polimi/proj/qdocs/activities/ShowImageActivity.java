@@ -107,6 +107,7 @@ public class ShowImageActivity extends AppCompatActivity {
             Log.d(TAG, "file URI recived: " + fileUri);
             Log.d(TAG, "mime type recived: " + mimeType);
             Log.d(TAG, "filename type recived: " + fileName);
+            Log.d(TAG, "extension recived: " + extension);
         }
         else {
 
@@ -118,6 +119,9 @@ public class ShowImageActivity extends AppCompatActivity {
             }
             if (fileName == null){
                 Log.d(TAG, "filename recived is NULL ");
+            }
+            if(extension == null){
+                Log.e(TAG,"The extension recived is NULL");
             }
 
             //TODO: print the error

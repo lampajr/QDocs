@@ -17,7 +17,7 @@
         android:id="@+id/main_navigation_bar"
         style="@style/bottom_navigation_view_style"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="@dimen/bottom_navigation_view_dim"
         android:layout_alignParentBottom="true"
         app:itemIconTint="@color/bottom_tint_icon"
         app:itemTextColor="@color/bottom_tint_icon"

@@ -15,4 +15,8 @@
 
     <dimen name="personal_page_dim">15dp</dimen>
     <dimen name="padding_bottom_rec_view">50dp</dimen>
+
+    <!--BOTTOM NAVIGATION VIEW -->
+    <dimen name="bottom_navigation_view_dim">80dp</dimen>
+
 </resources>
