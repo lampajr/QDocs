@@ -8,7 +8,9 @@
     android:background="@color/black">
 
     <include layout="@layout/toolbar_layout"
-        android:id="@+id/toolbar_widget"/>
+        android:id="@+id/toolbar_widget"
+
+        />
 
     <com.ortiz.touchview.TouchImageView
         android:id="@+id/touch_image"

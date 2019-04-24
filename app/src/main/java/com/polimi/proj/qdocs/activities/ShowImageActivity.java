@@ -74,6 +74,7 @@ public class ShowImageActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+        toolbar.getNavigationIcon().setTint(R.color.white);
     }
 
     /**
