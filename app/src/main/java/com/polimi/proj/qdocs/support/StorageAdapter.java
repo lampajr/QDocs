@@ -23,7 +23,6 @@ import java.util.List;
 public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter.dataViewHolder>{
 
     private static final String TAG = "STORAGE_ADAPTER";
-    private static final int EXTRA = 50;
 
     private final int FILE = 0;
     private final int DIRECTORY = 1;

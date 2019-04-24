@@ -728,12 +728,14 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                 StorageElement.retrieveFileByName(((MyFile)elem).getFilename(), storageElements) != null) {
             // add file in the tail of list
             storageElements.add(elem);
-            myStorageAdapter.notifyItemInserted(storageElements.size() - 1);
+            notifyAdapter();
+            //myStorageAdapter.notifyItemInserted(storageElements.size() - 1);
         }
         else {
             // add directory in the head of list
             storageElements.add(0, elem);
-            myStorageAdapter.notifyItemInserted(0);
+            notifyAdapter();
+            //myStorageAdapter.notifyItemInserted(0);
         }
     }
 
