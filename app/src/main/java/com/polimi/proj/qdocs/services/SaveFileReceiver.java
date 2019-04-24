@@ -76,7 +76,7 @@ public class SaveFileReceiver extends ResultReceiver {
             Log.d(TAG, "URI received: " + fileUri.toString());
             String filename = resultData.getString(DownloadFileService.RESULT_KEY_FILENAME);
             Log.d(TAG, "FILENAME received: " + filename);
-            String mimeType = resultData.getString(DownloadFileService.RESULT_KEY_EXTENSION);
+            String mimeType = resultData.getString(DownloadFileService.RESULT_KEY_MIME_TYPE);
             Log.d(TAG, "EXTENSION received: " + mimeType);
 
             // TODO: implement dialog to tell whether user want to see the file or not

@@ -50,10 +50,12 @@ public class DownloadFileService extends IntentService {
     // results data
     public static final String RESULT_KEY_URI =
             "com.polimi.proj.qdocs.services.extra.RESULT_KEY_URI";
-    public static final String RESULT_KEY_EXTENSION =
-            "com.polimi.proj.qdocs.services.extra.RESULT_KEY_EXTENSION";
+    public static final String RESULT_KEY_MIME_TYPE =
+            "com.polimi.proj.qdocs.services.extra.RESULT_KEY_MIME_TYPE";
     public static final String RESULT_KEY_FILENAME =
             "com.polimi.proj.qdocs.services.extra.RESULT_KEY_FILENAME";
+    public static final String RESULT_KEY_EXTENSION =
+            "com.polimi.proj.qdocs.services.extra.RESULT_KEY_EXTENSION";
 
     // results
     public static final int DOWNLOAD_OK = 1;
@@ -176,7 +178,8 @@ public class DownloadFileService extends IntentService {
         Bundle resultBundle = new Bundle();
         resultBundle.putParcelable(RESULT_KEY_URI, fileUri);
         resultBundle.putString(RESULT_KEY_FILENAME, filename);
-        resultBundle.putString(RESULT_KEY_EXTENSION, mimeType);
+        resultBundle.putString(RESULT_KEY_EXTENSION, extension);
+        resultBundle.putString(RESULT_KEY_MIME_TYPE, mimeType);
 
         // call the Result Receiver
         receiver.send(DOWNLOAD_OK, resultBundle);

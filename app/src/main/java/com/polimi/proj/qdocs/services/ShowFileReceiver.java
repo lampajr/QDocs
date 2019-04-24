@@ -9,6 +9,7 @@ import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.polimi.proj.qdocs.activities.GenericFileActivity;
+import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.activities.PlayAudioActivity;
 import com.polimi.proj.qdocs.activities.ShowImageActivity;
 
@@ -71,7 +72,7 @@ public class ShowFileReceiver extends ResultReceiver {
             Log.d(TAG, "URI received: " + fileUri.toString());
             String filename = resultData.getString(DownloadFileService.RESULT_KEY_FILENAME);
             Log.d(TAG, "FILENAME received: " + filename);
-            String mimeType = resultData.getString(DownloadFileService.RESULT_KEY_EXTENSION);
+            String mimeType = resultData.getString(DownloadFileService.RESULT_KEY_MIME_TYPE);
             Log.d(TAG, "EXTENSION received: " + mimeType);
 
 
@@ -116,10 +117,11 @@ public class ShowFileReceiver extends ResultReceiver {
         }
 
         showFileIntent.putExtra(DownloadFileService.RESULT_KEY_URI, fileUri);
-        showFileIntent.putExtra(DownloadFileService.RESULT_KEY_EXTENSION, mimeType);
+        showFileIntent.putExtra(DownloadFileService.RESULT_KEY_MIME_TYPE, mimeType);
         showFileIntent.putExtra(DownloadFileService.RESULT_KEY_FILENAME, filename);
 
-        context.startActivity(showFileIntent);
+        ((MainActivity) context).startActivityForResult(showFileIntent, ShowImageActivity.DELETE_CODE);
+        //context.startActivity(showFileIntent);
 
     }
 

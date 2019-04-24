@@ -25,6 +25,7 @@ import java.util.Calendar;
 public class FirebaseHelper {
 
     public static final String BASE_REFERENCE = "documents";
+    public static final String TAG = "FIREBASE_HELPER";
 
     private FirebaseUser user;
     private StorageReference storageReference;
@@ -162,6 +163,7 @@ public class FirebaseHelper {
             // remove the file from the current directory
             ref = storageReference;
         }
+        Log.d(TAG, "Removing file at " + ref.getPath() + "/" + filename);
         ref.child(filename).delete().addOnFailureListener(onFailureListener)
                 .addOnCompleteListener(onCompleteListener);
     }

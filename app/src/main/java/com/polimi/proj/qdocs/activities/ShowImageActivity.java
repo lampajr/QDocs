@@ -54,7 +54,7 @@ public class ShowImageActivity extends AppCompatActivity {
     private void readParameter(Bundle bundle) {
         if (bundle != null) {
             fileUri = (Uri) bundle.get(DownloadFileService.RESULT_KEY_URI);
-            mimeType = bundle.getString(DownloadFileService.RESULT_KEY_EXTENSION);
+            mimeType = bundle.getString(DownloadFileService.RESULT_KEY_MIME_TYPE);
             fileName = bundle.getString(DownloadFileService.RESULT_KEY_FILENAME);
         }
 

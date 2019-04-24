@@ -444,6 +444,10 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         storageView.setAdapter(myStorageAdapter);
     }
 
+    public void onDeleteFromFile(String filename) {
+        deletePersonalFile(filename);
+    }
+
     /**
      * load all the filesList from the Firebase Realtime Database
      * and store them into the filesList attribute.

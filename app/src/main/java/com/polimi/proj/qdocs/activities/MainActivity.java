@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -81,6 +82,23 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
         cameraPermissionGranted = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
         filesPermissionGranted = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == ShowImageActivity.DELETE_CODE) {
+            if (data != null) {
+                Log.d(TAG, "Delete operation received from file");
+                String filename = data.getStringExtra(ShowImageActivity.FILE_NAME);
+                if (currentFragment instanceof FilesListFragment) {
+                    FilesListFragment fr = (FilesListFragment) currentFragment;
+                    fr.onDeleteFromFile(filename);
+                }
+            }
+        }
+        else{
+                super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     private void setupFragments() {
