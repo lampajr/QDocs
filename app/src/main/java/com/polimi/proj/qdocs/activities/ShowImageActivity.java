@@ -20,8 +20,8 @@ import java.util.Objects;
 
 public class ShowImageActivity extends AppCompatActivity {
 
-    static final int DELETE_CODE = 100;
-    static final String FILE_NAME = "fileName";
+    public static final int DELETE_CODE = 100;
+    public static final String FILE_NAME = "fileName";
     private final String TAG = "IMAGE FRAGMENT";
     private BitmapDrawable bitmapDrowalbe = null;
     private Uri fileUri = null;
