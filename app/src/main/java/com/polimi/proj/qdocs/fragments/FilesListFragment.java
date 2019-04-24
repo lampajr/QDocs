@@ -744,8 +744,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         }
     }
 
-    //TODO: choose between the two popup menu!!
-
     /**
      * shows the bottom menu providing settings about the specific file
      * @param file file for which show settings

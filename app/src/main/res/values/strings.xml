@@ -64,6 +64,7 @@
     <string name="qrcode_already_saved">Qr code already saved!</string>
     <string name="go_back_directory_button_description">go-back directory button</string>
     <string name="fileName_string">fileName</string>
+    <string name="image_preview_description">Image preview</string>
 
 
 </resources>
