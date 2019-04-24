@@ -73,10 +73,12 @@ public class ShowFileReceiver extends ResultReceiver {
             String filename = resultData.getString(DownloadFileService.RESULT_KEY_FILENAME);
             Log.d(TAG, "FILENAME received: " + filename);
             String mimeType = resultData.getString(DownloadFileService.RESULT_KEY_MIME_TYPE);
-            Log.d(TAG, "EXTENSION received: " + mimeType);
+            Log.d(TAG, "MIME TYPE received: " + mimeType);
+            String extension = resultData.getString(DownloadFileService.RESULT_KEY_EXTENSION);
+            Log.d(TAG, "EXTENSION received: " + extension);
 
 
-            triggerShowFile(fileUri, filename, mimeType);
+            triggerShowFile(fileUri, filename, mimeType, extension);
         }
         else {
             // something goes wrong: resultCode == DOWNLOAD_ERROR
@@ -91,8 +93,9 @@ public class ShowFileReceiver extends ResultReceiver {
      * Trigger the activity that will show the file in the correct way
      * @param fileUri uri of the file, has to be passed to next activity
      * @param mimeType extension in mimeType format
+     * @param extension extension in string format
      */
-    private void triggerShowFile(Uri fileUri, String filename, String mimeType) {
+    private void triggerShowFile(Uri fileUri, String filename, String mimeType, String extension) {
 
         String type = mimeType.split("/")[0];
         Intent showFileIntent;
@@ -100,7 +103,7 @@ public class ShowFileReceiver extends ResultReceiver {
         switch (type){
 
             case IMAGE:
-                Log.d(TAG, "Insantiating 'show image' activity...");
+                Log.d(TAG, "Instantiating 'show image' activity...");
                 showFileIntent = new Intent(context, ShowImageActivity.class);
                 break;
 
@@ -118,6 +121,7 @@ public class ShowFileReceiver extends ResultReceiver {
 
         showFileIntent.putExtra(DownloadFileService.RESULT_KEY_URI, fileUri);
         showFileIntent.putExtra(DownloadFileService.RESULT_KEY_MIME_TYPE, mimeType);
+        showFileIntent.putExtra(DownloadFileService.RESULT_KEY_EXTENSION, extension);
         showFileIntent.putExtra(DownloadFileService.RESULT_KEY_FILENAME, filename);
 
         ((MainActivity) context).startActivityForResult(showFileIntent, ShowImageActivity.DELETE_CODE);
