@@ -101,8 +101,6 @@ public class HomeFragment extends Fragment {
         setupList();
         setupSwipeListener();
 
-        mainLayout.setOnTouchListener(onSwipeTouchListener);
-
         return view;
     }
 
@@ -194,6 +192,9 @@ public class HomeFragment extends Fragment {
                 Log.d(TAG, "swipe top");
             }
         };
+
+        // TODO: re-add swipe listener
+        //mainLayout.setOnTouchListener(onSwipeTouchListener);
     }
 
     /**

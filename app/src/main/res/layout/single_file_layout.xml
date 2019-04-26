@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="@dimen/single_item_dimension"
-    android:background="?attr/selectableItemBackground">
-    <!-- TODO: add borders to single item -->
+    android:background="?android:attr/selectableItemBackground">
+
     <include layout="@layout/content_storage_element" android:id="@+id/content" />
+
 </RelativeLayout>

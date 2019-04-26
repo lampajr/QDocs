@@ -115,7 +115,6 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
             mainLayout = itemView.findViewById(R.id.layout);
         }
 
-        @SuppressLint("ClickableViewAccessibility")
         void bindData(final StorageElement element,
                       final StorageReference ref,
                       final Context context,
@@ -145,11 +144,9 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                     elementImage.setImageResource(R.drawable.ic_mic_24dp);
                 }
                 else if (file.getContentType().contains("pdf")) {
-                    //TODO: set image for pdf
                     elementImage.setImageResource(R.drawable.ic_tmp_pdf_24dp);
                 }
                 else {
-                    //TODO: set image for another file type
                     elementImage.setImageResource(R.drawable.ic_unsupported_file_24dp);
                 }
 
@@ -160,7 +157,8 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                     }
                 });
 
-                mainLayout.setOnTouchListener(onItemSwipeListener);
+                // TODO: re-add swipe listener
+                //mainLayout.setOnTouchListener(onItemSwipeListener);
 
                 elementOptionView.setOnClickListener(new View.OnClickListener() {
                     @Override

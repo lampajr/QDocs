@@ -156,7 +156,8 @@ public class ScannerFragment extends Fragment {
 
         // get the barcode view
         barcodeView = scannerView.findViewById(R.id.barcode_view);
-        barcodeView.setOnTouchListener(onSwipeTouchListener);
+        // TODO: re-add swipe listener
+        //barcodeView.setOnTouchListener(onSwipeTouchListener);
         barcodeView.setStatusText("");
 
         return scannerView;

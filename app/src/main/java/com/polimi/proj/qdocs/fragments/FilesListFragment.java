@@ -8,7 +8,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -28,12 +27,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.FrameLayout.LayoutParams;
 
 import com.cocosw.bottomsheet.BottomSheet;
 import com.google.android.gms.tasks.OnCanceledListener;
@@ -49,29 +48,23 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
-import com.polimi.proj.qdocs.support.Directory;
 import com.polimi.proj.qdocs.listeners.DragAndDropTouchListener;
+import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
+import com.polimi.proj.qdocs.support.Directory;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyFile;
-import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageAdapter;
 import com.polimi.proj.qdocs.support.StorageElement;
 import com.polimi.proj.qdocs.support.Utility;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 //TODO: separate delete operation from this class in order to reuse them in offlineFilesFragment
@@ -167,6 +160,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
             @Override
             public void onSwipeRight() {
+                Log.d(TAG, "swipe right");
                 mSwipeListener.onFilesSwipe();
             }
 
@@ -233,7 +227,8 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      */
     @SuppressLint("ClickableViewAccessibility")
     private void setupSwipeListener() {
-        storageView.setOnTouchListener(onSwipeListener);
+        // TODO: re-add swipe listener
+        //storageView.setOnTouchListener(onSwipeListener);
     }
 
     private void setupSwipeRefreshListener() {

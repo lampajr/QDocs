@@ -128,7 +128,8 @@ public abstract class ListFragment extends Fragment implements SwipeRefreshLayou
     private void setupStorageView() {
         Log.d(TAG, "setting up the storage view");
 
-        storageView.setOnTouchListener(onItemSwipeListener);
+        // TODO: re-add swipe listener
+        //storageView.setOnTouchListener(onItemSwipeListener);
 
         storageView.setHasFixedSize(true);
         storageView.setLayoutManager(new LinearLayoutManager(context));
