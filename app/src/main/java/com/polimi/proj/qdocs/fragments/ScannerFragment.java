@@ -123,7 +123,6 @@ public class ScannerFragment extends Fragment {
      * @param intent Parameter 1.
      * @return A new instance of fragment ScannerFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static ScannerFragment newInstance(Intent intent) {
         ScannerFragment fragment = new ScannerFragment();
         Bundle args = new Bundle();
