@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/bottom_navigation_view_dim"
+    android:layout_marginBottom="@dimen/bottom_navigation_view_dim"
     tools:context=".activities.MainActivity">
 
     <LinearLayout
@@ -55,7 +55,6 @@
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="15dp"
         android:src="@drawable/ic_add_24dp"
-        android:padding="5dp"
         android:backgroundTint="@color/add_button_color"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true" />
