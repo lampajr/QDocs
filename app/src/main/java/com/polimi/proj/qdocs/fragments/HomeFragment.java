@@ -42,8 +42,6 @@ public class HomeFragment extends Fragment {
 
     private FirebaseUser user;
 
-    private RelativeLayout mainLayout;
-
     private CircleImageView profileImage;
     private TextView displayName, personalEmail;
     private LinearLayout logoutOption, aboutOption;
@@ -60,10 +58,8 @@ public class HomeFragment extends Fragment {
      *
      * @return A new instance of fragment HomeFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static HomeFragment newInstance() {
-        HomeFragment fragment = new HomeFragment();
-        return fragment;
+        return new HomeFragment();
     }
 
     @Override
@@ -82,7 +78,7 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        mainLayout = view.findViewById(R.id.main_layout);
+        RelativeLayout mainLayout = view.findViewById(R.id.main_layout);
 
         profileImage = view.findViewById(R.id.profile_image);
         displayName = view.findViewById(R.id.display_name);

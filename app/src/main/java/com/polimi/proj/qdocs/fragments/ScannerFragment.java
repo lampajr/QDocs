@@ -106,6 +106,19 @@ public class ScannerFragment extends Fragment {
         }
     };
 
+    // empty callback used for stopping scanning when scanner is not visible to the user
+    private BarcodeCallback emptyCallback = new BarcodeCallback() {
+        @Override
+        public void barcodeResult(BarcodeResult result) {
+            // do nothing
+        }
+
+        @Override
+        public void possibleResultPoints(List<ResultPoint> resultPoints) {
+            // do nothing
+        }
+    };
+
 
     /**
      * Required empty public constructor
@@ -155,6 +168,22 @@ public class ScannerFragment extends Fragment {
         barcodeView.setStatusText("");
 
         return scannerView;
+    }
+
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (barcodeView != null) {
+            if (isVisibleToUser) {
+                Log.d(TAG, "Scanning resumed");
+                barcodeView.decodeContinuous(barcodeCallback);
+            }
+            else {
+                Log.d(TAG, "Scanning paused");
+                barcodeView.decodeContinuous(emptyCallback);
+            }
+        }
     }
 
     /**
