@@ -19,4 +19,9 @@
     <!--BOTTOM NAVIGATION VIEW -->
     <dimen name="bottom_navigation_view_dim">70dp</dimen>
 
+    <!-- TEXT SIZES -->
+    <dimen name="big_text_size">18sp</dimen>
+    <dimen name="normal_text_size">15sp</dimen>
+    <dimen name="small_text_size">12sp</dimen>
+
 </resources>

@@ -127,7 +127,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_files_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_storage, container, false);
 
         uploadGenericFileFloatingButton = view.findViewById(R.id.upload_file_button);
 

@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:textSize="15sp"
+            android:textSize="@dimen/normal_text_size"
             android:text="filename"
             android:layout_marginBottom="2dp"/>
 
@@ -48,7 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:textSize="12sp"
+            android:textSize="@dimen/small_text_size"
             android:text="description"/>
     </LinearLayout>
 
