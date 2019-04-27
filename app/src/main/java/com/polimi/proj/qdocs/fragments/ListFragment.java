@@ -19,7 +19,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
-import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 import com.polimi.proj.qdocs.support.Directory;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyFile;
@@ -44,7 +43,6 @@ public abstract class ListFragment extends Fragment implements SwipeRefreshLayou
     private StorageAdapter myStorageAdapter;
 
     List<StorageElement> files;
-    OnSwipeTouchListener onItemSwipeListener;
 
     /**
      * Required empty public constructor
@@ -68,7 +66,7 @@ public abstract class ListFragment extends Fragment implements SwipeRefreshLayou
 
         // load files for the first time
         setupSwipeRefresh();
-        setupListener();
+        //setupListener();
         setupStorageView();
 
         return view;
@@ -134,7 +132,7 @@ public abstract class ListFragment extends Fragment implements SwipeRefreshLayou
         storageView.setHasFixedSize(true);
         storageView.setLayoutManager(new LinearLayoutManager(context));
 
-        myStorageAdapter = new StorageAdapter(context, files, onItemSwipeListener, FirebaseStorage.getInstance().getReference()) {
+        myStorageAdapter = new StorageAdapter(context, files, FirebaseStorage.getInstance().getReference()) {
             @Override
             public void onFileClick(MyFile file) {
                 showFile(file);
@@ -177,11 +175,6 @@ public abstract class ListFragment extends Fragment implements SwipeRefreshLayou
         Log.d(TAG, "Showing file settings menu: " + file.getFilename());
         Utility.generateBottomSheetMenu(parentActivity, parentActivity.getString(R.string.settings_string), getMenuId(), getOnItemMenuClickListener(file)).show();
     }
-
-    /**
-     * must be implemented to setup the onItemSwipeListener
-     */
-    abstract void setupListener();
 
     /**
      * provide a listener for the menu item's click

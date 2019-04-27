@@ -9,6 +9,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.support.PathResolver;
 
 import java.io.File;
@@ -31,7 +32,7 @@ import java.util.List;
  *
  * @see ResultReceiver
  * @see com.polimi.proj.qdocs.fragments.ScannerFragment
- * @see com.polimi.proj.qdocs.fragments.FilesListFragment
+ * @see StorageFragment
  * @see DownloadFileService
  */
 

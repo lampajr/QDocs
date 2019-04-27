@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.support.PathResolver;
 
 import java.io.File;
@@ -30,7 +31,7 @@ import java.io.IOException;
  *
  * @see android.app.IntentService
  * @see com.polimi.proj.qdocs.fragments.ScannerFragment
- * @see com.polimi.proj.qdocs.fragments.FilesListFragment
+ * @see StorageFragment
  */
 
 public class DownloadFileService extends IntentService {

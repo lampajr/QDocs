@@ -9,31 +9,28 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.FrameLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.polimi.proj.qdocs.R;
-import com.polimi.proj.qdocs.fragments.FilesListFragment;
+import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.fragments.HomeFragment;
 import com.polimi.proj.qdocs.fragments.OfflineFilesFragment;
 import com.polimi.proj.qdocs.fragments.RecentFilesFragment;
 import com.polimi.proj.qdocs.fragments.ScannerFragment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements HomeFragment.OnHomeFragmentSwipe,
-        FilesListFragment.OnFilesFragmentSwipe, ScannerFragment.OnScannerFragmentSwipe,
-        OfflineFilesFragment.OnOfflineFilesFragmentSwipe, RecentFilesFragment.OnRecentFilesFragmentSwipe {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MAIN_ACTIVITY";
 
@@ -43,40 +40,42 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
     private boolean filesPermissionGranted;
 
     private static final int HOME_ID = 0, OFFLINE_ID = 1, SCANNER_ID = 2,
-            RECENT_ID = 3, FILES_ID = 4;
-    private static final String SCANNER_TAG = "scanner", FILES_TAG = "files",
+            RECENT_ID = 3, STORAGE_ID = 4;
+
+    /*
+    private static final String SCANNER_TAG = "scanner", STORAGE_TAG = "files",
             HOME_TAG = "home", OFFLINE_TAG = "offline", RECENT_TAG = "recent";
 
+    private Map<String, Integer> fragmentsMap = new HashMap<String, Integer>()
+    {{
+        put(HOME_TAG, HOME_ID);
+        put(OFFLINE_TAG, OFFLINE_ID);
+        put(SCANNER_TAG, SCANNER_ID);
+        put(RECENT_TAG, RECENT_ID);
+        put(STORAGE_TAG, STORAGE_ID);
+    }};*/
+
     private BottomNavigationView navigationBar;
-    private Fragment currentFragment;
-    private FrameLayout mainFrame;
+    private int prevFragmentIdx = -1;
+
+    private ViewPager pager;
 
     private List<Fragment> fragments;
 
-    private int currentFragmentId;
-
     private FirebaseUser user;
-
-    //TODO: add OfflineFilesFragment
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mainFrame = findViewById(R.id.main_frame);
+        // get Pager
+        pager = findViewById(R.id.main_frame);
+        // get Navigation view
+        navigationBar = findViewById(R.id.main_navigation_bar);
 
         setupFragments();
-
-        //checks whether there is already a fragment in the transaction
-        Fragment pastFrag = getPastFragment();
-        if (pastFrag != null) {
-            Log.d(TAG, "there already exists a fragment.. load it");
-            currentFragment = pastFrag;
-        }
-
-        // get navigation view
-        navigationBar = findViewById(R.id.main_navigation_bar);
+        setupPager();
         setupNavigationBar();
 
         cameraPermissionGranted = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
@@ -86,21 +85,28 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        Log.d(TAG, "Request code received: " + requestCode);
         if (requestCode == ShowImageActivity.DELETE_CODE) {
             if (data != null) {
                 Log.d(TAG, "Delete operation received from file");
                 String filename = data.getStringExtra(ShowImageActivity.FILE_NAME);
-                if (currentFragment instanceof FilesListFragment) {
-                    FilesListFragment fr = (FilesListFragment) currentFragment;
-                    fr.onDeleteFromFile(filename);
-                }
+                StorageFragment fr = (StorageFragment) fragments.get(STORAGE_ID);
+                fr.onDeleteFromFile(filename);
             }
         }
         else{
-                super.onActivityResult(requestCode, resultCode, data);
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
+    /**
+     * Setup the fragments used by the MainActivity:
+     * - Home
+     * - Offline Files
+     * - Scanner
+     * - Recent Files
+     * - Storage
+     */
     private void setupFragments() {
         fragments = new ArrayList<>();
         Fragment homeFrag = HomeFragment.newInstance();
@@ -111,22 +117,34 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
         fragments.add(scannerFrag);
         Fragment recentFrag = RecentFilesFragment.newInstance();
         fragments.add(recentFrag);
-        Fragment filesFrag = FilesListFragment.newInstance();
+        Fragment filesFrag = StorageFragment.newInstance();
         fragments.add(filesFrag);
     }
 
     /**
-     * checks whether in the restarted activity there already exists a fragment
-     * if yer retrieve it and return
-     * @return the fragment or null
+     * Setup the ViewPager adding its own PagerAdapter
      */
-    private Fragment getPastFragment() {
-        FragmentManager manager = getSupportFragmentManager();
-        Fragment res;
-        if ((res=manager.findFragmentByTag(FILES_TAG)) != null) return res;
-        if ((res=manager.findFragmentByTag(HOME_TAG)) != null) return res;
-        if ((res=manager.findFragmentByTag(SCANNER_TAG)) != null) return res;
-        return null;
+    private void setupPager() {
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                prevFragmentIdx = i;
+                navigationBar.getMenu().getItem(i).setChecked(true);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+
+            }
+        });
+        SwipePagerAdapter pagerAdapter = new SwipePagerAdapter(getSupportFragmentManager());
+        pager.setAdapter(pagerAdapter);
+        pager.setOffscreenPageLimit(5);
     }
 
     /**
@@ -139,60 +157,50 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
                 switch (menuItem.getItemId()) {
-                    case R.id.files_item:
-                        if (filesPermissionGranted)
-                            applyFragment(FILES_ID, FILES_TAG);
+                    case R.id.home_item:
+                        changePage(HOME_ID);
+                        return true;
+                    case R.id.offline_item:
+                        if (filesPermissionGranted) {
+                            changePage(OFFLINE_ID);
+                            return true;
+                        }
                         break;
                     case R.id.scanner_item:
-                        applyFragment(SCANNER_ID, SCANNER_TAG);
-                        break;
-                    case R.id.home_item:
-                        applyFragment(HOME_ID, HOME_TAG);
-                        break;
-                    case R.id.offline_item:
-                        if (filesPermissionGranted)
-                            applyFragment(OFFLINE_ID, OFFLINE_TAG);
-                        break;
+                        changePage(SCANNER_ID);
+                        return true;
                     case R.id.recent_item:
-                        if (filesPermissionGranted)
-                            applyFragment(RECENT_ID, RECENT_TAG);
+                        if (filesPermissionGranted) {
+                            changePage(RECENT_ID);
+                            return true;
+                        }
+                        break;
+                    case R.id.files_item:
+                        if (filesPermissionGranted) {
+                            changePage(STORAGE_ID);
+                            return true;
+                        }
+                        break;
                 }
-                return true;
+                return false;
             }
         });
     }
 
     /**
-     * apply the fragment to the main layout
+     * Change the current page, saving this as previous one
      */
-    private void applyFragment(int id, String tag) {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        // get the corresponding fragment
-        Fragment fr = fragments.get(id);
-        if (fr != null && id != currentFragmentId) {
-            if (currentFragment != null) {
-                transaction.remove(currentFragment);
-            }
-            /*if (id == SCANNER_ID) {
-                // set navigation bar invisible
-                navigationBar.setVisibility(View.INVISIBLE);
-            }
-            else {
-                // make navigation bar already visible
-                navigationBar.setVisibility(View.VISIBLE);
-            }*/
-            transaction.add(R.id.main_frame, fr, tag);
-            transaction.commit();
-            currentFragmentId = id;
-            currentFragment = fr;
-        }
+    private void changePage(int idx) {
+        prevFragmentIdx = idx;
+        pager.setCurrentItem(idx);
     }
 
     /**
      * initialize the activity, creating the user and checking the permission
-     * and if all goes well, it applies the scanner fragment as first fragment
+     * and if all goes well, it applies the scanner fragment as first fragment,
+     * otherwise it starts with the last fragment used
      */
-    private void initialization() {
+    private void initialize() {
         user = FirebaseAuth.getInstance().getCurrentUser();
 
         if (user == null) {
@@ -202,10 +210,10 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
 
         if (cameraPermissionGranted && filesPermissionGranted) {
             // as first fragment create the scanner fragment
-            if (currentFragment == null) {
-                applyFragment(SCANNER_ID, SCANNER_TAG);
-                navigationBar.setSelectedItemId(R.id.scanner_item);
+            if (prevFragmentIdx == -1) {
+                changePage(SCANNER_ID);
             }
+            else changePage(prevFragmentIdx);
         }
         else if (!cameraPermissionGranted)requestCameraPermission();
         else requestFilesPermission();
@@ -239,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
     @Override
     protected void onStart() {
         super.onStart();
-        initialization();
+        initialize();
     }
 
     @Override
@@ -249,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Camera permission granted");
                 cameraPermissionGranted = true;
-                initialization();
+                initialize();
             }
             else {
                 Log.d(TAG, "Camera permission denied.. exit application");
@@ -271,50 +279,24 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnHo
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    @Override
-    public void onFilesSwipe() {
-        applyFragment(RECENT_ID, RECENT_TAG);
-        navigationBar.setSelectedItemId(R.id.recent_item);
-    }
+    /**
+     *  View Pager Adapter used for swiping the screens
+     */
+    private class SwipePagerAdapter extends FragmentStatePagerAdapter {
+        private final List<Fragment> mFragmentList = fragments;
 
-    @Override
-    public void onScannerSwipeLeft() {
-        applyFragment(OFFLINE_ID, OFFLINE_TAG);
-        navigationBar.setSelectedItemId(R.id.offline_item);
-    }
+        SwipePagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
 
-    public void onScannerSwipeRight() {
-        applyFragment(RECENT_ID, RECENT_TAG);
-        navigationBar.setSelectedItemId(R.id.recent_item);
-    }
+        @Override
+        public Fragment getItem(int i) {
+            return mFragmentList.get(i);
+        }
 
-    @Override
-    public void onHomeSwipe() {
-        applyFragment(OFFLINE_ID, OFFLINE_TAG);
-        navigationBar.setSelectedItemId(R.id.offline_item);
-    }
-
-    @Override
-    public void onRightOfflineSwipe() {
-        applyFragment(SCANNER_ID, SCANNER_TAG);
-        navigationBar.setSelectedItemId(R.id.scanner_item);
-    }
-
-    @Override
-    public void onLeftOfflineSwipe() {
-        applyFragment(HOME_ID, HOME_TAG);
-        navigationBar.setSelectedItemId(R.id.home_item);
-    }
-
-    @Override
-    public void onRightRecentSwipe() {
-        applyFragment(FILES_ID, FILES_TAG);
-        navigationBar.setSelectedItemId(R.id.files_item);
-    }
-
-    @Override
-    public void onLeftRecentSwipe() {
-        applyFragment(SCANNER_ID, SCANNER_TAG);
-        navigationBar.setSelectedItemId(R.id.scanner_item);
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
     }
 }

@@ -12,6 +12,7 @@ import com.polimi.proj.qdocs.activities.GenericFileActivity;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.activities.PlayAudioActivity;
 import com.polimi.proj.qdocs.activities.ShowImageActivity;
+import com.polimi.proj.qdocs.fragments.StorageFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +27,7 @@ import java.util.List;
  *
  * @see ResultReceiver
  * @see com.polimi.proj.qdocs.fragments.ScannerFragment
- * @see com.polimi.proj.qdocs.fragments.FilesListFragment
+ * @see StorageFragment
  * @see DownloadFileService
  */
 

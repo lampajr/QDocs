@@ -16,7 +16,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
-import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.StorageElement;
 import com.polimi.proj.qdocs.support.Utility;
@@ -72,31 +71,6 @@ public class RecentFilesFragment extends ListFragment {
                         break;
                 }
                 return false;
-            }
-        };
-    }
-
-    @Override
-    void setupListener() {
-        onItemSwipeListener = new OnSwipeTouchListener(context) {
-            @Override
-            public void onSwipeBottom() {
-                Log.d(TAG, "swipe bottom");
-            }
-
-            @Override
-            public void onSwipeLeft() {
-                parentActivity.onRightRecentSwipe();
-            }
-
-            @Override
-            public void onSwipeRight() {
-                parentActivity.onLeftRecentSwipe();
-            }
-
-            @Override
-            public void onSwipeTop() {
-                Log.d(TAG, "swipe top");
             }
         };
     }
@@ -205,15 +179,5 @@ public class RecentFilesFragment extends ListFragment {
         Log.d(TAG, "Showing QR code");
         QrCodeDialog dialog = new QrCodeDialog(context, null, file);
         dialog.show();
-    }
-
-    /**
-     * interface that has to be implemented by the main activity in order to handle
-     * the swipe gesture on the OfflineFilesFragment
-     */
-    public interface OnRecentFilesFragmentSwipe {
-        // TODO: Update argument type and name
-        void onRightRecentSwipe();
-        void onLeftRecentSwipe();
     }
 }

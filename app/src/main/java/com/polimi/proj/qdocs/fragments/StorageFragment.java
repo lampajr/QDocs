@@ -54,7 +54,6 @@ import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
 import com.polimi.proj.qdocs.listeners.DragAndDropTouchListener;
-import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 import com.polimi.proj.qdocs.support.Directory;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyFile;
@@ -70,16 +69,16 @@ import java.util.List;
 //TODO: separate delete operation from this class in order to reuse them in offlineFilesFragment
 
 
-public class FilesListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private static final String TAG = "FILES_LIST_FRAGMENT";
 
     private static final String KEY_METADATA = "key_metadata";
     private static final String UID_METADATA = "uid_metadata";
 
-    private static final int IMG_PRV = 100;
-    private static final int AUD_PRV = 200;
-    private static final int FILE_PRV = 300;
+    private static final int IMG_PRV = 1;
+    private static final int AUD_PRV = 2;
+    private static final int FILE_PRV = 3;
 
     private FirebaseHelper fbHelper;
 
@@ -96,11 +95,8 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     private FloatingActionButton uploadGenericFileFloatingButton;
 
     private Context context;
-    private OnFilesFragmentSwipe mSwipeListener;
     private MainActivity parentActivity;
     private SwipeRefreshLayout swipeRefreshLayout;
-
-    private OnSwipeTouchListener onSwipeListener;
 
     // drag-and-drop upload file button
     private DragAndDropTouchListener dragAndDropListener;
@@ -108,11 +104,10 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
     /**
      * Required empty public constructor
      */
-    public FilesListFragment() {}
+    public StorageFragment() {}
 
-    public static FilesListFragment newInstance() {
-        FilesListFragment fragment = new FilesListFragment();
-        return fragment;
+    public static StorageFragment newInstance() {
+        return new StorageFragment();
     }
 
     //TODO: add on the settings menu of the file the information about it
@@ -147,29 +142,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
         setupDirectoryLayout();
 
-        onSwipeListener = new OnSwipeTouchListener(context) {
-            @Override
-            public void onSwipeBottom() {
-                Log.d(TAG, "swipe bottom");
-            }
-
-            @Override
-            public void onSwipeLeft() {
-                Log.d(TAG, "swipe left");
-            }
-
-            @Override
-            public void onSwipeRight() {
-                Log.d(TAG, "swipe right");
-                mSwipeListener.onFilesSwipe();
-            }
-
-            @Override
-            public void onSwipeTop() {
-                Log.d(TAG, "swipe top");
-            }
-        };
-
         // RecyclerView for elements
         storageView = view.findViewById(R.id.storage_view);
         setupStorageView();
@@ -188,7 +160,6 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         super.onAttach(context);
         this.context = context;
         this.parentActivity = (MainActivity) context;
-        this.mSwipeListener = (OnFilesFragmentSwipe) context;
     }
 
     @Override
@@ -198,7 +169,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        Log.w(TAG, "FILES " + requestCode);
         if (requestCode == IMG_PRV || requestCode == AUD_PRV || requestCode == FILE_PRV) {
             Log.d(TAG, "Picked a file");
             if (resultCode == Activity.RESULT_OK) {
@@ -208,8 +179,10 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
                 }else {
                     showPathnameChooserDialog(data);
                 }
+                return;
             }
         }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
 
@@ -414,8 +387,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
         storageView.setHasFixedSize(true);
         storageView.setLayoutManager(new LinearLayoutManager(context));
         //myStorageAdapter = new MyStorageAdapter(context, storageElements);
-        myStorageAdapter = new StorageAdapter(context, storageElements,
-                onSwipeListener, fbHelper.getStorageReference()) {
+        myStorageAdapter = new StorageAdapter(context, storageElements, fbHelper.getStorageReference()) {
 
             @Override
             public void onFileClick(MyFile file) {
@@ -556,7 +528,7 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
      */
     private void deletePersonalFile(final String filename) {
         //TODO: implement "are you sure?" dialog
-        Log.d(TAG, "Deleting file: " + filename);
+        Log.w(TAG, "Deleting file: " + filename);
         fbHelper.deletePersonalFile(null, filename, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
@@ -808,13 +780,5 @@ public class FilesListFragment extends Fragment implements SwipeRefreshLayout.On
 
     private void showDirInfoDialog(Directory dir) {
         //TODO: show infos about directory
-    }
-
-    /**
-     * interface that has to be implemented by the main activity in order to handle
-     * the swipe gesture on the FilesListFragment
-     */
-    public interface OnFilesFragmentSwipe {
-        void onFilesSwipe();
     }
 }

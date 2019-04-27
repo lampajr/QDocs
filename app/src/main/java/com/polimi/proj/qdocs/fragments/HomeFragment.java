@@ -24,7 +24,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.LoginActivity;
 import com.polimi.proj.qdocs.activities.MainActivity;
-import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -40,7 +39,6 @@ public class HomeFragment extends Fragment {
 
     private Context context;
     private MainActivity parentActivity;
-    private OnHomeFragmentSwipe mSwipeListener;
 
     private FirebaseUser user;
 
@@ -49,8 +47,6 @@ public class HomeFragment extends Fragment {
     private CircleImageView profileImage;
     private TextView displayName, personalEmail;
     private LinearLayout logoutOption, aboutOption;
-
-    private OnSwipeTouchListener onSwipeTouchListener;
 
 
     /**
@@ -99,7 +95,6 @@ public class HomeFragment extends Fragment {
 
         setupProfile();
         setupList();
-        setupSwipeListener();
 
         return view;
     }
@@ -139,7 +134,6 @@ public class HomeFragment extends Fragment {
         super.onAttach(context);
         this.context = context;
         this.parentActivity = (MainActivity) context;
-        this.mSwipeListener = (OnHomeFragmentSwipe) context;
     }
 
     @Override
@@ -165,36 +159,6 @@ public class HomeFragment extends Fragment {
 
         displayName.setText(user.getDisplayName());
         personalEmail.setText(user.getEmail());
-    }
-
-    /**
-     * setup the swipe listener in order to change the current fragment
-     */
-    private void setupSwipeListener() {
-        onSwipeTouchListener = new OnSwipeTouchListener(context) {
-            @Override
-            public void onSwipeBottom() {
-                Log.d(TAG, "swipe bottom");
-            }
-
-            @Override
-            public void onSwipeLeft() {
-                mSwipeListener.onHomeSwipe();
-            }
-
-            @Override
-            public void onSwipeRight() {
-                Log.d(TAG, "swipe right");
-            }
-
-            @Override
-            public void onSwipeTop() {
-                Log.d(TAG, "swipe top");
-            }
-        };
-
-        // TODO: re-add swipe listener
-        //mainLayout.setOnTouchListener(onSwipeTouchListener);
     }
 
     /**
@@ -280,13 +244,5 @@ public class HomeFragment extends Fragment {
         interface Listener {
             void onSuccess(Bitmap profileBitmap);
         }
-    }
-
-    /**
-     * interface that has to be implemented by the main activity in order to handle
-     * the swipe gesture on the HomeFragment
-     */
-    public interface OnHomeFragmentSwipe {
-        void onHomeSwipe();
     }
 }

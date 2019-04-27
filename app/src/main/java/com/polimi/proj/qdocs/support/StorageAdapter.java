@@ -1,6 +1,5 @@
 package com.polimi.proj.qdocs.support;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -16,7 +15,6 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
-import com.polimi.proj.qdocs.listeners.OnSwipeTouchListener;
 
 import java.util.List;
 
@@ -30,16 +28,13 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
     private LayoutInflater inflater;
     private List<StorageElement> elements;
     private Context context;
-    private OnSwipeTouchListener onItemSwipeTouchListener;
     private StorageReference storageRef;
 
     protected StorageAdapter(Context context, List<StorageElement> elements,
-                             OnSwipeTouchListener onItemSwipeTouchListener,
                              StorageReference storageRef) {
         this.inflater = LayoutInflater.from(context);
         this.elements = elements;
         this.context = context;
-        this.onItemSwipeTouchListener = onItemSwipeTouchListener;
         this.storageRef = storageRef;
 
         setHasStableIds(true);
@@ -81,7 +76,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
 
     @Override
     public void onBindViewHolder(@NonNull final StorageAdapter.dataViewHolder holder, int position) {
-        holder.bindData(elements.get(position), storageRef, context, onItemSwipeTouchListener);
+        holder.bindData(elements.get(position), storageRef, context);
     }
 
     @Override
@@ -117,8 +112,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
 
         void bindData(final StorageElement element,
                       final StorageReference ref,
-                      final Context context,
-                      final OnSwipeTouchListener onItemSwipeListener) {
+                      final Context context) {
             elementImage.setImageDrawable(null);
             //TODO: set onClick animation on the items
             if (element instanceof MyFile) {
