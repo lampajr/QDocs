@@ -15,4 +15,5 @@
     <color name="add_button_icon_color">#F57403</color>
     <color name="add_button_color">#EEEEEE</color>
     <color name="transparent_orange">#B5FF7741</color>
+    <color name="transparent_white">#AAFFFFFF</color>
 </resources>

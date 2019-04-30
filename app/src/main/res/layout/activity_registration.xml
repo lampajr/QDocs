@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:visibility="visible"
-    android:background="@drawable/login_background">
+    android:background="@drawable/yellow_orange_gradient_bckgrnd">
 
 
     <EditText
@@ -56,7 +56,7 @@
         android:layout_marginStart="40dp"
         android:layout_marginTop="132dp"
         android:layout_marginEnd="40dp"
-        android:textColor="#FF0000"
+        android:textColor="@color/transparent_white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -72,6 +72,7 @@
         android:layout_marginEnd="40dp"
         android:layout_marginBottom="8dp"
         android:text="@string/register_string"
+        android:textColor="#F89F1C"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"

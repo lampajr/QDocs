@@ -51,7 +51,8 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private CallbackManager callbackManager;
     private GoogleSignInClient mGoogleSignInClient;
-    private SignInButton googleButton;
+    //private SignInButton googleButton;
+    private Button googleButton;
     private boolean anonymous;
 
     @Override

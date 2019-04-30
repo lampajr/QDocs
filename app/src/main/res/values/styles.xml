@@ -17,17 +17,19 @@
 
     <style name="edit_text_style" parent="@style/Widget.AppCompat.EditText">
         <item name="android:textSize">@dimen/edit_text_text_size</item>
-        <item name="android:textColor">@color/color_light_Text</item>
+        <item name="android:textColor">@color/transparent_white</item>
         <item name="android:background">@drawable/rounded_edittext</item>
-        <item name="android:textColorHint">@color/color_hint_edit_text</item>
+        <item name="android:textColorHint">@color/transparent_white</item>
         <item name="android:drawablePadding">@dimen/edit_text_drawable_padding</item>
         <item name="android:cursorVisible">true</item>
+        <item name="android:backgroundTint">@color/white</item>
+        <item name="android:drawableTint">@color/transparent_white</item>
     </style>
 
     <style name="button_Style" parent="@style/Widget.AppCompat.Button">
         <item name="android:background">@drawable/button</item>
         <item name="android:textSize">@dimen/button_text_size</item>
-        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textColor">@color/transparent_white</item>
         <item name="android:textAlignment">center</item>
     </style>
 
