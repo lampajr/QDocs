@@ -3,8 +3,8 @@
     <color name="colorPrimary">#B5B5BE</color>
     <color name="colorPrimaryDark">#575E5D</color>
     <color name="colorAccent">#FFFFFF</color>
-    <color name="background_material_light">#ded5ccfa</color>
-    <color name="foreground_material_light">#626161</color>
+    <color name="material_light">#ded5ccfa</color>
+    <color name="light_material">#2C626161</color>
     <color name="color_light_Text">#747373</color>
     <color name="color_hint_edit_text">#d8d8d8</color>
     <color name="black">#000000</color>
@@ -14,4 +14,5 @@
     <color name="light">#D0C7C7C7</color>
     <color name="add_button_icon_color">#F57403</color>
     <color name="add_button_color">#EEEEEE</color>
+    <color name="transparent_orange">#B5FF7741</color>
 </resources>
