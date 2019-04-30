@@ -43,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final int GOOGLE_SIGN_IN = 100;
     private static final int FACE_SIGN_IN = 200;
     private LoginButton facebookButton;
+    private Button customFacebookButton;
     private Button signUpButton;
     private Button signInButton;
     private EditText emailView;
@@ -128,6 +129,14 @@ public class LoginActivity extends AppCompatActivity {
                         break;
 
                 }
+            }
+        });
+
+        customFacebookButton = findViewById(R.id.custom_facebook_button);
+        customFacebookButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                facebookButton.performClick();
             }
         });
     }
