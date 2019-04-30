@@ -4,12 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginBottom="@dimen/bottom_navigation_view_dim"
+    android:padding="8dp"
+    android:background="#00000000"
     tools:context=".activities.MainActivity">
 
     <LinearLayout
         android:id="@+id/directory_layout"
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:layout_height="50dp"
+        >
 
         <ImageView
             android:id="@+id/get_back_directory"

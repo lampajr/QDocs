@@ -4,6 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginBottom="@dimen/bottom_navigation_view_dim"
+    android:paddingTop="8dp"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:background="#00000000"
     tools:context=".activities.MainActivity">
 
     <android.support.v4.widget.SwipeRefreshLayout
@@ -17,7 +21,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingBottom="@dimen/padding_bottom_rec_view"
-            android:clipToPadding="false"/>
+            android:clipToPadding="false"
+            />
 
     </android.support.v4.widget.SwipeRefreshLayout>
 

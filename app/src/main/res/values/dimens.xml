@@ -8,7 +8,7 @@
     <!--EDITTEXT-->
     <dimen name="edit_text_text_size">20dp</dimen>
     <dimen name="edit_text_drawable_padding">25dp</dimen>
-    <dimen name="single_item_dimension">50dp</dimen>
+    <dimen name="single_item_dimension">55dp</dimen>
 
     <!--BUTTON-->
     <dimen name="button_text_size">20sp</dimen>
