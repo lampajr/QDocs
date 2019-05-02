@@ -5,7 +5,8 @@
     <item
         android:id="@+id/save_option"
         android:icon="@drawable/ic_save_24dp"
-        android:title="@string/save_file_string" />
+        android:title="@string/save_file_string"
+        />
 
     <item
         android:id="@+id/delete_option"

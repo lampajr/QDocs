@@ -6,6 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/toolbar_height"
     app:navigationIcon="@drawable/ic_arrow_back_black_24dp"
-    android:background="@color/colorPrimary"
+    android:background="@color/colorPrimaryDark"
     tools:menu="@menu/file_settings_menu">
 </android.support.v7.widget.Toolbar>

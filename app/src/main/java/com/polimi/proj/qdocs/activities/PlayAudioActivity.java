@@ -28,7 +28,7 @@ import at.markushi.ui.CircleButton;
 public class PlayAudioActivity extends AppCompatActivity {
 
     static final int DELETE_CODE = 100;
-    private final String TAG = "AUDIO FRAGMENT";
+    private final String TAG = "AUDIO ACTIVITY";
     private MediaPlayer mediaPlayer = null; //used for manage the audio file
     private double startTime = 0;
     private String fileName;
@@ -59,9 +59,10 @@ public class PlayAudioActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar_widget);
+        Toolbar toolbar = findViewById(R.id.toolbar_widget);;
         setSupportActionBar(toolbar);
-
+        toolbar.getNavigationIcon().setTint(getResources().getColor(R.color.colorPrimary));
+        toolbar.setTitleTextColor(getColor(R.color.colorPrimary));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
