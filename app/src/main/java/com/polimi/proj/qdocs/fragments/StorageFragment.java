@@ -703,13 +703,11 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             // add file in the tail of list
             storageElements.add(elem);
             notifyAdapter();
-            //myStorageAdapter.notifyItemInserted(storageElements.size() - 1);
         }
         else {
             // add directory in the head of list
             storageElements.add(0, elem);
             notifyAdapter();
-            //myStorageAdapter.notifyItemInserted(0);
         }
     }
 

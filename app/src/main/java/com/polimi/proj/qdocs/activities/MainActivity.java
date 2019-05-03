@@ -41,19 +41,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int HOME_ID = 0, OFFLINE_ID = 1, SCANNER_ID = 2,
             RECENT_ID = 3, STORAGE_ID = 4;
 
-    /*
-    private static final String SCANNER_TAG = "scanner", STORAGE_TAG = "files",
-            HOME_TAG = "home", OFFLINE_TAG = "offline", RECENT_TAG = "recent";
-
-    private Map<String, Integer> fragmentsMap = new HashMap<String, Integer>()
-    {{
-        put(HOME_TAG, HOME_ID);
-        put(OFFLINE_TAG, OFFLINE_ID);
-        put(SCANNER_TAG, SCANNER_ID);
-        put(RECENT_TAG, RECENT_ID);
-        put(STORAGE_TAG, STORAGE_ID);
-    }};*/
-
     private BottomNavigationView navigationBar;
     private int prevFragmentIdx = -1;
 

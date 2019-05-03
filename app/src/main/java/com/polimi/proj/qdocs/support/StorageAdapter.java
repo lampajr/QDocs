@@ -119,6 +119,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                 final MyFile file = (MyFile) element;
                 elementNameView.setText(file.getFilename());
                 elementDescriptionView.setText(file.getContentType());
+                Log.d(TAG, "Adding file to the recycler view");
 
                 final StorageReference refUsed = file.getStReference() == null ? ref : file.getStReference();
 
@@ -150,9 +151,6 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                         onFileClick(file);
                     }
                 });
-
-                // TODO: re-add swipe listener
-                //mainLayout.setOnTouchListener(onItemSwipeListener);
 
                 elementOptionView.setOnClickListener(new View.OnClickListener() {
                     @Override
