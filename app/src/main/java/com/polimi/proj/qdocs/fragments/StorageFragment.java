@@ -507,7 +507,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         Log.d(TAG, "Showing file " + filename);
         fbHelper.updateLastAccessAttribute(StorageElement.retrieveFileByName(filename, storageElements).getKey());
 
-        Utility.showFile(context,
+        Utility.startShowFileService(context,
                 fbHelper.getCurrentPath(fbHelper.getDatabaseReference()) + "/" + filename);
     }
 
@@ -520,7 +520,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         fbHelper.updateLastAccessAttribute(StorageElement.retrieveFileByName(filename, storageElements).getKey());
         fbHelper.madeOfflineFile(StorageElement.retrieveFileByName(filename, storageElements).getKey());
 
-        Utility.saveFile(context,
+        Utility.startSaveFileService(context,
                 fbHelper.getCurrentPath(fbHelper.getDatabaseReference()) + "/" + filename);
     }
 

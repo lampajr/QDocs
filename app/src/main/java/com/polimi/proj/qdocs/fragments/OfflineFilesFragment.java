@@ -1,6 +1,7 @@
 package com.polimi.proj.qdocs.fragments;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,12 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
@@ -40,10 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -188,8 +181,8 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
      */
     private void showFile(MyFile file) {
         Log.d(TAG, "Showing file " + file.getFilename());
-        fbHelper.updateLastAccessAttribute(file.getKey());
-        Utility.showFile(context, fbHelper.getCurrentPath(file.getDbReference()) + "/" + file.getFilename());
+        Uri fileUri = Uri.fromFile(new File(PathResolver.getPublicDocFileDir(context).getAbsolutePath() + "/" + file.getFilename()));
+        Utility.showFile(context, fileUri, file.getFilename().split("\\.")[0], file.getContentType(), file.getFilename().split("\\.")[1]);
     }
 
     /**

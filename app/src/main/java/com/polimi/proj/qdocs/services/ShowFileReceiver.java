@@ -1,18 +1,14 @@
 package com.polimi.proj.qdocs.services;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Log;
 
-import com.polimi.proj.qdocs.activities.GenericFileActivity;
-import com.polimi.proj.qdocs.activities.MainActivity;
-import com.polimi.proj.qdocs.activities.PlayAudioActivity;
-import com.polimi.proj.qdocs.activities.ShowImageActivity;
 import com.polimi.proj.qdocs.fragments.StorageFragment;
+import com.polimi.proj.qdocs.support.Utility;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +18,7 @@ import java.util.List;
  * @author Andrea Lamparelli
  *
  * ResultReceiver that has to receive the results provided by the DownloadFile Service
- * and in according to the results has to triggerShowFile the correct activity in order to show the
+ * and in according to the results has to showFile the correct activity in order to show the
  * download file.
  *
  * @see ResultReceiver
@@ -79,7 +75,7 @@ public class ShowFileReceiver extends ResultReceiver {
             Log.d(TAG, "EXTENSION received: " + extension);
 
 
-            triggerShowFile(fileUri, filename, mimeType, extension);
+            Utility.showFile(context, fileUri, filename, mimeType, extension);
         }
         else {
             // something goes wrong: resultCode == DOWNLOAD_ERROR
@@ -89,45 +85,4 @@ public class ShowFileReceiver extends ResultReceiver {
             // TODO: implement error handling
         }
     }
-
-    /**
-     * Trigger the activity that will show the file in the correct way
-     * @param fileUri uri of the file, has to be passed to next activity
-     * @param mimeType extension in mimeType format
-     * @param extension extension in string format
-     */
-    private void triggerShowFile(Uri fileUri, String filename, String mimeType, String extension) {
-
-        String type = mimeType.split("/")[0];
-        Intent showFileIntent;
-
-        switch (type){
-
-            case IMAGE:
-                Log.d(TAG, "Instantiating 'show image' activity...");
-                showFileIntent = new Intent(context, ShowImageActivity.class);
-                break;
-
-            case AUDIO:
-                Log.d(TAG, "Insantiating 'play audio' activity...");
-                showFileIntent = new Intent(context, PlayAudioActivity.class);
-                break;
-
-            default:
-                Log.d(TAG, "Insantiating 'generic' activity...");
-                showFileIntent = new Intent(context, GenericFileActivity.class);
-                break;
-
-        }
-
-        showFileIntent.putExtra(DownloadFileService.RESULT_KEY_URI, fileUri);
-        showFileIntent.putExtra(DownloadFileService.RESULT_KEY_MIME_TYPE, mimeType);
-        showFileIntent.putExtra(DownloadFileService.RESULT_KEY_EXTENSION, extension);
-        showFileIntent.putExtra(DownloadFileService.RESULT_KEY_FILENAME, filename);
-
-        ((MainActivity) context).startActivityForResult(showFileIntent, ShowImageActivity.DELETE_CODE);
-        //context.startActivity(showFileIntent);
-
-    }
-
 }

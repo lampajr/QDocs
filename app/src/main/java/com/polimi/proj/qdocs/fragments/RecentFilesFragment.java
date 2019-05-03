@@ -183,7 +183,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     private void showFile(MyFile file) {
         Log.d(TAG, "Showing file " + file.getFilename());
         fbHelper.updateLastAccessAttribute(file.getKey());
-        Utility.showFile(context, fbHelper.getCurrentPath(file.getDbReference()) + "/" + file.getFilename());
+        Utility.startShowFileService(context, fbHelper.getCurrentPath(file.getDbReference()) + "/" + file.getFilename());
     }
 
     /**
@@ -301,7 +301,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         //fbHelper.updateLastAccessAttribute(StorageElement.retrieveFileByName(file.getFilename(), files).getKey());
         //fbHelper.madeOfflineFile(StorageElement.retrieveFileByName(file.getFilename(), files).getKey());
 
-        Utility.saveFile(context,
+        Utility.startSaveFileService(context,
                 fbHelper.getCurrentPath(file.getDbReference()) + "/" + file.getFilename());
     }
 

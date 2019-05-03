@@ -3,6 +3,7 @@ package com.polimi.proj.qdocs.support;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.annotation.DrawableRes;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +15,10 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.activities.GenericFileActivity;
+import com.polimi.proj.qdocs.activities.MainActivity;
+import com.polimi.proj.qdocs.activities.PlayAudioActivity;
+import com.polimi.proj.qdocs.activities.ShowImageActivity;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 import com.polimi.proj.qdocs.services.SaveFileReceiver;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
@@ -29,6 +34,11 @@ import java.util.Calendar;
  */
 public class Utility {
     private static final String TAG = "UTILITY";
+
+    // file types
+    private static final String IMAGE = "image";
+    private static final String AUDIO = "audio";
+    private static final String TEXT = "application";
 
     /**
      * Generate a new BottomSheet menu given the following parameters
@@ -53,7 +63,7 @@ public class Utility {
      * @param context activity's context
      * @param pathname pathname of the file to save
      */
-    public static void saveFile(Context context, String pathname) {
+    public static void startSaveFileService(Context context, String pathname) {
         Intent viewerIntentService = new Intent(context, DownloadFileService.class);
 
         viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
@@ -70,7 +80,7 @@ public class Utility {
      * @param context activity's context
      * @param pathname pathname of the file to show
      */
-    public static void showFile(Context context, final String pathname) {
+    public static void startShowFileService(Context context, final String pathname) {
         Intent viewerIntentService = new Intent(context, DownloadFileService.class);
 
         viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
@@ -80,6 +90,55 @@ public class Utility {
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, pathname);
         context.startService(viewerIntentService);
+    }
+
+    /**
+     * Trigger the activity that will show the file in the correct way
+     * @param context activity's context
+     * @param fileUri uri of the file, has to be passed to next activity
+     * @param mimeType extension in mimeType format
+     * @param extension extension in string format
+     */
+    public static void showFile(Context context, Uri fileUri, String filename, String mimeType, String extension) {
+
+        String type = mimeType.split("/")[0];
+        Intent showFileIntent;
+
+        switch (type){
+
+            case IMAGE:
+                Log.d(TAG, "Instantiating 'show image' activity...");
+                showFileIntent = new Intent(context, ShowImageActivity.class);
+                break;
+
+            case AUDIO:
+                Log.d(TAG, "Insantiating 'play audio' activity...");
+                showFileIntent = new Intent(context, PlayAudioActivity.class);
+                break;
+
+            default:
+                Log.d(TAG, "Insantiating 'generic' activity...");
+                showFileIntent = new Intent(context, GenericFileActivity.class);
+                break;
+
+        }
+
+        showFileIntent.putExtra(DownloadFileService.RESULT_KEY_URI, fileUri);
+        showFileIntent.putExtra(DownloadFileService.RESULT_KEY_MIME_TYPE, mimeType);
+        showFileIntent.putExtra(DownloadFileService.RESULT_KEY_EXTENSION, extension);
+        showFileIntent.putExtra(DownloadFileService.RESULT_KEY_FILENAME, filename);
+
+        ((MainActivity) context).startActivityForResult(showFileIntent, ShowImageActivity.DELETE_CODE);
+
+    }
+
+    /**
+     * Show the local file getting it from the local public directory
+     * @param context activity's context
+     * @param filename name of the file to show
+     */
+    public static void showLocalFile(Context context, final String filename) {
+
     }
 
     /**

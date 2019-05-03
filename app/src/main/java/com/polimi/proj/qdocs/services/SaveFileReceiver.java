@@ -27,7 +27,7 @@ import java.util.List;
  * @author Andrea Lamparelli
  *
  * ResultReceiver that has to receive the results provided by the DownloadFile Service
- * and in according to the results has to saveFile the correct activity in order to show the
+ * and in according to the results has to startSaveFileService the correct activity in order to show the
  * download file.
  *
  * @see ResultReceiver
