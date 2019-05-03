@@ -43,9 +43,7 @@ import java.util.List;
  * @author Lamparelli Andrea
  * @author Chittò Pietro
  *
- * Activity that will show the list of user's recent files
- *
- * @see ListFragment
+ * Fragment that will show the list of user's recent files
  */
 public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     public final String TAG = "RECENT_FILES_FRAGMENT";
@@ -106,6 +104,20 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (myStorageAdapter != null) {
+            if (isVisibleToUser) {
+                Log.d(TAG, "Resumed");
+                notifyAdapter();
+            }
+            else {
+                Log.d(TAG, "Paused");
+            }
+        }
     }
 
     /**
@@ -180,7 +192,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      */
     private void showFileSettingsMenu(MyFile file) {
         Log.d(TAG, "Showing file settings menu");
-        Utility.generateBottomSheetMenu((MainActivity)context, "SETTINGS", R.menu.file_settings_menu, getOnItemMenuClickListener(file)).show();
+        Utility.generateBottomSheetMenu((MainActivity)context, context.getString(R.string.settings_string), R.menu.file_settings_menu, getOnItemMenuClickListener(file)).show();
     }
 
     /**

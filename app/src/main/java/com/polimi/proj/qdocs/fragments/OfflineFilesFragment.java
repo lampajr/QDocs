@@ -1,6 +1,7 @@
 package com.polimi.proj.qdocs.fragments;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -34,6 +35,13 @@ import com.polimi.proj.qdocs.support.Utility;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,9 +51,7 @@ import java.util.List;
  * @author Lamparelli Andrea
  * @author Chittò Pietro
  *
- * Activity that will show the list of user's offline files
- *
- * @see ListFragment
+ * Fragment that will show the list of user's offline files
  */
 //TODO: show qrcode saved locally
 public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -106,6 +112,19 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
         super.onDetach();
     }
 
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (myStorageAdapter != null) {
+            if (isVisibleToUser) {
+                Log.d(TAG, "Resumed");
+                loadLocalFiles();            }
+            else {
+                Log.d(TAG, "Paused");
+            }
+        }
+    }
+
     /**
      * Setup the RecyclerView storing the most recent used files
      */
@@ -156,7 +175,8 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-                loadFiles(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
+                //loadFiles(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
+                loadLocalFiles();
                 notifyAdapter();
             }
         });
@@ -178,7 +198,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
      */
     private void showFileSettingsMenu(MyFile file) {
         Log.d(TAG, "Showing file settings menu");
-        Utility.generateBottomSheetMenu((MainActivity)context, "SETTINGS", R.menu.offline_file_settings_menu, getOnItemMenuClickListener(file)).show();
+        Utility.generateBottomSheetMenu((MainActivity)context, context.getString(R.string.settings_string), R.menu.offline_file_settings_menu, getOnItemMenuClickListener(file)).show();
     }
 
     MenuItem.OnMenuItemClickListener getOnItemMenuClickListener(final MyFile file) {
@@ -187,7 +207,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.delete_option:
-                        deleteOfflineFile(file);
+                        deleteLocalFile(file);
                         break;
 
                     case R.id.get_qrcode_option:
@@ -203,87 +223,79 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
         };
     }
 
-    /**
-     * Loads all the user's offline files
-     * @param ref reference from which retrieve files
-     */
-    // TODO: reimplement considering parsing local files rather than online files, see method below
-    void loadFiles(final DatabaseReference ref, final StorageReference storageReference) {
-        ref.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if (StorageElement.isFile(dataSnapshot)) {
-                    MyFile file = dataSnapshot.getValue(MyFile.class);
-                    if (file != null && file.isOffline() &&
-                            StorageElement.retrieveFileByName(file.getFilename(), files) == null) {
-                        Log.d(TAG, "new offline file found: " + storageReference.toString());
-                        file.setStReference(storageReference);
-                        file.setDbReference(ref);
-                        files.add(file);
-                        notifyAdapter();
-                    }
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-                else {
-                    // if it is a directory call recursively this method
-                    if (dataSnapshot.getKey() != null) {
-                        loadFiles(ref.child(dataSnapshot.getKey()), storageReference.child(dataSnapshot.getKey()));
+
+    private void loadLocalFiles() {
+        Log.d(TAG, "Loading local files..");
+
+        File baseDirectory = PathResolver.getPublicDocFileDir(context);
+        File[] localFiles = baseDirectory.listFiles();
+
+        if (localFiles != null && localFiles.length != 0) {
+            for (File f : localFiles) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    try {
+                        Path path = Paths.get(f.getAbsolutePath());
+                        BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
+                        String filename = f.getName();
+                        String size = Files.size(path) + "";
+                        Long lastAccess = attrs.lastAccessTime().toMillis();
+                        String contentType = Files.probeContentType(path);
+                        String savedAt = attrs.lastModifiedTime() + "";
+
+                        if (StorageElement.retrieveFileByName(filename, files) == null) {
+                            files.add(new MyFile(filename, contentType, null, size, savedAt, lastAccess, true));
+                            notifyAdapter();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}
-        });
+        }
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     /**
-     * Deletes the specific file from the local directory on the smartphone
+     * Delete a local file from the local public directory
      * @param file file to delete
      */
-    //TODO: rewrite the code in a better way :) you fucking nigger
-    private void deleteOfflineFile(final MyFile file) {
-        Log.d(TAG, "Deleting offline file: " + file.getFilename());
-        File directory = PathResolver.getPublicDocFileDir(context);
-        Log.d(TAG, "list of files under directory: " + Arrays.toString(directory.list()));
-        File toDelete;
-        File[] files = directory.listFiles(new FileFilter() {
+    private void deleteLocalFile(final MyFile file) {
+        Log.d(TAG, "Deleting local file: " + file.getFilename());
+        File baseDirectory = PathResolver.getPublicDocFileDir(context);
+
+        // get local files that matches the filename of the file to delete
+        File[] localFiles = baseDirectory.listFiles(new FileFilter() {
             @Override
             public boolean accept(File f) {
                 String pathname = f.getAbsolutePath();
-                Log.d(TAG, "absolute path: " + f.getAbsolutePath());
-                Log.d(TAG, "substring: " + pathname.substring(pathname.lastIndexOf("/") + 1));
-                Log.d(TAG, "filename: " + file.getFilename());
                 return pathname.substring(pathname.lastIndexOf("/") + 1).split("\\.")[0].equals(file.getFilename().split("\\.")[0]);
             }
         });
-        if (files.length != 0) {
-            toDelete = files[0];
-            if (toDelete.exists()) {
-                Log.d(TAG, "the file exists, removing it...");
-                boolean result = toDelete.delete();
-                if (result) {
-                    Log.d(TAG, "File deleted successfully");
+
+        File toDelete;
+        if (localFiles.length != 0) {
+            if ((toDelete = localFiles[0]).exists()) {
+                Log.d(TAG,"Removing local file named " + file.getFilename() + "..");
+                if (toDelete.delete()) {
+                    Log.d(TAG, "Local file deleted successfully!");
                     fbHelper.updateOfflineAttribute(file.getKey(), false);
-                    Toast.makeText(context, "Local file removed!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Local file deleted!", Toast.LENGTH_SHORT).show();
+                    notifyAdapter();
                 }
-            } else {
-                Log.d(TAG, "The file doesn't exist");
+                else {
+                    Log.d(TAG, "Deletion failed!");
+                    Toast.makeText(context, "Deletion failed!", Toast.LENGTH_SHORT).show();
+                }
+            }
+            else {
+                Log.d(TAG, "File not found!");
             }
         }
         else {
-            Log.d(TAG, "file not present");
+            Log.d(TAG, "No matching files found!");
         }
     }
+
 
     /**
      * Generates a new qrcode bitmap and show it through a dialog
@@ -303,6 +315,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
     @Override
     public void onRefresh() {
         files.clear();
-        loadFiles(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
+        //loadFiles(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
+        loadLocalFiles();
     }
 }

@@ -14,6 +14,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.polimi.proj.qdocs.R;
 
 import java.io.BufferedOutputStream;
@@ -296,9 +298,15 @@ public class PathResolver {
      * @return the new File created
      */
     public static File createPublicDocStorageDir(Context context) {
+        FirebaseUser user;
+        String localdir =  context.getString(R.string.app_name);
+        if ((user=FirebaseAuth.getInstance().getCurrentUser()) != null) {
+            localdir += "/" + user.getDisplayName();
+        }
+
         // Get the directory for the user's public pictures directory.
         File file = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOCUMENTS), context.getString(R.string.app_name));
+                Environment.DIRECTORY_DOCUMENTS), localdir);
         if (!file.mkdirs()) {
             Log.d(TAG, "Directory not created, already exists");
         }
@@ -310,8 +318,13 @@ public class PathResolver {
      * @return File obj
      */
     public static File getPublicDocFileDir(Context context) {
+        FirebaseUser user;
+        String localdir =  context.getString(R.string.app_name);
+        if ((user=FirebaseAuth.getInstance().getCurrentUser()) != null) {
+            localdir += "/" + user.getDisplayName();
+        }
         // Get the directory for the user's public pictures directory.
         return new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOCUMENTS), context.getString(R.string.app_name));
+                Environment.DIRECTORY_DOCUMENTS), localdir);
     }
 }

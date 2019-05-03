@@ -1,6 +1,8 @@
 package com.polimi.proj.qdocs.support;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -12,10 +14,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.List;
 
 public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter.dataViewHolder>{
@@ -125,11 +130,32 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
 
                 if (file.getContentType().contains("image")) {
                     // preview image for image file
+
+                    if (file.isOffline()) {
+                        File baseDir = PathResolver.getPublicDocFileDir(context);
+                        File[] files = baseDir.listFiles(new FilenameFilter() {
+                            @Override
+                            public boolean accept(File dir, String name) {
+                                return name.equals(file.getFilename());
+                            }
+                        });
+
+                        if (files.length != 0) {
+                            File offlineFile = files[0];
+                            Bitmap myBitmap = BitmapFactory.decodeFile(offlineFile.getAbsolutePath());
+                            elementImage.setImageBitmap(myBitmap);
+                        }
+                    }
                     refUsed.child(file.getFilename()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
                             Log.d(TAG, "preview image loaded successfully");
                             Glide.with(context).load(uri).into(elementImage);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // TODO: handle the situation where you are not able to download the preview image, setting default image
                         }
                     });
 
