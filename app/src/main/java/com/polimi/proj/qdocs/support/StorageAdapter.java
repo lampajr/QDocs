@@ -119,7 +119,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                       final StorageReference ref,
                       final Context context) {
             elementImage.setImageDrawable(null);
-            //TODO: set onClick animation on the items
+
             if (element instanceof MyFile) {
                 final MyFile file = (MyFile) element;
                 elementNameView.setText(file.getFilename());
@@ -132,6 +132,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                     // preview image for image file
 
                     if (file.isOffline()) {
+                        // if offline file load the preview image from local directory
                         File baseDir = PathResolver.getPublicDocFileDir(context);
                         File[] files = baseDir.listFiles(new FilenameFilter() {
                             @Override
@@ -146,18 +147,21 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                             elementImage.setImageBitmap(myBitmap);
                         }
                     }
-                    refUsed.child(file.getFilename()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            Log.d(TAG, "preview image loaded successfully");
-                            Glide.with(context).load(uri).into(elementImage);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            // TODO: handle the situation where you are not able to download the preview image, setting default image
-                        }
-                    });
+                    else {
+                        // if not offline load the image from Firebase
+                        refUsed.child(file.getFilename()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Log.d(TAG, "preview image loaded successfully");
+                                Glide.with(context).load(uri).into(elementImage);
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                // TODO: handle the situation where you are not able to download the preview image, setting default image
+                            }
+                        });
+                    }
 
                 }
                 else if (file.getContentType().contains("audio")) {
