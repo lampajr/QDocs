@@ -20,26 +20,11 @@
         android:background="@color/colorPrimaryDark"
         android:padding="20dp"
         android:src="@drawable/ic_003_headphones"
-        app:layout_constraintBottom_toTopOf="@+id/seekBar"
+        app:layout_constraintBottom_toTopOf="@+id/seek_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar_widget" />
 
-
-    <SeekBar
-        android:id="@+id/seekBar"
-        android:layout_width="189dp"
-        android:layout_height="43dp"
-        android:progressBackgroundTint="@color/colorPrimary"
-        android:progressTint="@color/colorPrimary"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        android:thumbTint="@color/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/end_time_text"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/start_time_text"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.941" />
 
     <at.markushi.ui.CircleButton
         android:id="@+id/btn_play"
@@ -47,10 +32,11 @@
         android:layout_height="64dip"
         android:src="@drawable/ic_play_arrow_black_24dp"
         android:tint="@color/colorPrimaryDark"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:cb_color="@color/colorPrimary"
         app:cb_pressedRingWidth="8dip"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/start_time_text"
+        app:layout_constraintEnd_toStartOf="@+id/seek_layout"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -66,40 +52,55 @@
         android:layout_marginBottom="8dp"
         android:paddingBottom="50dp"
         android:textColor="@color/colorPrimary"
-        app:layout_constraintBottom_toTopOf="@+id/seekBar"
+        app:layout_constraintBottom_toTopOf="@+id/seek_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.159" />
 
-    <TextView
-        android:id="@+id/start_time_text"
+    <LinearLayout
+        android:id="@+id/seek_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:textAlignment="center"
-        android:text=""
-        android:textColor="@color/colorPrimary"
-        app:layout_constraintBottom_toBottomOf="@+id/seekBar"
-        app:layout_constraintEnd_toStartOf="@+id/seekBar"
-        app:layout_constraintHorizontal_bias="0.5"
+        android:gravity="bottom"
+        android:orientation="horizontal"
         app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toEndOf="@+id/btn_play"
-        app:layout_constraintTop_toTopOf="@+id/seekBar"
-        app:layout_constraintVertical_bias="0.416" />
-
-    <TextView
-        android:id="@+id/end_time_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:text=""
-        android:textColor="@color/colorPrimary"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintBottom_toBottomOf="@+id/seekBar"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_play"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/seekBar"
-        app:layout_constraintTop_toTopOf="@+id/seekBar"/>
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btn_play"
+        app:layout_constraintTop_toTopOf="@+id/btn_play">
+
+
+        <TextView
+            android:id="@+id/start_time_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="16dp"
+            android:text=""
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimary" />
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="189dp"
+            android:layout_height="43dp"
+            android:layout_gravity="center"
+            android:progressBackgroundTint="@color/colorPrimary"
+            android:progressTint="@color/colorPrimary"
+            android:thumbTint="@color/colorPrimary"/>
+
+        <TextView
+            android:id="@+id/end_time_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text=""
+            android:textAlignment="center"
+            android:textColor="@color/colorPrimary" />
+    </LinearLayout>
+
 
 </android.support.constraint.ConstraintLayout>

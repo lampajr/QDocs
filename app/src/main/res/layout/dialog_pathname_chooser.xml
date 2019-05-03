@@ -1,32 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:orientation="vertical" android:layout_height="match_parent">
+    android:orientation="vertical" android:layout_height="match_parent"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="10dp"
+    android:background="@drawable/dialog_shape">
 
     <EditText
         android:id="@+id/pathname_text"
+        android:background="@color/zxing_transparent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:hint="my_folder"
-        android:autofillHints="my_folder"
-        android:inputType="text" />
+        android:layout_marginBottom="10dp"
+        android:hint="@string/default_folder_string"
+        android:textColorHint="@color/colorPrimary"
+        android:autofillHints="@string/default_folder_string"
+        android:inputType="text"
+        android:textColor="@color/colorAccent"
+        android:textAlignment="center"/>
 
     <LinearLayout
         android:layout_gravity="center"
         android:orientation="horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:padding="10dp">
 
         <Button
             android:id="@+id/confirm_button"
             android:text="CONFIRM"
+            android:textColor="@color/colorPrimaryDark"
+            android:background="@color/zxing_transparent"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"/>
 
         <Button
             android:text="CANCEL"
             android:id="@+id/cancel_button"
+            android:background="@color/zxing_transparent"
+            android:layout_marginStart="10dp"
+            android:textColor="#FF0000"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 

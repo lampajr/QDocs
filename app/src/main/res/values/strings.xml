@@ -66,6 +66,7 @@
     <string name="fileName_string">fileName</string>
     <string name="image_preview_description">Image preview</string>
     <string name="root_string">home</string>
+    <string name="default_folder_string">my_folder</string>
 
 
 </resources>

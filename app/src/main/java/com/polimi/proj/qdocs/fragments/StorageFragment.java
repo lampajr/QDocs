@@ -8,6 +8,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -646,6 +648,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         final Dialog d = new Dialog(context);
         d.setTitle(getString(R.string.pathname_chooser));
         d.setCancelable(true);
+        d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         d.setContentView(R.layout.dialog_pathname_chooser);
 
         final EditText pathnameText = d.findViewById(R.id.pathname_text);

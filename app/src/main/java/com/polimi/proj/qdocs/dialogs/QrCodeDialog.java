@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,7 +46,7 @@ public class QrCodeDialog extends Dialog {
 
         this.context = context;
         this.file = file;
-        
+        this.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         saveImg = findViewById(R.id.save_button);
         qrCodeImg = findViewById(R.id.qrcode_image);
         setupDialog();

@@ -33,7 +33,6 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MAIN_ACTIVITY";
-
     private static final int REQUEST_CAMERA_PERMISSION = 10;
     private static final int REQUEST_FILES_PERMISSION = 20;
     private boolean cameraPermissionGranted;

@@ -86,8 +86,6 @@ public class HomeFragment extends Fragment {
 
         logoutOption = view.findViewById(R.id.logout_option);
         setupLogout();
-        aboutOption = view.findViewById(R.id.about_option);
-        setupAbout();
 
         setupProfile();
         setupList();
@@ -111,7 +109,7 @@ public class HomeFragment extends Fragment {
             }
         });
         ImageView img = logoutOption.findViewById(R.id.option_image);
-        //img.setImageResource(R.drawable.ic_logout_24dp);
+        img.setImageResource(R.drawable.ic_logout);
         TextView textOption = logoutOption.findViewById(R.id.option_text);
         textOption.setText(getString(R.string.logout_string));
     }

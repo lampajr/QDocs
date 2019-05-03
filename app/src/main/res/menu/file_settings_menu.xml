@@ -6,17 +6,20 @@
         android:id="@+id/save_option"
         android:icon="@drawable/ic_save_24dp"
         android:title="@string/save_file_string"
+
+
         />
 
     <item
         android:id="@+id/delete_option"
         android:icon="@drawable/ic_delete_24dp"
-        android:title="@string/delete_file_string" />
+        android:title="@string/delete_file_string"/>
 
     <item
         android:id="@+id/get_qrcode_option"
         android:icon="@drawable/ic_get_qrcode_24dp"
-        android:title="@string/get_qrcode_string" />
+        android:title="@string/get_qrcode_string"
+        android:iconTint="@color/colorAccent"/>
 
     <item
         android:id="@+id/info_option"

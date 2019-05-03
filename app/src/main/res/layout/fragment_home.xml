@@ -36,10 +36,13 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/personal_email">
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="10dp">
 
-        <include android:id="@+id/logout_option" layout="@layout/home_option_item" />
-        <include android:id="@+id/about_option" layout="@layout/home_option_item" />
+        <include
+            android:id="@+id/logout_option"
+            layout="@layout/home_option_item" />
 
     </LinearLayout>
 
