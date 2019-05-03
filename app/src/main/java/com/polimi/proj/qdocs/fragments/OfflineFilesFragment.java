@@ -168,7 +168,6 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-                //loadFiles(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
                 loadLocalFiles();
                 notifyAdapter();
             }
@@ -302,13 +301,28 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
     }
 
     private void notifyAdapter() {
+        loadLocalFiles();
         myStorageAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onRefresh() {
         files.clear();
-        //loadFiles(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
         loadLocalFiles();
+    }
+
+    /**
+     * Delete a file from a filename
+     * @param filename name of the file to delete
+     */
+    public void onDeleteFromFile(String filename) {
+        MyFile file = StorageElement.retrieveFileByName(filename, files);
+        if (file != null) {
+            deleteLocalFile(file);
+        }
+        else {
+            Log.w(TAG, "File to delete not found!");
+            Toast.makeText(context, "Error removing file", Toast.LENGTH_SHORT).show();
+        }
     }
 }

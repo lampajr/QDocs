@@ -131,10 +131,12 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                 if (file.getContentType().contains("image")) {
                     // preview image for image file
 
+                    File[] files = null;
+
                     if (file.isOffline()) {
                         // if offline file load the preview image from local directory
                         File baseDir = PathResolver.getPublicDocFileDir(context);
-                        File[] files = baseDir.listFiles(new FilenameFilter() {
+                        files = baseDir.listFiles(new FilenameFilter() {
                             @Override
                             public boolean accept(File dir, String name) {
                                 return name.equals(file.getFilename());
@@ -147,7 +149,8 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                             elementImage.setImageBitmap(myBitmap);
                         }
                     }
-                    else {
+                    
+                    if (files == null || files.length == 0){
                         // if not offline load the image from Firebase
                         refUsed.child(file.getFilename()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override

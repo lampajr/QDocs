@@ -112,6 +112,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         if (myStorageAdapter != null) {
             if (isVisibleToUser) {
                 Log.d(TAG, "Resumed");
+                loadFiles(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
                 notifyAdapter();
             }
             else {
@@ -349,6 +350,21 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
 
     private void notifyAdapter() {
         myStorageAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Delete a file from a filename
+     * @param filename name of the file to delete
+     */
+    public void onDeleteFromFile(String filename) {
+        MyFile file = StorageElement.retrieveFileByName(filename, files);
+        if (file != null) {
+            deletePersonalFile(file);
+        }
+        else {
+            Log.w(TAG, "File to delete not found!");
+            Toast.makeText(context, "Error removing file", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**

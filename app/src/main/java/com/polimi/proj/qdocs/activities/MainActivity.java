@@ -76,8 +76,23 @@ public class MainActivity extends AppCompatActivity {
             if (data != null) {
                 Log.d(TAG, "Delete operation received from file");
                 String filename = data.getStringExtra(ShowImageActivity.FILE_NAME);
-                StorageFragment fr = (StorageFragment) fragments.get(STORAGE_ID);
-                fr.onDeleteFromFile(filename);
+                // TODO: check from which fragment it comes
+                if (prevFragmentIdx==STORAGE_ID) {
+                    Log.d(TAG, "Removing file from storage view");
+                    StorageFragment fr = (StorageFragment) fragments.get(STORAGE_ID);
+                    fr.onDeleteFromFile(filename);
+                }
+                else if (prevFragmentIdx==RECENT_ID) {
+                    Log.d(TAG, "Removing file from recent files view");
+                    RecentFilesFragment fr = (RecentFilesFragment) fragments.get(RECENT_ID);
+                    fr.onDeleteFromFile(filename);
+                }
+                else {
+                    // OfflineFragment
+                    Log.d(TAG, "Removing file from offline files view");
+                    OfflineFilesFragment fr = (OfflineFilesFragment) fragments.get(OFFLINE_ID);
+                    fr.onDeleteFromFile(filename);
+                }
             }
         }
         else{
