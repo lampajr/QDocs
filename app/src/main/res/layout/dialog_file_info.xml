@@ -16,7 +16,7 @@
 
         <TextView
             android:layout_gravity="start"
-            android:layout_width="wrap_content"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="Filename:"/>
 
@@ -24,9 +24,7 @@
             android:layout_gravity="start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/filename_text"
-            android:layout_marginStart="70dp"
-            android:textAlignment="viewStart"/>
+            android:id="@+id/filename_text"/>
     </LinearLayout>
 
     <LinearLayout
@@ -38,7 +36,7 @@
 
         <TextView
             android:layout_gravity="start"
-            android:layout_width="wrap_content"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="Content Type:"/>
 
@@ -46,9 +44,7 @@
             android:layout_gravity="start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/content_type_text"
-            android:layout_marginStart="40dp"
-            android:textAlignment="viewStart"/>
+            android:id="@+id/content_type_text"/>
     </LinearLayout>
 
     <LinearLayout
@@ -60,7 +56,7 @@
 
         <TextView
             android:layout_gravity="start"
-            android:layout_width="wrap_content"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="Created At:"/>
 
@@ -68,9 +64,7 @@
             android:layout_gravity="start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/created_at_text"
-            android:layout_marginStart="55dp"
-            android:textAlignment="viewStart"/>
+            android:id="@+id/created_at_text"/>
     </LinearLayout>
 
     <LinearLayout
@@ -82,7 +76,7 @@
 
         <TextView
             android:layout_gravity="start"
-            android:layout_width="wrap_content"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="Last Access:"/>
 
@@ -90,9 +84,7 @@
             android:layout_gravity="start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/last_access_text"
-            android:layout_marginStart="55dp"
-            android:textAlignment="viewStart"/>
+            android:id="@+id/last_access_text"/>
     </LinearLayout>
 
     <LinearLayout
@@ -104,7 +96,7 @@
 
         <TextView
             android:layout_gravity="start"
-            android:layout_width="wrap_content"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="Size:"/>
 
@@ -112,9 +104,7 @@
             android:layout_gravity="start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/size_text"
-            android:layout_marginStart="104dp"
-            android:textAlignment="viewStart"/>
+            android:id="@+id/size_text"/>
     </LinearLayout>
 
 
