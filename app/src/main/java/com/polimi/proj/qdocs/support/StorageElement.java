@@ -1,8 +1,5 @@
 package com.polimi.proj.qdocs.support;
 
-import android.content.Context;
-
-import com.cocosw.bottomsheet.BottomSheet;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 
@@ -58,14 +55,14 @@ public abstract class StorageElement implements Comparable<StorageElement>{
     }
 
     /**
-     * Retrieve a Directory object from the filesList attribute
+     * Retrieve a MyDirectory object from the filesList attribute
      * @param name name to check, is unique for folders
-     * @return the Directory obj
+     * @return the MyDirectory obj
      */
-    public static Directory retrieveDirectoryByName(String name, List<StorageElement> storageElements) {
+    public static MyDirectory retrieveDirectoryByName(String name, List<StorageElement> storageElements) {
         for(StorageElement el : storageElements) {
-            if (el instanceof Directory) {
-                Directory d = (Directory) el;
+            if (el instanceof MyDirectory) {
+                MyDirectory d = (MyDirectory) el;
                 if (d.getDirectoryName() != null && d.getDirectoryName().equals(name)) return d;
             }
         }

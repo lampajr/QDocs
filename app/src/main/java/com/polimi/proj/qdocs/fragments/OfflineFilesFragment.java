@@ -20,8 +20,9 @@ import android.widget.Toast;
 import com.google.firebase.storage.FirebaseStorage;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
+import com.polimi.proj.qdocs.dialogs.InfoDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
-import com.polimi.proj.qdocs.support.Directory;
+import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.PathResolver;
@@ -141,12 +142,12 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
             }
 
             @Override
-            public void onDirectoryClick(Directory dir) {
+            public void onDirectoryClick(MyDirectory dir) {
                 // do nothing, no directories are showed in this list
             }
 
             @Override
-            public void onDirectoryOptionClick(Directory dir) {
+            public void onDirectoryOptionClick(MyDirectory dir) {
                 // do nothing, no directories are showed in this list
             }
         };
@@ -202,12 +203,8 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
                         deleteLocalFile(file);
                         break;
 
-                    case R.id.get_qrcode_option:
-                        showQrCode(file);
-                        break;
-
                     case R.id.info_option:
-                        //TODO: show dialog about file infos
+                        showInfos(file);
                         break;
                 }
                 return false;
@@ -290,13 +287,12 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
 
 
     /**
-     * Generates a new qrcode bitmap and show it through a dialog
-     * where the user can save it locally
-     * @param file file which key has to be encoded
+     * Show a new dialog containg all the stored information about the storage element
+     * @param element StorageElement for which provide infos
      */
-    private void showQrCode(final MyFile file) {
-        Log.d(TAG, "Showing QR code");
-        QrCodeDialog dialog = new QrCodeDialog(context, null, file);
+    private void showInfos(StorageElement element) {
+        Log.d(TAG, "Showing infos");
+        InfoDialog dialog = new InfoDialog(context, null, element);
         dialog.show();
     }
 

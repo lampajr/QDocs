@@ -7,11 +7,11 @@ package com.polimi.proj.qdocs.support;
  *
  * Class that represents a single directory in the user's filesystem
  */
-public class Directory extends StorageElement {
+public class MyDirectory extends StorageElement {
 
     private String directoryName;
 
-    public Directory(String directoryName) {
+    public MyDirectory(String directoryName) {
         this.directoryName = directoryName;
     }
 

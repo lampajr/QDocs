@@ -95,9 +95,9 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
 
     public abstract void onFileOptionClick(final MyFile file);
 
-    public abstract void onDirectoryClick(final Directory dir);
+    public abstract void onDirectoryClick(final MyDirectory dir);
 
-    public abstract void onDirectoryOptionClick(final Directory dir);
+    public abstract void onDirectoryOptionClick(final MyDirectory dir);
 
     class dataViewHolder extends RecyclerView.ViewHolder {
         // Item-row elements
@@ -122,7 +122,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
 
             if (element instanceof MyFile) {
                 final MyFile file = (MyFile) element;
-                elementNameView.setText(file.getFilename());
+                elementNameView.setText(file.getFilename().split("\\.")[0]);
                 elementDescriptionView.setText(file.getContentType());
                 Log.d(TAG, "Adding file to the recycler view");
 
@@ -195,7 +195,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
             }
             else {
                 // the current element is a directory
-                final Directory dir = (Directory) element;
+                final MyDirectory dir = (MyDirectory) element;
                 elementNameView.setText(dir.getDirectoryName());
                 elementDescriptionView.setText(context.getString(R.string.empty_string));
 

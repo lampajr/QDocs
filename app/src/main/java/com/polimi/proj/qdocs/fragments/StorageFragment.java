@@ -54,9 +54,10 @@ import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
+import com.polimi.proj.qdocs.dialogs.InfoDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
 import com.polimi.proj.qdocs.listeners.DragAndDropTouchListener;
-import com.polimi.proj.qdocs.support.Directory;
+import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.PathResolver;
@@ -403,13 +404,13 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             }
 
             @Override
-            public void onDirectoryClick(Directory dir) {
+            public void onDirectoryClick(MyDirectory dir) {
                 openDirectory(dir.getDirectoryName());
                 myStorageAdapter.updateStorageReference(fbHelper.getStorageReference());
             }
 
             @Override
-            public void onDirectoryOptionClick(Directory dir) {
+            public void onDirectoryOptionClick(MyDirectory dir) {
                 showDirectoryBottomSheetMenu(dir);
             }
         };
@@ -448,7 +449,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 else {
                     // the element is a directory
                     Log.d(TAG, "adding new folder..");
-                    Directory dir = new Directory(dataSnapshot.getKey());
+                    MyDirectory dir = new MyDirectory(dataSnapshot.getKey());
                     if (StorageElement.retrieveDirectoryByName(dir.getDirectoryName(), storageElements) == null) {
                         addElement(dir);
                     }
@@ -477,7 +478,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 else {
                     // the element to remove is a directory
                     Log.d(TAG, "removing new folder..");
-                    Directory dir = StorageElement.retrieveDirectoryByName(dataSnapshot.getKey(), storageElements);
+                    MyDirectory dir = StorageElement.retrieveDirectoryByName(dataSnapshot.getKey(), storageElements);
                     if (dir != null) {
                         storageElements.remove(dir);
                     }
@@ -581,6 +582,17 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     /**
+     * Show a new dialog containg all the stored information about the storage element
+     * @param element StorageElement for which provide infos
+     */
+    private void showInfos(StorageElement element) {
+        Log.d(TAG, "Showing infos");
+        InfoDialog dialog = new InfoDialog(context, null, element);
+        dialog.show();
+    }
+
+
+    /**
      * get back to the previous directory if any.
      */
     private void getBackDirectory() {
@@ -595,9 +607,9 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             notifyAdapter();
             loadStorageElements();
             if (fbHelper.isAtRoot()) {
-                //TODO: make directory layout invisible
+                //make directory layout invisible
                 directoryLayout.setVisibility(View.INVISIBLE);
-                //TODO: remove layout_below attribute to filesView
+                //remove layout_below attribute to filesView
                 params.removeRule(RelativeLayout.BELOW);
                 swipeRefreshLayout.setLayoutParams(params);
             }
@@ -737,7 +749,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                 break;
 
                             case R.id.info_option:
-                                //TODO: show dialog about file infos
+                                showInfos(file);
                                 break;
                         }
                         return false;
@@ -749,7 +761,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * Shows the setting menu for a directory
      * @param dir directory object
      */
-    private void showDirectoryBottomSheetMenu(final Directory dir) {
+    private void showDirectoryBottomSheetMenu(final MyDirectory dir) {
         new BottomSheet.Builder(parentActivity)
                 .title(getString(R.string.settings_string))
                 .sheet(R.menu.directory_settings_menu)
@@ -779,7 +791,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         //TODO: show infos about file
     }
 
-    private void showDirInfoDialog(Directory dir) {
+    private void showDirInfoDialog(MyDirectory dir) {
         //TODO: show infos about directory
     }
 }

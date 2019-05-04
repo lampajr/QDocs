@@ -46,7 +46,7 @@ public class QrCodeDialog extends Dialog {
 
         this.context = context;
         this.file = file;
-        this.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         saveImg = findViewById(R.id.save_button);
         qrCodeImg = findViewById(R.id.qrcode_image);
         setupDialog();

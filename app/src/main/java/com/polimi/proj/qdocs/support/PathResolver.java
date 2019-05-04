@@ -293,7 +293,7 @@ public class PathResolver {
     }
 
     /**
-     * Creates a new Directory in the user's public documents directory.
+     * Creates a new MyDirectory in the user's public documents directory.
      * if does not already exists
      * @return the new File created
      */
@@ -308,7 +308,7 @@ public class PathResolver {
         File file = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOCUMENTS), localdir);
         if (!file.mkdirs()) {
-            Log.d(TAG, "Directory not created, already exists");
+            Log.d(TAG, "MyDirectory not created, already exists");
         }
         return file;
     }

@@ -26,8 +26,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
+import com.polimi.proj.qdocs.dialogs.InfoDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
-import com.polimi.proj.qdocs.support.Directory;
+import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.StorageAdapter;
@@ -144,12 +145,12 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
             }
 
             @Override
-            public void onDirectoryClick(Directory dir) {
+            public void onDirectoryClick(MyDirectory dir) {
                 // do nothing, no directories are showed in this list
             }
 
             @Override
-            public void onDirectoryOptionClick(Directory dir) {
+            public void onDirectoryOptionClick(MyDirectory dir) {
                 // do nothing, no directories are showed in this list
             }
         };
@@ -219,7 +220,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
                         break;
 
                     case R.id.info_option:
-                        //TODO: show dialog about file infos
+                        showInfos(file);
                         break;
                 }
                 return false;
@@ -335,6 +336,16 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     private void showQrCode(final MyFile file) {
         Log.d(TAG, "Showing QR code");
         QrCodeDialog dialog = new QrCodeDialog(context, null, file);
+        dialog.show();
+    }
+
+    /**
+     * Show a new dialog containg all the stored information about the storage element
+     * @param element StorageElement for which provide infos
+     */
+    private void showInfos(StorageElement element) {
+        Log.d(TAG, "Showing infos");
+        InfoDialog dialog = new InfoDialog(context, null, element);
         dialog.show();
     }
 
