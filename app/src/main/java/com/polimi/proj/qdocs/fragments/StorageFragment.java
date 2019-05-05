@@ -55,8 +55,10 @@ import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.InfoDialog;
+import com.polimi.proj.qdocs.dialogs.InsertNameDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
 import com.polimi.proj.qdocs.listeners.DragAndDropTouchListener;
+import com.polimi.proj.qdocs.listeners.OnNameInsertedListener;
 import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyFile;
@@ -73,7 +75,7 @@ import java.util.List;
 //TODO: separate delete operation from this class in order to reuse them in offlineFilesFragment
 
 
-public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, OnNameInsertedListener {
 
     private static final String TAG = "FILES_LIST_FRAGMENT";
 
@@ -85,6 +87,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private static final int FILE_PRV = 3;
 
     private FirebaseHelper fbHelper;
+    private OnNameInsertedListener onNameInsertedListener;
 
     private final List<StorageElement> storageElements = new ArrayList<>();
     private StorageAdapter myStorageAdapter;
@@ -156,6 +159,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         setupSwipeRefreshListener();
 
+        onNameInsertedListener = this;
+
         return view;
     }
 
@@ -181,7 +186,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                         != PackageManager.PERMISSION_GRANTED) {
                     Log.e(TAG,"Permission denied for external storage");
                 }else {
-                    showPathnameChooserDialog(data);
+                    uploadFile(data.getData() , "");
                 }
                 return;
             }
@@ -285,7 +290,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             @Override
             public void onClick(View v) {
                 // TODO: change this method adding a dialog
-                createDirectory("CICCIO");
+                new InsertNameDialog(context, null, onNameInsertedListener, "INSERT FOLDER NAME").show();
             }
         });
 
@@ -688,43 +693,9 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         swipeRefreshLayout.setLayoutParams(params);
     }
 
-    /**
-     * Show a dialog that will ask to the user the pathname of the file
-     * that is going to be uploaded, the pathname consists of the folder,
-     * even if it doesn't exist or null if the current folder is ok.
-     * if user confirms then the file can be uploaded
-     * @param data data to upload
-     *
-     */
-    private void showPathnameChooserDialog(final Intent data) {
-        Log.d(TAG, "starting pathname chooser dialog..");
-        final Dialog d = new Dialog(context);
-        d.setTitle(getString(R.string.pathname_chooser));
-        d.setCancelable(true);
-        d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        d.setContentView(R.layout.dialog_pathname_chooser);
-
-        final EditText pathnameText = d.findViewById(R.id.pathname_text);
-
-        Button confirmButton = d.findViewById(R.id.confirm_button);
-        confirmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String pathname = filterPathname(pathnameText.getText().toString());
-                Log.d(TAG, "pathname inserted : " + pathname);
-                uploadFile(data.getData(), pathname);
-                d.dismiss();
-            }
-        });
-
-        Button cancelButton = d.findViewById(R.id.cancel_button);
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                d.dismiss();
-            }
-        });
-        d.show();
+    @Override
+    public void onNameInserted(String name) {
+        createDirectory(name);
     }
 
     /**

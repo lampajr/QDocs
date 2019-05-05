@@ -9,7 +9,7 @@
     android:background="@drawable/dialog_shape">
 
     <EditText
-        android:id="@+id/pathname_text"
+        android:id="@+id/name_text"
         android:background="@color/zxing_transparent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -31,7 +31,7 @@
 
         <Button
             android:id="@+id/confirm_button"
-            android:text="CONFIRM"
+            android:text="@string/confirm_upper_string"
             android:textColor="@color/colorPrimaryDark"
             android:background="@color/zxing_transparent"
             android:layout_width="wrap_content"
@@ -39,7 +39,7 @@
             android:layout_marginEnd="10dp"/>
 
         <Button
-            android:text="CANCEL"
+            android:text="@string/cancel_upper_string"
             android:id="@+id/cancel_button"
             android:background="@color/zxing_transparent"
             android:layout_marginStart="10dp"

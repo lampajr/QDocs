@@ -67,6 +67,8 @@
     <string name="image_preview_description">Image preview</string>
     <string name="root_string">home</string>
     <string name="default_folder_string">my_folder</string>
+    <string name="confirm_upper_string">CONFIRM</string>
+    <string name="cancel_upper_string">CANCEL</string>
 
 
 </resources>
