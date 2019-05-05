@@ -105,13 +105,14 @@ public class DownloadFileService extends IntentService {
         String[] pathElements = pathname.split("/");
         String[] elements = pathElements[pathElements.length-1].split("\\.");
         final String filename = elements[0];  // filename of the file without extension
-        String extension = null;
+        String extension = contentType.split("/")[1];
+        /*
         if (elements.length == 2) {
             extension = elements[1]; // get the extension from the whole pathname
         }
         else {
             extension = contentType.split("/")[1];
-        }
+        }*/
 
         // TODO: checks if the fil already exists in the personal directory
         File storageFile = new File(PathResolver.getPublicDocFileDir(getApplicationContext()).getAbsolutePath(), filename + "." + extension);
