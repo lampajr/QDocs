@@ -226,6 +226,9 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
                         Path path = Paths.get(f.getAbsolutePath());
                         BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
                         String filename = f.getName();
+                        if (filename.equals(MainActivity.SECRET_FILE)) {
+                            continue;
+                        }
                         String size = Files.size(path) + "";
                         Long lastAccess = attrs.lastAccessTime().toMillis();
                         String contentType = Files.probeContentType(path);
@@ -269,6 +272,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
                     Log.d(TAG, "Local file deleted successfully!");
                     fbHelper.updateOfflineAttribute(file.getKey(), false);
                     Toast.makeText(context, "Local file deleted!", Toast.LENGTH_SHORT).show();
+                    files.remove(file);
                     notifyAdapter();
                 }
                 else {
