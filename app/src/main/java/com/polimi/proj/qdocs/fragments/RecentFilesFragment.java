@@ -113,7 +113,6 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         if (myStorageAdapter != null) {
             if (isVisibleToUser) {
                 Log.d(TAG, "Resumed");
-                //setupFirebaseStorageListener(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
                 notifyAdapter();
             }
             else {
@@ -234,6 +233,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      */
     void setupFirebaseStorageListener(final DatabaseReference ref, final StorageReference storageReference) {
         swipeRefreshLayout.setRefreshing(true);
+        // TODO: doesn't load all files
 
         ref.addChildEventListener(new ChildEventListener() {
             @Override

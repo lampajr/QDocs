@@ -88,7 +88,7 @@ public class SaveFileReceiver extends ResultReceiver {
             saveFile(fileUri, name);
         }
         else if (resultCode == DownloadFileService.START_DOWNLOAD && resultData != null) {
-            progressBar = new ProgressBarDialog(context, false, null,
+            progressBar = new ProgressBarDialog(context, null,
                     resultData.getString(DownloadFileService.RESULT_KEY_TITLE));
             progressBar.show();
         }

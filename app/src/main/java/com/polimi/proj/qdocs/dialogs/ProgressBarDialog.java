@@ -21,10 +21,9 @@ public class ProgressBarDialog extends Dialog {
     private String title;
 
     public ProgressBarDialog(@NonNull Context context,
-                             boolean cancelable,
                              @Nullable DialogInterface.OnCancelListener cancelListener,
                              String title) {
-        super(context, cancelable, cancelListener);
+        super(context, false, cancelListener);
 
         this.title = title;
 

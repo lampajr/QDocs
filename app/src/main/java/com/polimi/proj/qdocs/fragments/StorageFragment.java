@@ -366,7 +366,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         final UploadTask uploadTask = fileRef.putFile(fileUri, metadata);
 
         final ProgressBarDialog progressDialog = new ProgressBarDialog(context,
-                true, null, progressTitle);
+                null, progressTitle);
         progressDialog.show();
 
         Log.d(TAG, "starting uploading");

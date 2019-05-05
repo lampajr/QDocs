@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Log;
 
+import com.polimi.proj.qdocs.dialogs.ProgressBarDialog;
 import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.support.Utility;
 
@@ -48,6 +49,8 @@ public class ShowFileReceiver extends ResultReceiver {
     // parent context
     private Context context;
 
+    private ProgressBarDialog progressBar;
+
     /**
      * Create a new ResultReceive to receive results from the DownloadFileService
      *
@@ -76,6 +79,14 @@ public class ShowFileReceiver extends ResultReceiver {
 
 
             Utility.showFile(context, fileUri, filename, mimeType, extension);
+        }
+        else if (resultCode == DownloadFileService.START_DOWNLOAD && resultData != null) {
+            progressBar = new ProgressBarDialog(context, null,
+                    resultData.getString(DownloadFileService.RESULT_KEY_TITLE));
+            progressBar.show();
+        }
+        else if (resultCode == DownloadFileService.SET_PROGRESS && resultData != null) {
+            progressBar.setProgress(resultData.getFloat(DownloadFileService.RESULT_KEY_PROGRESS));
         }
         else {
             // something goes wrong: resultCode == DOWNLOAD_ERROR
