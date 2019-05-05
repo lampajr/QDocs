@@ -113,7 +113,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         if (myStorageAdapter != null) {
             if (isVisibleToUser) {
                 Log.d(TAG, "Resumed");
-                loadFiles(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
+                //setupFirebaseStorageListener(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
                 notifyAdapter();
             }
             else {
@@ -172,7 +172,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-                loadFiles(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
+                setupFirebaseStorageListener(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
                 notifyAdapter();
             }
         });
@@ -232,7 +232,10 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      * Loads all the user's recent files
      * @param ref reference from which retrieve files
      */
-    void loadFiles(final DatabaseReference ref, final StorageReference storageReference) {
+    void setupFirebaseStorageListener(final DatabaseReference ref, final StorageReference storageReference) {
+        swipeRefreshLayout.setRefreshing(true);
+        files.clear();
+
         ref.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -251,7 +254,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
                 else {
                     // if it is a directory call recursively this method
                     if (dataSnapshot.getKey() != null) {
-                        loadFiles(ref.child(dataSnapshot.getKey()), storageReference.child(dataSnapshot.getKey()));
+                        setupFirebaseStorageListener(ref.child(dataSnapshot.getKey()), storageReference.child(dataSnapshot.getKey()));
                     }
                 }
             }
@@ -260,7 +263,13 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
 
             @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                if (StorageElement.isFile(dataSnapshot)) {
+                    MyFile f = dataSnapshot.getValue(MyFile.class);
+                    files.remove(StorageElement.retrieveFileByKey(f.getKey(), files));
+                    notifyAdapter();
+                }
+            }
 
             @Override
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
@@ -268,6 +277,8 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {}
         });
+
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     /**
@@ -355,9 +366,8 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      */
     @Override
     public void onRefresh() {
-        Log.d(TAG, "refreshing!");
-        files.clear();
-        loadFiles(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
+        Log.d(TAG, "Refreshing!");
+        setupFirebaseStorageListener(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
     }
 
     private void notifyAdapter() {

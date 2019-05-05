@@ -26,7 +26,7 @@ import java.util.Calendar;
 
 public class FirebaseHelper {
 
-    public static final String BASE_REFERENCE = "documents";
+    private static final String BASE_REFERENCE = "documents";
     public static final String TAG = "FIREBASE_HELPER";
 
     private FirebaseUser user;
@@ -191,7 +191,6 @@ public class FirebaseHelper {
         path = path == null ? dataSnapshot.getKey() : path + "/" + dataSnapshot.getKey();
         for (DataSnapshot ds : dataSnapshot.getChildren()) {
             if (StorageElement.isFile(ds)) {
-                Log.w(TAG, "DELETINGGGGGGGGG");
                 MyFile f = ds.getValue(MyFile.class);
                 deletePersonalFile(storageReference.child(path), f.getFilename(), onFailureListener, onCompleteListener);
             } else {
@@ -215,9 +214,8 @@ public class FirebaseHelper {
         databaseReference.child(name).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.w(TAG, "" + dataSnapshot.getChildrenCount());
                 deleteDirectory(dataSnapshot, null, onFailureListener, onCompleteListener);
-                Log.w(TAG, "Directory " + name + " correctly removed!!");
+                Log.d(TAG, "Directory " + name + " correctly removed!!");
             }
 
             @Override

@@ -150,7 +150,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         storageView = view.findViewById(R.id.storage_view);
         setupStorageView();
         setupSwipeListener();
-        //loadStorageElements();
+        //setupFirebaseStorageListener();
         //notifyAdapter();
 
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
@@ -192,8 +192,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public void onRefresh() {
-        storageElements.clear();
-        loadStorageElements();
+        setupFirebaseStorageListener();
     }
 
     //////////////////// PRIVATE METHODS //////////////////////////////
@@ -223,7 +222,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             @Override
             public void run() {
                 // Fetching data from firebase database
-                loadStorageElements();
+                setupFirebaseStorageListener();
                 notifyAdapter();
             }
         });
@@ -464,9 +463,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * implements the callback method from the realtime database
      * in order to react in case of db operation.
      */
-    private void loadStorageElements() {
-        if (!storageElements.isEmpty())
-            storageElements.clear();
+    private void setupFirebaseStorageListener() {
+        storageElements.clear();
         // Showing refresh animation before making requests to firebase server
         swipeRefreshLayout.setRefreshing(true);
 
@@ -479,19 +477,18 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     if (file != null &&
                             !file.getFilename().equals(MainActivity.SECRET_FILE) &&
                             StorageElement.retrieveFileByName(file.getFilename(), storageElements) == null ) {
-                        Log.d(TAG, "adding new file: " + file.getFilename());
+                        Log.d(TAG, "Adding new file: " + file.getFilename());
                         addElement(file);
                     }
                 }
                 else {
                     // the element is a directory
-                    Log.d(TAG, "adding new folder..");
+                    Log.d(TAG, "Adding new folder..");
                     MyDirectory dir = new MyDirectory(dataSnapshot.getKey());
                     if (StorageElement.retrieveDirectoryByName(dir.getDirectoryName(), storageElements) == null) {
                         addElement(dir);
                     }
                 }
-                //notifyAdapter();
                 swipeRefreshLayout.setRefreshing(false);
             }
 
@@ -499,14 +496,20 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 //TODO: implement onChildChanged listener on db
                 Log.d(TAG, "onChildChanged");
+                if (StorageElement.isFile(dataSnapshot)) {
+                    // update the file
+                    MyFile f = dataSnapshot.getValue(MyFile.class);
+                    storageElements.remove(StorageElement.retrieveFileByKey(f.getKey(), storageElements));
+                    addElement(f);
+                }
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onChildRemoved");
-                if (dataSnapshot.getKey().matches("\\d+")) {
+                if (StorageElement.isFile(dataSnapshot)) {
                     // the element to remove is a file
-                    Log.d(TAG, "removing new file..");
+                    Log.d(TAG, "Removing new file..");
                     MyFile file = StorageElement.retrieveFileByKey(dataSnapshot.getValue(MyFile.class).getKey(), storageElements);
                     if (file != null) {
                         storageElements.remove(file);
@@ -514,7 +517,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 }
                 else {
                     // the element to remove is a directory
-                    Log.d(TAG, "removing new folder..");
+                    Log.d(TAG, "Removing new folder..");
                     MyDirectory dir = StorageElement.retrieveDirectoryByName(dataSnapshot.getKey(), storageElements);
                     if (dir != null) {
                         storageElements.remove(dir);
@@ -526,7 +529,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
             @Override
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                //TODO: implement onChildMoved
+                //do nothing
             }
 
             @Override
@@ -534,6 +537,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 Log.e(TAG, "database error occurred: onCanceled");
             }
         });
+
         swipeRefreshLayout.setRefreshing(false);
     }
 
@@ -642,7 +646,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             String pastText = directoryPathText.getText().toString();
             directoryPathText.setText(pastText.substring(0, pastText.lastIndexOf(">")));
             notifyAdapter();
-            loadStorageElements();
+            setupFirebaseStorageListener();
             if (fbHelper.isAtRoot()) {
                 //make directory layout invisible
                 directoryLayout.setVisibility(View.INVISIBLE);
@@ -674,7 +678,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         fbHelper.updateStorageReference(directoryName);
         storageElements.clear();
         notifyAdapter();
-        loadStorageElements();
+        setupFirebaseStorageListener();
         //TODO: change directory text
         String path = directoryPathText.getText().toString() + ">" + directoryName;
         directoryPathText.setText(path);
