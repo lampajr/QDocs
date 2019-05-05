@@ -181,7 +181,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                         != PackageManager.PERMISSION_GRANTED) {
                     Log.e(TAG,"Permission denied for external storage");
                 }else {
-                    uploadFile(data.getData() , "");
+                    uploadFile(data.getData() , "", "Uploading file..");
                 }
                 return;
             }
@@ -328,7 +328,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 boolean result = secretFile.createNewFile();
                 Log.d(TAG, "Secret file created: " + result);
             }
-            uploadFile(Uri.fromFile(secretFile), name);
+            uploadFile(Uri.fromFile(secretFile), name, "Creating directory..");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -340,7 +340,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * @param fileUri URI of the file to upload
      *
      */
-    private void uploadFile(@NonNull final Uri fileUri, final String pathname) {
+    private void uploadFile(@NonNull final Uri fileUri, final String pathname, String progressTitle) {
         //TODO: check name of the file, for instance if it contains dot it cannot be uploaded
         uploadGenericFileFloatingButton.performClick();
 
@@ -365,7 +365,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         final UploadTask uploadTask = fileRef.putFile(fileUri, metadata);
 
         final ProgressDialog progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage("Uploading file..");
+        progressDialog.setMessage(progressTitle);
         progressDialog.setIcon(R.drawable.download_icon);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressDialog.setProgress(0);
@@ -425,7 +425,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
             @Override
             public void onFileClick(MyFile file) {
-                //TODO: change the background
                 showFile(file.getFilename());
             }
 
