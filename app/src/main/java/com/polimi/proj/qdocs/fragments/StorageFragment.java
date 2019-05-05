@@ -3,13 +3,10 @@ package com.polimi.proj.qdocs.fragments;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -27,8 +24,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -55,10 +50,10 @@ import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.InfoDialog;
-import com.polimi.proj.qdocs.dialogs.InsertNameDialog;
+import com.polimi.proj.qdocs.dialogs.InputDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
 import com.polimi.proj.qdocs.listeners.DragAndDropTouchListener;
-import com.polimi.proj.qdocs.listeners.OnNameInsertedListener;
+import com.polimi.proj.qdocs.listeners.OnInputListener;
 import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyFile;
@@ -75,7 +70,7 @@ import java.util.List;
 //TODO: separate delete operation from this class in order to reuse them in offlineFilesFragment
 
 
-public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, OnNameInsertedListener {
+public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, OnInputListener {
 
     private static final String TAG = "FILES_LIST_FRAGMENT";
 
@@ -87,7 +82,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private static final int FILE_PRV = 3;
 
     private FirebaseHelper fbHelper;
-    private OnNameInsertedListener onNameInsertedListener;
+    private OnInputListener onInputListener;
 
     private final List<StorageElement> storageElements = new ArrayList<>();
     private StorageAdapter myStorageAdapter;
@@ -159,7 +154,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         setupSwipeRefreshListener();
 
-        onNameInsertedListener = this;
+        onInputListener = this;
 
         return view;
     }
@@ -290,7 +285,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             @Override
             public void onClick(View v) {
                 // TODO: change this method adding a dialog
-                new InsertNameDialog(context, null, onNameInsertedListener, "INSERT FOLDER NAME").show();
+                new InputDialog(context, null, onInputListener, "INSERT FOLDER NAME").show();
             }
         });
 

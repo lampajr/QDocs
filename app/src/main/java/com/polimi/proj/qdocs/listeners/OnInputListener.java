@@ -1,6 +1,6 @@
 package com.polimi.proj.qdocs.listeners;
 
-public interface OnNameInsertedListener {
+public interface OnInputListener {
 
     void onNameInserted(String name);
 }

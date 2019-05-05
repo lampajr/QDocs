@@ -11,13 +11,13 @@ import android.view.View;
 import android.widget.EditText;
 
 import com.polimi.proj.qdocs.R;
-import com.polimi.proj.qdocs.listeners.OnNameInsertedListener;
+import com.polimi.proj.qdocs.listeners.OnInputListener;
 
-public class InsertNameDialog extends Dialog {
-    public InsertNameDialog(@NonNull Context context,
-                            @Nullable DialogInterface.OnCancelListener cancelListener,
-                            final OnNameInsertedListener onNameInsertedListener,
-                            String title) {
+public class InputDialog extends Dialog {
+    public InputDialog(@NonNull Context context,
+                       @Nullable DialogInterface.OnCancelListener cancelListener,
+                       final OnInputListener onInputListener,
+                       String title) {
         super(context, false, cancelListener);
 
         setTitle(title);
@@ -30,7 +30,7 @@ public class InsertNameDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 String name = nameEditTex.getText().toString();
-                onNameInsertedListener.onNameInserted(name);
+                onInputListener.onNameInserted(name);
                 dismiss();
             }
         });
