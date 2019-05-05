@@ -185,7 +185,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     private void showFile(MyFile file) {
         Log.d(TAG, "Showing file " + file.getFilename());
         fbHelper.updateLastAccessAttribute(file.getKey());
-        Utility.startShowFileService(context, fbHelper.getCurrentPath(file.getDbReference()) + "/" + file.getFilename());
+        Utility.startShowFileService(context, fbHelper.getCurrentPath(file.getDbReference()) + "/" + file.getFilename(), file.getContentType());
     }
 
     /**
@@ -234,7 +234,6 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      */
     void setupFirebaseStorageListener(final DatabaseReference ref, final StorageReference storageReference) {
         swipeRefreshLayout.setRefreshing(true);
-        files.clear();
 
         ref.addChildEventListener(new ChildEventListener() {
             @Override
@@ -244,7 +243,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
                     if (file != null &&
                             !file.getFilename().equals(MainActivity.SECRET_FILE) &&
                             StorageElement.retrieveFileByName(file.getFilename(), files) == null) {
-                        Log.d(TAG, "New offline file found: " + storageReference.toString() + "/" + file.getFilename());
+                        Log.d(TAG, "New file found: " + storageReference.toString() + "/" + file.getFilename());
                         file.setStReference(storageReference);
                         file.setDbReference(ref);
                         addFileInOrder(file);
@@ -368,6 +367,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     @Override
     public void onRefresh() {
         Log.d(TAG, "Refreshing!");
+        files.clear();
         setupFirebaseStorageListener(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
     }
 

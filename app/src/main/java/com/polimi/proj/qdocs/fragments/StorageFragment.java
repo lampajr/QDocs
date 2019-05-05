@@ -416,12 +416,11 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         storageView.setHasFixedSize(true);
         storageView.setLayoutManager(new LinearLayoutManager(context));
-        //myStorageAdapter = new MyStorageAdapter(context, storageElements);
         myStorageAdapter = new StorageAdapter(context, storageElements, fbHelper.getStorageReference()) {
 
             @Override
             public void onFileClick(MyFile file) {
-                showFile(file.getFilename(), file.getKey());
+                showFile(file);
             }
 
             @Override
@@ -494,8 +493,10 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 if (StorageElement.isFile(dataSnapshot)) {
                     // update the file
                     MyFile f = dataSnapshot.getValue(MyFile.class);
-                    storageElements.remove(StorageElement.retrieveFileByKey(f.getKey(), storageElements));
-                    addElement(f);
+                    MyFile prevFile = StorageElement.retrieveFileByKey(f.getKey(), storageElements);
+                    int idx = storageElements.indexOf(prevFile);
+                    addElement(f, idx);
+                    storageElements.remove(prevFile);
                 }
             }
 
@@ -538,15 +539,15 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     /**
      * start the FileViewer which will show the file
-     * @param filename name of the file to show
-     * @param key secret key of the file
+     * @param file file to show
      */
-    private void showFile(final String filename, String key) {
-        Log.d(TAG, "Showing file " + filename);
-        fbHelper.updateLastAccessAttribute(key);
+    private void showFile(final MyFile file) {
+        Log.d(TAG, "Showing file " + file.getFilename());
+        fbHelper.updateLastAccessAttribute(file.getKey());
 
         Utility.startShowFileService(context,
-                fbHelper.getCurrentPath(fbHelper.getDatabaseReference()) + "/" + filename);
+                fbHelper.getCurrentPath(fbHelper.getDatabaseReference()) + "/" + file.getFilename(),
+                file.getContentType());
     }
 
     /**
@@ -707,6 +708,15 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         myStorageAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Add new element at specific position
+     * @param elem to be added
+     * @param idx position
+     */
+    private void addElement(StorageElement elem, int idx) {
+        storageElements.add(idx, elem);
+        notifyAdapter();
+    }
 
     /**
      * add the current element to the storageElement list
@@ -717,13 +727,11 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         if (elem instanceof MyFile &&
                 StorageElement.retrieveFileByName(((MyFile)elem).getFilename(), storageElements) != null) {
             // add file in the tail of list
-            storageElements.add(elem);
-            notifyAdapter();
+            addElement(elem, storageElements.size() - 1);
         }
         else {
             // add directory in the head of list
-            storageElements.add(0, elem);
-            notifyAdapter();
+           addElement(elem, 0);
         }
     }
 

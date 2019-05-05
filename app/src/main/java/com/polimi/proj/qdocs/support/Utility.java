@@ -81,8 +81,9 @@ public class Utility {
      * Download the specific file in a temporary one and show it
      * @param context activity's context
      * @param pathname pathname of the file to show
+     * @param contentType contentType of the file
      */
-    public static void startShowFileService(Context context, final String pathname) {
+    public static void startShowFileService(Context context, final String pathname, String contentType) {
         Intent viewerIntentService = new Intent(context, DownloadFileService.class);
 
         viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
@@ -91,6 +92,7 @@ public class Utility {
         ShowFileReceiver receiver = new ShowFileReceiver(context, new Handler());
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, pathname);
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_CONTENT, contentType);
         context.startService(viewerIntentService);
     }
 
