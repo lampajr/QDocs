@@ -5,8 +5,8 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 
+const SECRET_FILE = '.010secret.txt'
 const KEY_METADATA = 'key_metadata';
-const UID_METADATA = 'uid_metadata';
 const DOCUMENTS = 'documents/';
 
 // [START storage onFinalize Trigger]
@@ -20,21 +20,35 @@ exports.insertFileTrigger = functions.storage.object().onFinalize((object) => {
 
     var d = new Date();
     const lastAccess = d.getTime();
-    console.log('new file added: ', filePath);
-    console.log('lastAccess: ', lastAccess);
 
-    // object that describes the file, to add in the firebase database
-    var fileObj = {
-        filename : filename,
-        key : object.metadata[KEY_METADATA],
-		contentType : object.contentType,
-		size : object.size,
-        time : object.timeCreated,
-        lastAccess : lastAccess,
-        offline : false
-    };
-    
-    admin.database().ref(path).set(fileObj);
+    if (filename === SECRET_FILE) {
+        // empty file used for creating a new directory
+        console.log('secret file: ', filePath);
+        var secretFileObj = {
+            filename : filename,
+            key : "",
+            contentType : "",
+            size : "",
+            time : "",
+            lastAccess : lastAccess,
+            offline : false
+        };
+        admin.database().ref(path).set(secretFileObj);
+    }
+    else {
+        // object that describes the file, to add in the firebase database
+        console.log('new file added: ', filePath);
+        var fileObj = {
+            filename : filename,
+            key : object.metadata[KEY_METADATA],
+            contentType : object.contentType,
+            size : object.size,
+            time : object.timeCreated,
+            lastAccess : lastAccess,
+            offline : false
+        };
+        admin.database().ref(path).set(fileObj);
+    }
     return null;
 });
 // [END storage onFinalize Trigger]

@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -16,6 +17,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
@@ -165,50 +167,63 @@ public class FirebaseHelper {
         }
         Log.d(TAG, "Removing file at " + ref.getPath() + "/" + filename);
         ref.child(filename).delete().addOnFailureListener(onFailureListener)
+                .addOnCanceledListener(new OnCanceledListener() {
+                    @Override
+                    public void onCanceled() {
+                        Log.w(TAG, "Deletion canceled");
+                    }
+                })
                 .addOnCompleteListener(onCompleteListener);
     }
 
     /**
      * delete a directory specified by the path, if null it identifies a directory
      * in the current directory, applying recursively deletePersonalFile to every files
-     * @param path path of the directory
+     * @param dataSnapshot default DataSnapshot obj
+     * @param path current path
      * @param onFailureListener listener on Failure
      * @param onCompleteListener listener on Complete
      */
-    public void deletePersonalDirectory(final String path,
+    private void deleteDirectory(final DataSnapshot dataSnapshot,
+                                 String path,
+                                 final OnFailureListener onFailureListener,
+                                 final OnCompleteListener<Void> onCompleteListener) {
+        path = path == null ? dataSnapshot.getKey() : path + "/" + dataSnapshot.getKey();
+        for (DataSnapshot ds : dataSnapshot.getChildren()) {
+            if (StorageElement.isFile(ds)) {
+                Log.w(TAG, "DELETINGGGGGGGGG");
+                MyFile f = ds.getValue(MyFile.class);
+                deletePersonalFile(storageReference.child(path), f.getFilename(), onFailureListener, onCompleteListener);
+            } else {
+                // if it is a directory recursively call this function
+                deleteDirectory(ds, path, onFailureListener, onCompleteListener);
+            }
+        }
+    }
+
+
+    /**
+     * delete a directory specified by the name, if null it identifies a directory
+     * in the current directory, applying recursively deletePersonalFile to every files
+     * @param name name of the directory
+     * @param onFailureListener listener on Failure
+     * @param onCompleteListener listener on Complete
+     */
+    public void deletePersonalDirectory(final String name,
                                         final OnFailureListener onFailureListener,
                                         final OnCompleteListener<Void> onCompleteListener) {
-        DatabaseReference ref = path == null ? databaseReference
-                : databaseReference.child(path);
-
-        // starts removing element from the current directory
-        ref.addChildEventListener(new ChildEventListener() {
+        databaseReference.child(name).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if (StorageElement.isFile(dataSnapshot)) {
-                    // if it is a file delete it
-                    MyFile f = dataSnapshot.getValue(MyFile.class);
-                    StorageReference sr = path == null ? null : storageReference.child(path);
-                    deletePersonalFile(sr, f.getFilename(), onFailureListener, onCompleteListener);
-                }
-                else {
-                    // if it is a directory recursively call this function
-                    String newPath = path == null ? dataSnapshot.getKey() : path + "/" + dataSnapshot.getKey();
-                    deletePersonalDirectory(newPath, onFailureListener, onCompleteListener);
-                }
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.w(TAG, "" + dataSnapshot.getChildrenCount());
+                deleteDirectory(dataSnapshot, null, onFailureListener, onCompleteListener);
+                Log.w(TAG, "Directory " + name + " correctly removed!!");
             }
 
             @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}
+            }
         });
     }
 

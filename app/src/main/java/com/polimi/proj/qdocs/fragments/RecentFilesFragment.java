@@ -239,6 +239,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
                 if (StorageElement.isFile(dataSnapshot)) {
                     MyFile file = dataSnapshot.getValue(MyFile.class);
                     if (file != null &&
+                            !file.getFilename().equals(MainActivity.SECRET_FILE) &&
                             StorageElement.retrieveFileByName(file.getFilename(), files) == null) {
                         Log.d(TAG, "New offline file found: " + storageReference.toString() + "/" + file.getFilename());
                         file.setStReference(storageReference);

@@ -66,6 +66,7 @@ import com.polimi.proj.qdocs.support.StorageElement;
 import com.polimi.proj.qdocs.support.Utility;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -280,7 +281,17 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             }
         });
 
+        SubActionButton createNewDirButton = generateSubActionButton(R.drawable.ic_folder_24dp);
+        createNewDirButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: change this method adding a dialog
+                createDirectory("CICCIO");
+            }
+        });
+
         floatingMenu = new FloatingActionMenu.Builder(parentActivity)
+                .addSubActionView(createNewDirButton)
                 .addSubActionView(uploadImageButton)
                 .addSubActionView(uploadAudioButton)
                 .addSubActionView(uploadFileButton)
@@ -300,27 +311,48 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         ImageView contentImage = new ImageView(context);
         contentImage.setImageResource(resId);
         return subActionBuilder.setContentView(contentImage).setLayoutParams(params).
-                setBackgroundDrawable(getResources().getDrawable(R.drawable.sub_button_shape)).build();
+                setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.sub_button_shape)).build();
+        // TODO: check correctness ContextCompat.getDrawable(context, R.drawable.sub_button_shape)
+    }
+
+    /**
+     * Create a new directory by uploading a secret empty file on the FirebaseStorage
+     * @param name name of the new directory
+     */
+    private void createDirectory(final String name) {
+        // TODO: check that the directory's name does not already exist
+        Log.d(TAG, "Creating new directory");
+        File baseDir = PathResolver.getPublicDocFileDir(context);
+        File secretFile = new File(baseDir.getAbsolutePath() + "/" + MainActivity.SECRET_FILE);
+        try {
+            if (!secretFile.exists()) {
+                boolean result = secretFile.createNewFile();
+                Log.d(TAG, "Secret file created: " + result);
+            }
+            uploadFile(Uri.fromFile(secretFile), name);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
      * Upload a new file on the FirebaseStorage given the Uri provided by external Activities
-     * @param data data of the file to upload
+     * @param fileUri URI of the file to upload
      *
      */
-    private void uploadFile(Intent data, final String pathname) {
+    private void uploadFile(@NonNull final Uri fileUri, final String pathname) {
         //TODO: check name of the file, for instance if it contains dot it cannot be uploaded
         uploadGenericFileFloatingButton.performClick();
 
-        Uri fileUri = data.getData();
+        //Uri fileUri = data.getData();
 
-        String absoluteFilePath = PathResolver.getPathFromUri(context, fileUri);
-
-        final Uri file = Uri.fromFile(new File(absoluteFilePath));
+        //String absoluteFilePath = PathResolver.getPathFromUri(context, fileUri);
+        //final Uri file = Uri.fromFile(new File(absoluteFilePath));
 
         StorageReference fileRef = !pathname.equals("") ?
-                fbHelper.getStorageReference().child(pathname).child(file.getLastPathSegment())
-                : fbHelper.getStorageReference().child(file.getLastPathSegment());
+                fbHelper.getStorageReference().child(pathname).child(fileUri.getLastPathSegment())
+                : fbHelper.getStorageReference().child(fileUri.getLastPathSegment());
 
         // file information
         final String contentType = context.getContentResolver().getType(fileUri);
@@ -331,7 +363,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 .setCustomMetadata(UID_METADATA, fbHelper.getUserId())
                 .build();
 
-        final UploadTask uploadTask = fileRef.putFile(file, metadata);
+        final UploadTask uploadTask = fileRef.putFile(fileUri, metadata);
 
         final ProgressDialog progressDialog = new ProgressDialog(context);
         progressDialog.setMessage("Uploading file..");
@@ -418,6 +450,10 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         storageView.setAdapter(myStorageAdapter);
     }
 
+    /**
+     * Delete a file from its filename, called by MainActivity
+     * @param filename name of the file to delete
+     */
     public void onDeleteFromFile(String filename) {
         deletePersonalFile(filename);
     }
@@ -441,7 +477,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     // the element is a file
                     MyFile file = dataSnapshot.getValue(MyFile.class);
                     if (file != null &&
-                            StorageElement.retrieveFileByName(file.getFilename(), storageElements) == null) {
+                            !file.getFilename().equals(MainActivity.SECRET_FILE) &&
+                            StorageElement.retrieveFileByName(file.getFilename(), storageElements) == null ) {
                         Log.d(TAG, "adding new file: " + file.getFilename());
                         addElement(file);
                     }
@@ -671,7 +708,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             public void onClick(View v) {
                 String pathname = filterPathname(pathnameText.getText().toString());
                 Log.d(TAG, "pathname inserted : " + pathname);
-                uploadFile(data, pathname);
+                uploadFile(data.getData(), pathname);
                 d.dismiss();
             }
         });
