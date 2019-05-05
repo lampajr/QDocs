@@ -316,7 +316,8 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         //fbHelper.madeOfflineFile(StorageElement.retrieveFileByName(file.getFilename(), files).getKey());
 
         Utility.startSaveFileService(context,
-                fbHelper.getCurrentPath(file.getDbReference()) + "/" + file.getFilename());
+                fbHelper.getCurrentPath(file.getDbReference()) + "/" + file.getFilename(),
+                file.getContentType());
     }
 
     /**

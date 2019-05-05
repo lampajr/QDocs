@@ -79,6 +79,9 @@ dependencies {
     // Dialog
     implementation 'com.crowdfire.cfalertdialog:cfalertdialog:1.1.0'
 
+    // Progress Bar
+    implementation 'com.akexorcist:RoundCornerProgressBar:2.0.3'
+
 }
 
 

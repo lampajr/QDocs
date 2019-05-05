@@ -9,6 +9,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.dialogs.ProgressBarDialog;
 import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.support.PathResolver;
 
@@ -56,6 +57,8 @@ public class SaveFileReceiver extends ResultReceiver {
     // parent context
     private Context context;
 
+    private ProgressBarDialog progressBar;
+
     /**
      * Create a new ResultReceive to receive results from the DownloadFileService
      *
@@ -78,10 +81,19 @@ public class SaveFileReceiver extends ResultReceiver {
             String filename = resultData.getString(DownloadFileService.RESULT_KEY_FILENAME);
             Log.d(TAG, "FILENAME received: " + filename);
             String mimeType = resultData.getString(DownloadFileService.RESULT_KEY_MIME_TYPE);
-            Log.d(TAG, "EXTENSION received: " + mimeType);
+            Log.d(TAG, "MIME TYPE received: " + mimeType);
 
             // TODO: implement dialog to tell whether user want to see the file or not
-            saveFile(fileUri, filename + "." + mimeType.split("/")[1]);
+            String name = mimeType != null ? filename + "." + mimeType.split("/")[1] : filename + ".tmp";
+            saveFile(fileUri, name);
+        }
+        else if (resultCode == DownloadFileService.START_DOWNLOAD && resultData != null) {
+            progressBar = new ProgressBarDialog(context, false, null,
+                    resultData.getString(DownloadFileService.RESULT_KEY_TITLE));
+            progressBar.show();
+        }
+        else if (resultCode == DownloadFileService.SET_PROGRESS && resultData != null) {
+            progressBar.setProgress(resultData.getFloat(DownloadFileService.RESULT_KEY_PROGRESS));
         }
         else {
             // something goes wrong: resultCode == DOWNLOAD_ERROR

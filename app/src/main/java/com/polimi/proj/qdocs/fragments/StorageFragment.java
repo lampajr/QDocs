@@ -51,6 +51,7 @@ import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.InfoDialog;
 import com.polimi.proj.qdocs.dialogs.InputDialog;
+import com.polimi.proj.qdocs.dialogs.ProgressBarDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
 import com.polimi.proj.qdocs.listeners.DragAndDropTouchListener;
 import com.polimi.proj.qdocs.listeners.OnInputListener;
@@ -364,12 +365,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         final UploadTask uploadTask = fileRef.putFile(fileUri, metadata);
 
-        final ProgressDialog progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage(progressTitle);
-        progressDialog.setIcon(R.drawable.download_icon);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.setProgress(0);
-        progressDialog.setMax(100);
+        final ProgressBarDialog progressDialog = new ProgressBarDialog(context,
+                true, null, progressTitle);
         progressDialog.show();
 
         Log.d(TAG, "starting uploading");
@@ -387,7 +384,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                         Log.d(TAG, "Upload complete");
                         progressDialog.setProgress(100);
-                        progressDialog.dismiss();
                     }
                 }).addOnCanceledListener(new OnCanceledListener() {
                     @Override
@@ -425,7 +421,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
             @Override
             public void onFileClick(MyFile file) {
-                showFile(file.getFilename());
+                showFile(file.getFilename(), file.getKey());
             }
 
             @Override
@@ -543,10 +539,11 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     /**
      * start the FileViewer which will show the file
      * @param filename name of the file to show
+     * @param key secret key of the file
      */
-    private void showFile(final String filename) {
+    private void showFile(final String filename, String key) {
         Log.d(TAG, "Showing file " + filename);
-        fbHelper.updateLastAccessAttribute(StorageElement.retrieveFileByName(filename, storageElements).getKey());
+        fbHelper.updateLastAccessAttribute(key);
 
         Utility.startShowFileService(context,
                 fbHelper.getCurrentPath(fbHelper.getDatabaseReference()) + "/" + filename);
@@ -554,15 +551,16 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     /**
      * Start the service that will store the file on the public storage
-     * @param filename name of the file
+     * @param file file to save locally
      */
-    private void saveFile(String filename) {
-        Log.d(TAG, "Saving file: " + filename);
-        fbHelper.updateLastAccessAttribute(StorageElement.retrieveFileByName(filename, storageElements).getKey());
-        fbHelper.madeOfflineFile(StorageElement.retrieveFileByName(filename, storageElements).getKey());
+    private void saveFile(MyFile file) {
+        Log.d(TAG, "Saving file: " + file.getFilename());
+        fbHelper.updateLastAccessAttribute(file.getKey());
+        fbHelper.madeOfflineFile(file.getKey());
 
         Utility.startSaveFileService(context,
-                fbHelper.getCurrentPath(fbHelper.getDatabaseReference()) + "/" + filename);
+                fbHelper.getCurrentPath(fbHelper.getDatabaseReference()) + "/" + file.getFilename(),
+                file.getContentType());
     }
 
     /**
@@ -747,7 +745,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                                 break;
 
                             case R.id.save_option:
-                                saveFile(name);
+                                saveFile(file);
                                 break;
 
                             case R.id.get_qrcode_option:

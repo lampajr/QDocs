@@ -62,8 +62,9 @@ public class Utility {
      * Downloads the specific file, if not yet download, and saves it locally
      * @param context activity's context
      * @param pathname pathname of the file to save
+     * @param contentType contentType of the file
      */
-    public static void startSaveFileService(Context context, String pathname) {
+    public static void startSaveFileService(Context context, String pathname, String contentType) {
         Intent viewerIntentService = new Intent(context, DownloadFileService.class);
 
         viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
@@ -72,6 +73,7 @@ public class Utility {
         SaveFileReceiver receiver = new SaveFileReceiver(context, new Handler());
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
         viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, pathname);
+        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_CONTENT, contentType);
         context.startService(viewerIntentService);
     }
 
@@ -101,7 +103,10 @@ public class Utility {
      */
     public static void showFile(Context context, Uri fileUri, String filename, String mimeType, String extension) {
 
-        String type = mimeType.split("/")[0];
+        String type = "";
+        if (mimeType != null) {
+            type = mimeType.split("/")[0];
+        }
         Intent showFileIntent;
 
         switch (type){
@@ -112,12 +117,12 @@ public class Utility {
                 break;
 
             case AUDIO:
-                Log.d(TAG, "Insantiating 'play audio' activity...");
+                Log.d(TAG, "Instantiating 'play audio' activity...");
                 showFileIntent = new Intent(context, PlayAudioActivity.class);
                 break;
 
             default:
-                Log.d(TAG, "Insantiating 'generic' activity...");
+                Log.d(TAG, "Instantiating 'generic' activity...");
                 showFileIntent = new Intent(context, GenericFileActivity.class);
                 break;
 

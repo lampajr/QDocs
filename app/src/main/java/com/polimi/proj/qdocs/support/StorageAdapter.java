@@ -128,7 +128,10 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
 
                 final StorageReference refUsed = file.getStReference() == null ? ref : file.getStReference();
 
-                if (file.getContentType().contains("image")) {
+                if (file.getContentType() == null) {
+                    elementImage.setImageResource(R.drawable.ic_unsupported_file_24dp);
+                }
+                else if (file.getContentType().contains("image")) {
                     // preview image for image file
 
                     File[] files = null;

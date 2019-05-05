@@ -14,7 +14,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
+import com.polimi.proj.qdocs.dialogs.ProgressBarDialog;
 import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.support.PathResolver;
 
@@ -47,6 +49,8 @@ public class DownloadFileService extends IntentService {
             "com.polimi.proj.qdocs.services.extra.EXTRA_PARAM_FILENAME";
     public static final String EXTRA_PARAM_RECEIVER =
             "com.polimi.proj.qdocs.services.extra.EXTRA_PARAM_RECEIVER";
+    public static final String EXTRA_PARAM_CONTENT =
+            "com.polimi.proj.qdocs.services.extra.EXTRA_PARAM_CONTENT";
 
     // results data
     public static final String RESULT_KEY_URI =
@@ -57,10 +61,16 @@ public class DownloadFileService extends IntentService {
             "com.polimi.proj.qdocs.services.extra.RESULT_KEY_FILENAME";
     public static final String RESULT_KEY_EXTENSION =
             "com.polimi.proj.qdocs.services.extra.RESULT_KEY_EXTENSION";
+    public static final String RESULT_KEY_PROGRESS =
+            "com.polimi.proj.qdocs.services.extra.RESULT_KEY_PROGRESS";
+    public static final String RESULT_KEY_TITLE =
+            "com.polimi.proj.qdocs.services.extra.RESULT_KEY_TITLE";
 
     // results
     public static final int DOWNLOAD_OK = 1;
     public static final int DOWNLOAD_ERROR = -1;
+    public static final int START_DOWNLOAD = 2;
+    public static final int SET_PROGRESS = 3;
 
     private FirebaseUser user;
     private File localFile;
@@ -78,7 +88,8 @@ public class DownloadFileService extends IntentService {
             final String action = intent.getAction();
             if (ACTION_DOWNLOAD_TMP_FILE.equals(action)) {
                 final String filename = intent.getStringExtra(EXTRA_PARAM_FILENAME);
-                downloadTmpFile(filename);
+                final String contentType = intent.getStringExtra(EXTRA_PARAM_CONTENT);
+                downloadTmpFile(filename, contentType);
             } else {
                 Log.e(TAG, "Action CODE wrong, get: " + action);
             }
@@ -89,11 +100,18 @@ public class DownloadFileService extends IntentService {
      * Create a temporary file in the internal directory
      * @param pathname name of the file
      */
-    private void downloadTmpFile(final String pathname) {
+    private void downloadTmpFile(final String pathname, final String contentType) {
+        Log.w(TAG, pathname);
         String[] pathElements = pathname.split("/");
         String[] elements = pathElements[pathElements.length-1].split("\\.");
         final String filename = elements[0];  // filename of the file without extension
-        final String extension = elements[1]; // get the extension from the whole pathname
+        String extension = null;
+        if (elements.length == 2) {
+            extension = elements[1]; // get the extension from the whole pathname
+        }
+        else {
+            extension = contentType.split("/")[1];
+        }
 
         // TODO: checks if the fil already exists in the personal directory
         File storageFile = new File(PathResolver.getPublicDocFileDir(getApplicationContext()).getAbsolutePath(), filename + "." + extension);
@@ -131,11 +149,18 @@ public class DownloadFileService extends IntentService {
         if (localFile != null) {
             Log.d(TAG, "Local file created: " + localFile.getAbsolutePath());
 
+            Bundle resultBundle = new Bundle();
+            resultBundle.putString(RESULT_KEY_TITLE, "Downlaoding file..");
+            receiver.send(START_DOWNLOAD, resultBundle);
+
             // download file
             storageRef.getFile(localFile).addOnSuccessListener(
                     new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            Bundle resultBundle = new Bundle();
+                            resultBundle.putFloat(RESULT_KEY_PROGRESS, 100f);
+                            receiver.send(SET_PROGRESS, resultBundle);
                             Log.d(TAG, "MyFile downloaded successfully: onSuccess");
                             getBackResults(filename, extension);
                         }
@@ -143,6 +168,15 @@ public class DownloadFileService extends IntentService {
                 @Override
                 public void onCanceled() {
                     Log.e(TAG, "Error occurred during download of " + pathname + " from FirebaseStorage");
+                }
+            }).addOnProgressListener(new OnProgressListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                    final int progress = (int)((100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
+                    Log.d(TAG, "PROGRESS -> " + progress);
+                    Bundle resultBundle = new Bundle();
+                    resultBundle.putFloat(RESULT_KEY_PROGRESS, progress);
+                    receiver.send(SET_PROGRESS, resultBundle);
                 }
             });
         }
