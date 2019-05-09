@@ -146,7 +146,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                             }
                         });
 
-                        if (files.length != 0) {
+                        if (files != null && files.length != 0) {
                             File offlineFile = files[0];
                             Bitmap myBitmap = BitmapFactory.decodeFile(offlineFile.getAbsolutePath());
                             elementImage.setImageBitmap(myBitmap);
