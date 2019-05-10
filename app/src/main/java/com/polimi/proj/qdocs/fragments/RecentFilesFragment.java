@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -56,6 +58,9 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     private Context context;
     private FirebaseHelper fbHelper;
 
+    private LinearLayout titlebar;
+    private TextView titleText;
+
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView storageView;
     private StorageAdapter myStorageAdapter;
@@ -83,6 +88,10 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         View view = inflater.inflate(R.layout.fragment_recent_files, container, false);
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         storageView = view.findViewById(R.id.storage_view);
+
+        titlebar = view.findViewById(R.id.titlebar);
+        titleText = titlebar.findViewById(R.id.title);
+        titleText.setText("RECENT");
 
         setupStorageView();
         setupSwipeRefresh();

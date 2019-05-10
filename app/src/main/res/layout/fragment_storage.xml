@@ -8,34 +8,11 @@
     android:background="#00000000"
     tools:context=".activities.MainActivity">
 
-    <LinearLayout
-        android:id="@+id/directory_layout"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        >
-
-        <ImageView
-            android:id="@+id/get_back_directory"
-            android:layout_width="25dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="10dp"
-            android:src="@drawable/ic_get_back_directory_24dp"
-            android:contentDescription="@string/go_back_directory_button_description" />
-
-        <TextView
-            android:id="@+id/directory_path_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textAlignment="center"
-            android:layout_marginEnd="50dp"
-            android:layout_marginTop="10dp"
-            android:textSize="@dimen/big_text_size"
-            android:text="@string/root_string"/>
-
-    </LinearLayout>
+    <include layout="@layout/titlebar" android:id="@+id/titlebar"/>
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
+        android:layout_below="@id/titlebar"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -56,7 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="15dp"
+        android:layout_marginBottom="10dp"
         android:src="@drawable/ic_add_24dp"
         android:backgroundTint="@color/add_button_color"
         android:layout_alignParentEnd="true"

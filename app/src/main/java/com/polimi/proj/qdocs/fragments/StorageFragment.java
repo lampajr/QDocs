@@ -3,7 +3,6 @@ package com.polimi.proj.qdocs.fragments;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -89,7 +88,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private StorageAdapter myStorageAdapter;
     private RecyclerView storageView;
 
-    private LinearLayout directoryLayout;
+    private LinearLayout titlebar;
     private ImageView getBackDirectoryButton;
     private TextView directoryPathText;
     private RelativeLayout.LayoutParams params;
@@ -100,9 +99,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private Context context;
     private MainActivity parentActivity;
     private SwipeRefreshLayout swipeRefreshLayout;
-
-    // drag-and-drop upload file button
-    private DragAndDropTouchListener dragAndDropListener;
 
     /**
      * Required empty public constructor
@@ -134,21 +130,20 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         uploadGenericFileFloatingButton = view.findViewById(R.id.upload_file_button);
 
-        dragAndDropListener = new DragAndDropTouchListener();
         setupUploadFileFloatingButton();
 
         fbHelper = new FirebaseHelper();
 
-        directoryLayout = view.findViewById(R.id.directory_layout);
-        directoryPathText = view.findViewById(R.id.directory_path_text);
-        getBackDirectoryButton = view.findViewById(R.id.get_back_directory);
+        titlebar = view.findViewById(R.id.titlebar);
+        directoryPathText = titlebar.findViewById(R.id.title);
+        directoryPathText.setText("HOME");
+        getBackDirectoryButton = titlebar.findViewById(R.id.get_back_directory);
 
         setupDirectoryLayout();
 
         // RecyclerView for elements
         storageView = view.findViewById(R.id.storage_view);
         setupStorageView();
-        setupSwipeListener();
 
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         setupSwipeRefreshListener();
@@ -198,16 +193,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     //////////////////// PRIVATE METHODS //////////////////////////////
 
-
-    /**
-     * setup the swipe listener in order to change the current fragment
-     */
-    @SuppressLint("ClickableViewAccessibility")
-    private void setupSwipeListener() {
-        // TODO: re-add swipe listener
-        //storageView.setOnTouchListener(onSwipeListener);
-    }
-
     private void setupSwipeRefreshListener() {
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
@@ -234,7 +219,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * if it is at root level this layout is made invisible
      */
     private void setupDirectoryLayout() {
-        directoryLayout.setVisibility(View.INVISIBLE);
         getBackDirectoryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -646,11 +630,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             notifyAdapter();
             setupFirebaseStorageListener();
             if (fbHelper.isAtRoot()) {
-                //make directory layout invisible
-                directoryLayout.setVisibility(View.INVISIBLE);
-                //remove layout_below attribute to filesView
-                params.removeRule(RelativeLayout.BELOW);
-                swipeRefreshLayout.setLayoutParams(params);
+                //make get back button invisible
+                getBackDirectoryButton.setVisibility(View.INVISIBLE);
             }
 
             // update the storage adapter
@@ -669,7 +650,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      */
     private void openDirectory(final String directoryName) {
         if (fbHelper.isAtRoot()) {
-            directoryLayout.setVisibility(View.VISIBLE);
+            getBackDirectoryButton.setVisibility(View.VISIBLE);
         }
         Log.d(TAG, "Changing directory, going to " + directoryName);
         fbHelper.updateDatabaseReference(directoryName);
@@ -680,10 +661,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         //TODO: change directory text
         String path = directoryPathText.getText().toString() + ">" + directoryName;
         directoryPathText.setText(path);
-        //add layout_below attribute
-        params= new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.BELOW, R.id.directory_layout);
-        swipeRefreshLayout.setLayoutParams(params);
     }
 
     @Override

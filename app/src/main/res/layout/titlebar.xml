@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="50dp" android:id="@+id/titlebar">
+
+    <ImageView
+        android:id="@+id/get_back_directory"
+        android:layout_width="25dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="7dp"
+        android:src="@drawable/ic_get_back_directory_24dp"
+        android:visibility="invisible"
+        android:contentDescription="@string/go_back_directory_button_description" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textAlignment="center"
+        android:layout_marginEnd="50dp"
+        android:layout_marginTop="10dp"
+        android:textSize="@dimen/big_text_size"
+        android:text="@string/root_string"/>
+
+</LinearLayout>
