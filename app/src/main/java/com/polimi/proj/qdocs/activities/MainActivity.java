@@ -17,6 +17,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -50,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView navigationBar;
     private int prevFragmentIdx = -1;
 
-
+    private RelativeLayout.LayoutParams params;
     private Toolbar toolbar;
 
     private ViewPager pager;
@@ -72,19 +74,12 @@ public class MainActivity extends AppCompatActivity {
         setupFragments();
         setupPager();
         setupNavigationBar();
-        setupToolbar();
 
         cameraPermissionGranted = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
         filesPermissionGranted = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void setupToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar_widget);
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(null);
-        toolbar.setTitleTextColor(getColor(R.color.colorPrimary));
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

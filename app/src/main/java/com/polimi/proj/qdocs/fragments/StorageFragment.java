@@ -149,8 +149,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         storageView = view.findViewById(R.id.storage_view);
         setupStorageView();
         setupSwipeListener();
-        //setupFirebaseStorageListener();
-        //notifyAdapter();
 
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         setupSwipeRefreshListener();
@@ -159,6 +157,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         return view;
     }
+
+
 
     @Override
     public void onAttach(Context context) {
@@ -671,7 +671,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         if (fbHelper.isAtRoot()) {
             directoryLayout.setVisibility(View.VISIBLE);
         }
-        Log.d(TAG, "changing directory, going to " + directoryName);
+        Log.d(TAG, "Changing directory, going to " + directoryName);
         fbHelper.updateDatabaseReference(directoryName);
         fbHelper.updateStorageReference(directoryName);
         storageElements.clear();

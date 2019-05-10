@@ -112,8 +112,8 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
         if (myStorageAdapter != null) {
             if (isVisibleToUser) {
                 Log.d(TAG, "Resumed");
-                loadLocalFiles();            }
-            else {
+                loadLocalFiles();
+            } else {
                 Log.d(TAG, "Paused");
             }
         }

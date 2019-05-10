@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#F9F0E4</color>
+    <color name="colorPrimary">#E9EDF7</color>
+    <color name="colorPrimaryVecchio">#F9F0E4</color>
     <color name="colorPrimaryDark">#778ECA</color>
+    <color name="colorPrimaryDarkVecchio">#778ECA</color>
     <color name="colorAccent">#384152</color>
     <color name="material_light">#ded5ccfa</color>
     <color name="light_material">#2C626161</color>
@@ -17,5 +19,5 @@
     <color name="transparent_orange">#B5FF7741</color>
     <color name="transparent_white">#AAFFFFFF</color>
     <color name="headphones_color">#F9F0E4</color>
-    <color name="transparent_primary_dark">#AA778ECA</color>
+    <color name="transparent_primary_dark">#E1E6F1</color>
 </resources>
