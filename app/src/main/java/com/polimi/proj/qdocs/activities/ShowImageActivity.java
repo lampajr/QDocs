@@ -141,11 +141,6 @@ public class ShowImageActivity extends AppCompatActivity {
         int id=item.getItemId();
         switch(id)
         {
-            case R.id.logout_menu:
-                LoginActivity.logout();
-                startLoginActivity();
-                break;
-
             case R.id.delete_option:
                 Intent data = new Intent();
                 data.putExtra(FILE_NAME, fileName+"."+extension);

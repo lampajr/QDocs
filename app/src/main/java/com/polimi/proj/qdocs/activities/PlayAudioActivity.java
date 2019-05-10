@@ -231,12 +231,6 @@ public class PlayAudioActivity extends AppCompatActivity {
         int id=item.getItemId();
         switch(id)
         {
-            case R.id.logout_menu:
-                LoginActivity.logout();
-                startLoginActivity();
-                break;
-
-
             case R.id.delete_option:
                 ConfirmDialog d = new ConfirmDialog(this, new DialogInterface.OnClickListener() {
                     @Override

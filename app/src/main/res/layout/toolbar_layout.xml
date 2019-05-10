@@ -5,7 +5,7 @@
     android:id="@+id/toolbar_widget"
     android:layout_width="match_parent"
     android:layout_height="@dimen/toolbar_height"
+    app:title="Toolbar"
     app:navigationIcon="@drawable/ic_arrow_back_black_24dp"
-    android:background="@color/colorPrimaryDark"
-    tools:menu="@menu/file_settings_menu">
+    android:background="@color/colorPrimaryDark">
 </android.support.v7.widget.Toolbar>
