@@ -7,7 +7,7 @@
     android:layout_margin="4dp"
     app:cardCornerRadius="20dp"
     android:background="?android:attr/selectableItemBackground"
-    android:backgroundTint="@color/colorPrimaryDark"
+    android:backgroundTint="@color/transparent_primary_dark"
     android:elevation="15dp">
 
     <include layout="@layout/content_storage_element" android:id="@+id/content" />
