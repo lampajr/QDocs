@@ -80,15 +80,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        toolbar = findViewById(R.id.toolbar_widget);
+        Toolbar toolbar = findViewById(R.id.toolbar_widget);
         setSupportActionBar(toolbar);
+        toolbar.getNavigationIcon().setTint(getResources().getColor(R.color.colorPrimary));
+        toolbar.setTitleTextColor(getColor(R.color.colorPrimary));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onBackPressed();
             }
         });
-        Objects.requireNonNull(toolbar.getNavigationIcon()).setTint(getResources().getColor(R.color.white));
     }
 
     @Override
