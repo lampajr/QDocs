@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +25,7 @@ import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.InfoDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
+import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyFile;
@@ -135,6 +137,9 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
 
         storageView.setHasFixedSize(true);
         storageView.setLayoutManager(new LinearLayoutManager(context));
+
+        RecyclerView.ItemDecoration dividerItemDecoration = new DividerDecorator(ContextCompat.getDrawable(context, R.drawable.divider));
+        storageView.addItemDecoration(dividerItemDecoration);
 
         myStorageAdapter = new StorageAdapter(context, files, FirebaseStorage.getInstance().getReference()) {
             @Override

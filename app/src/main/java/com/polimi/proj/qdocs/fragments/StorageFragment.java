@@ -16,6 +16,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -54,6 +55,7 @@ import com.polimi.proj.qdocs.dialogs.ProgressBarDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
 import com.polimi.proj.qdocs.listeners.DragAndDropTouchListener;
 import com.polimi.proj.qdocs.listeners.OnInputListener;
+import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyFile;
@@ -400,6 +402,10 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         storageView.setHasFixedSize(true);
         storageView.setLayoutManager(new LinearLayoutManager(context));
+
+        RecyclerView.ItemDecoration dividerItemDecoration = new DividerDecorator(ContextCompat.getDrawable(context, R.drawable.divider));
+        storageView.addItemDecoration(dividerItemDecoration);
+
         myStorageAdapter = new StorageAdapter(context, storageElements, fbHelper.getStorageReference()) {
 
             @Override

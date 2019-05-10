@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.List;
 
-public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter.dataViewHolder>{
+public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter.DataViewHolder>{
 
     private static final String TAG = "STORAGE_ADAPTER";
 
@@ -60,7 +60,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
 
     @NonNull
     @Override
-    public StorageAdapter.dataViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public DataViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         //TODO: change layout according to the viewType
         View view;
         if (viewType == FILE) {
@@ -69,7 +69,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
         else {
             view = inflater.inflate(R.layout.single_directory_layout, parent, false);
         }
-        return new StorageAdapter.dataViewHolder(view);
+        return new DataViewHolder(view);
     }
 
     @Override
@@ -80,7 +80,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final StorageAdapter.dataViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final DataViewHolder holder, int position) {
         holder.bindData(elements.get(position), storageRef, context);
     }
 
@@ -99,13 +99,14 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
 
     public abstract void onDirectoryOptionClick(final MyDirectory dir);
 
-    class dataViewHolder extends RecyclerView.ViewHolder {
+    class DataViewHolder extends RecyclerView.ViewHolder {
         // Item-row elements
+        boolean isFile;
         TextView elementNameView, elementDescriptionView, elementOptionView;
         ImageView elementImage;
         View mainLayout;
 
-        dataViewHolder(@NonNull View itemView) {
+        DataViewHolder(@NonNull View itemView) {
             super(itemView);
             View contentView = itemView.findViewById(R.id.content);
             elementNameView = contentView.findViewById(R.id.element_name);
@@ -121,6 +122,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
             elementImage.setImageDrawable(null);
 
             if (element instanceof MyFile) {
+                isFile = true;
                 final MyFile file = (MyFile) element;
                 elementNameView.setText(file.getFilename().split("\\.")[0]);
                 elementDescriptionView.setText(file.getContentType());
@@ -198,6 +200,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
             }
             else {
                 // the current element is a directory
+                isFile = false;
                 final MyDirectory dir = (MyDirectory) element;
                 elementNameView.setText(dir.getDirectoryName());
                 elementDescriptionView.setText(context.getString(R.string.empty_string));
