@@ -2,9 +2,9 @@
 <resources>
     <color name="colorPrimary">#F1F2F5</color>
     <color name="colorPrimaryVecchio">#F9F0E4</color>
-    <color name="colorPrimaryDark">#3B69DB</color>
+    <color name="colorPrimaryDark">#778ECA</color>
     <color name="colorPrimaryDarkVecchio">#778ECA</color>
-    <color name="colorAccent">#000000</color>
+    <color name="colorAccent">#172058</color>
     <color name="material_light">#ded5ccfa</color>
     <color name="light_material">#2C626161</color>
     <color name="color_light_Text">#747373</color>
@@ -15,7 +15,7 @@
     <color name="light_orange">#D3723C</color>
     <color name="light">#D0C7C7C7</color>
     <color name="add_button_icon_color">#F1F2F5</color>
-    <color name="add_button_color">#3B69DB</color>
+    <color name="add_button_color">#172058</color>
     <color name="transparent_orange">#B5FF7741</color>
     <color name="transparent_white">#AAFFFFFF</color>
     <color name="headphones_color">#F9F0E4</color>
