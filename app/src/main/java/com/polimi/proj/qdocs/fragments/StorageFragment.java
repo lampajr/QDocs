@@ -193,6 +193,9 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     //////////////////// PRIVATE METHODS //////////////////////////////
 
+    /**
+     * Setup the Floating Action menu for uploading files online
+     */
     private void setupSpeedDialView() {
         //speedDialView.inflate(R.menu.upload_file_menu);
         speedDialView.setMainFabOpenedDrawable(context.getDrawable(R.drawable.com_facebook_close));
@@ -251,6 +254,9 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         });
     }
 
+    /**
+     * Setup the Swipe Refresh Listener of the recycler view
+     */
     private void setupSwipeRefreshListener() {
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
@@ -314,7 +320,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private void uploadFile(@NonNull final Uri fileUri, final String pathname, String progressTitle) {
         //TODO: check name of the file, for instance if it contains dot it cannot be uploaded
         //uploadGenericFileFloatingButton.performClick();
-        speedDialView.performClick();
+        speedDialView.close();
 
         //Uri fileUri = data.getData();
 
