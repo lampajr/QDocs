@@ -25,27 +25,15 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/upload_file_button"
+    <com.leinardi.android.speeddial.SpeedDialView
+        android:id="@+id/upload_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="70dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="50dp"
         android:backgroundTint="@color/add_button_color"
         android:src="@drawable/ic_add_24dp"/>
-
-<!--
-    <com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton
-        android:id="@+id/upload_file_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="80dp"
-        android:src="@drawable/ic_add_24dp"
-        android:backgroundTint="@color/add_button_color"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true" />-->
 
 </RelativeLayout>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/create_directory"
+        android:icon="@drawable/ic_folder_24dp"
+        android:title="Create Directory"/>
+
+    <item
+        android:id="@+id/upload_image"
+        android:icon="@drawable/ic_add_24dp"
+        android:title="Upload Image"/>
+
+    <item
+        android:id="@+id/upload_audio"
+        android:icon="@drawable/ic_note_24dp"
+        android:title="Upload Audio"/>
+
+    <item
+        android:id="@+id/upload_file"
+        android:icon="@drawable/ic_document_24dp"
+        android:title="Upload File"/>
+
+</menu>

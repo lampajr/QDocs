@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -12,7 +13,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -23,6 +26,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,6 +37,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -41,7 +46,8 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
+import com.leinardi.android.speeddial.SpeedDialActionItem;
+import com.leinardi.android.speeddial.SpeedDialView;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.polimi.proj.qdocs.R;
@@ -90,15 +96,13 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private LinearLayout titlebar;
     private ImageView getBackDirectoryButton;
     private TextView directoryPathText;
-    private RelativeLayout.LayoutParams params;
-
-    private FloatingActionMenu floatingMenu;
-    private FloatingActionButton uploadGenericFileFloatingButton;
 
     private Context context;
     private MainActivity parentActivity;
     private SwipeRefreshLayout swipeRefreshLayout;
     private BottomSheetMenu bsm;
+
+    private SpeedDialView speedDialView;
 
     /**
      * Required empty public constructor
@@ -111,7 +115,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     //TODO: add on the settings menu of the file the information about it
     //TODO: add settings on directories
-
     //////////////////// OVERRIDE METHODS //////////////////////////
 
     @Override
@@ -128,16 +131,15 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_storage, container, false);
 
-        //uploadGenericFileFloatingButton = view.findViewById(R.id.upload_file_button);
-
-        //setupUploadFileFloatingButton();
-
         fbHelper = new FirebaseHelper();
 
         titlebar = view.findViewById(R.id.titlebar);
         directoryPathText = titlebar.findViewById(R.id.title);
         directoryPathText.setText("HOME");
         getBackDirectoryButton = titlebar.findViewById(R.id.get_back_directory);
+
+        speedDialView = view.findViewById(R.id.upload_button);
+        setupSpeedDialView();
 
         setupDirectoryLayout();
 
@@ -153,10 +155,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         return view;
     }
 
-
-
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.context = context;
         this.parentActivity = (MainActivity) context;
@@ -193,6 +193,64 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     //////////////////// PRIVATE METHODS //////////////////////////////
 
+    private void setupSpeedDialView() {
+        //speedDialView.inflate(R.menu.upload_file_menu);
+        speedDialView.setMainFabOpenedDrawable(context.getDrawable(R.drawable.com_facebook_close));
+        speedDialView.setMainFabOpenedBackgroundColor(context.getColor(R.color.colorPrimaryDark));
+        speedDialView.setMainFabClosedDrawable(context.getDrawable(R.drawable.ic_add_24dp));
+        speedDialView.setMainFabClosedBackgroundColor(context.getColor(R.color.colorPrimaryDark));
+
+        speedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id.upload_image, R.drawable.ic_picture_24dp)
+                .setFabBackgroundColor(context.getColor(R.color.colorPrimaryDark))
+                .setLabelBackgroundColor(context.getColor(R.color.colorPrimaryDark))
+                .setLabelClickable(false)
+                .create());
+
+        speedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id.upload_audio, R.drawable.ic_note_24dp)
+                .setFabBackgroundColor(context.getColor(R.color.colorPrimaryDark))
+                .setLabelBackgroundColor(context.getColor(R.color.colorPrimaryDark))
+                .setLabelClickable(false)
+                .create());
+
+        speedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id.upload_file, R.drawable.ic_document_24dp)
+                .setFabBackgroundColor(context.getColor(R.color.colorPrimaryDark))
+                .setLabelBackgroundColor(context.getColor(R.color.colorPrimaryDark))
+                .setLabelClickable(false)
+                .create());
+
+        speedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id.create_directory, R.drawable.ic_folder_24dp)
+                .setFabBackgroundColor(context.getColor(R.color.colorPrimaryDark))
+                .setLabelBackgroundColor(context.getColor(R.color.colorPrimaryDark))
+                .setLabelClickable(false)
+                .create());
+
+        speedDialView.setOnActionSelectedListener(new SpeedDialView.OnActionSelectedListener() {
+            @Override
+            public boolean onActionSelected(SpeedDialActionItem actionItem) {
+                switch (actionItem.getId()) {
+                    case R.id.upload_image:
+                        startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.INTERNAL_CONTENT_URI), IMG_PRV);
+                        return true;
+                    case R.id.upload_audio:
+                        startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.INTERNAL_CONTENT_URI), AUD_PRV);
+                        return true;
+                    case R.id.upload_file:
+                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                        intent.setType("*//*");
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        startActivityForResult(intent, FILE_PRV);
+                        return true;
+                    case R.id.create_directory:
+                        speedDialView.close();
+                        new InputDialog(context, null, onInputListener, "INSERT FOLDER NAME").show();
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        });
+    }
+
     private void setupSwipeRefreshListener() {
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
@@ -228,79 +286,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     /**
-     * Initialize the Floating Action Button Menu that is in charge to
-     * upload new filesList, picking them from gallery or 'my filesList' section
-     * of the mobile phone
-     */
-    private void setupUploadFileFloatingButton() {
-
-        //uploadGenericFileFloatingButton.setOnTouchListener(dragAndDropListener);
-
-        // upload image button
-        SubActionButton uploadImageButton = generateSubActionButton(R.drawable.ic_picture_24dp);
-        uploadImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.INTERNAL_CONTENT_URI), IMG_PRV);
-            }
-        });
-
-        // upload file button
-        SubActionButton uploadFileButton = generateSubActionButton(R.drawable.ic_document_24dp);
-        uploadFileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("*/*");
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                startActivityForResult(intent, FILE_PRV);
-            }
-        });
-
-        // upload audio button
-        SubActionButton uploadAudioButton = generateSubActionButton(R.drawable.ic_note_24dp);
-        uploadAudioButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(new Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.INTERNAL_CONTENT_URI), AUD_PRV);
-            }
-        });
-
-        SubActionButton createNewDirButton = generateSubActionButton(R.drawable.ic_folder_24dp);
-        createNewDirButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: change this method adding a dialog
-                new InputDialog(context, null, onInputListener, "INSERT FOLDER NAME").show();
-            }
-        });
-
-        floatingMenu = new FloatingActionMenu.Builder(parentActivity)
-                .addSubActionView(createNewDirButton)
-                .addSubActionView(uploadImageButton)
-                .addSubActionView(uploadAudioButton)
-                .addSubActionView(uploadFileButton)
-                .attachTo(uploadGenericFileFloatingButton)
-                .build();
-    }
-
-    /**
-     * Generates a SubActionButton that has to be added to the floating action men Button
-     * @param resId image resource id
-     * @return SubActionButton object
-     */
-    private SubActionButton generateSubActionButton(@DrawableRes int resId) {
-        //TODO: change the button dimension
-        LayoutParams params = new LayoutParams(150, 150);
-        SubActionButton.Builder subActionBuilder = new SubActionButton.Builder(parentActivity);
-        ImageView contentImage = new ImageView(context);
-        contentImage.setImageResource(resId);
-        return subActionBuilder.setContentView(contentImage).setLayoutParams(params).
-                setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.sub_button_shape)).build();
-        // TODO: check correctness ContextCompat.getDrawable(context, R.drawable.sub_button_shape)
-    }
-
-    /**
      * Create a new directory by uploading a secret empty file on the FirebaseStorage
      * @param name name of the new directory
      */
@@ -328,7 +313,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      */
     private void uploadFile(@NonNull final Uri fileUri, final String pathname, String progressTitle) {
         //TODO: check name of the file, for instance if it contains dot it cannot be uploaded
-        uploadGenericFileFloatingButton.performClick();
+        //uploadGenericFileFloatingButton.performClick();
+        speedDialView.performClick();
 
         //Uri fileUri = data.getData();
 
