@@ -42,7 +42,7 @@ public class BottomSheetMenu extends BottomSheetDialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.bottom_sheet, container, false);
+        final View view = inflater.inflate(R.layout.complete_bottom_sheet, container, false);
 
         TextView deleteOption = view.findViewById(R.id.delete_option),
                 saveOption = view.findViewById(R.id.save_option),

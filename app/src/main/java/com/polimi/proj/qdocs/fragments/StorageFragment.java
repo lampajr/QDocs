@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -13,20 +12,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,7 +30,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -48,8 +40,6 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
-import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.InfoDialog;
@@ -62,6 +52,7 @@ import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.MyFile;
+import com.polimi.proj.qdocs.support.PartialSheetMenu;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageAdapter;
 import com.polimi.proj.qdocs.support.StorageElement;
@@ -101,6 +92,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private MainActivity parentActivity;
     private SwipeRefreshLayout swipeRefreshLayout;
     private BottomSheetMenu bsm;
+    private PartialSheetMenu psm;
 
     private SpeedDialView speedDialView;
 
@@ -579,6 +571,10 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      */
     private void deletePersonalDirectory(final String path) {
         //TODO: implement "are you sure?" dialog
+
+        if (psm != null)
+            psm.dismiss();
+
         Log.d(TAG, "Deleting directory: " + path);
         fbHelper.deletePersonalDirectory(path, new OnFailureListener() {
             @Override
@@ -757,25 +753,18 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * @param dir directory object
      */
     private void showDirectoryBottomSheetMenu(final MyDirectory dir) {
-        // TODO: re-implement menu for directory
-        /*new BottomSheet.Builder(parentActivity)
-                .title(getString(R.string.settings_string))
-                .sheet(R.menu.directory_settings_menu)
-                .listener(new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.delete_option:
-                                deletePersonalDirectory(dir.getDirectoryName());
-                                break;
-
-                            case R.id.info_option:
-                                //TODO: show dialog about file infos
-                                break;
-                        }
-                        return false;
-                    }
-                }).show();*/
+        psm = PartialSheetMenu.getInstance(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deletePersonalDirectory(dir.getDirectoryName());
+            }
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: show infos of directory
+            }
+        });
+        psm.show(((MainActivity)context).getSupportFragmentManager(), "directory_settings_" + dir.getDirectoryName());
     }
 
     /**

@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -30,6 +29,7 @@ import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.MyFile;
+import com.polimi.proj.qdocs.support.PartialSheetMenu;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageAdapter;
 import com.polimi.proj.qdocs.support.StorageElement;
@@ -65,7 +65,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView storageView;
     private StorageAdapter myStorageAdapter;
-    private BottomSheetMenu bsm;
+    private PartialSheetMenu fsm;
 
     private List<StorageElement> files;
 
@@ -207,12 +207,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
     private void showFileSettingsMenu(final MyFile file) {
         Log.d(TAG, "Showing file settings menu");
 
-        bsm = BottomSheetMenu.getInstance(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // do nothing
-            }
-        }, new View.OnClickListener() {
+        fsm = PartialSheetMenu.getInstance(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 deleteLocalFile(file);
@@ -220,15 +215,10 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
         }, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // do nothing
-            }
-        }, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
                 showInfos(file);
             }
         });
-        bsm.show(((MainActivity)context).getSupportFragmentManager(), "file_settings_" + file.getFilename());
+        fsm.show(((MainActivity)context).getSupportFragmentManager(), "file_settings_" + file.getFilename());
     }
 
     private void loadLocalFiles() {
@@ -272,8 +262,8 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
     private void deleteLocalFile(final MyFile file) {
         Log.d(TAG, "Deleting local file: " + file.getFilename());
 
-        if (bsm != null)
-            bsm.dismiss();
+        if (fsm != null)
+            fsm.dismiss();
 
         File baseDirectory = PathResolver.getPublicDocFileDir(context);
 
@@ -319,8 +309,8 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
     private void showInfos(StorageElement element) {
         Log.d(TAG, "Showing infos");
 
-        if (bsm != null)
-            bsm.dismiss();
+        if (fsm != null)
+            fsm.dismiss();
 
         InfoDialog dialog = new InfoDialog(context, null, element);
         dialog.show();
