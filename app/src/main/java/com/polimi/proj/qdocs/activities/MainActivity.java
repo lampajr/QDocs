@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseUser user;
 
+    private int offlineCount = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -166,10 +168,12 @@ public class MainActivity extends AppCompatActivity {
      * @param position item position
      */
     public void setNotification(int count, int position) {
-        navigationBar.setNotification(count + "", position);
+        offlineCount += count;
+        navigationBar.setNotification(offlineCount + "", position);
     }
 
     public void resetNotification(int position) {
+        offlineCount = 0;
         navigationBar.setNotification("", position);
     }
 

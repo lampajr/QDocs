@@ -95,7 +95,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private PartialSheetMenu psm;
 
     private SpeedDialView speedDialView;
-    private int count;
 
     /**
      * Required empty public constructor
@@ -182,14 +181,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     @Override
     public void onRefresh() {
         setupFirebaseStorageListener();
-    }
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (!isVisibleToUser) {
-            count = 0;
-        }
     }
 
     //////////////////// PRIVATE METHODS //////////////////////////////
@@ -546,9 +537,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         Utility.startSaveFileService(context,
                 fbHelper.getCurrentPath(fbHelper.getDatabaseReference()) + "/" + file.getFilename(),
                 file.getContentType());
-
-        count += 1;
-        ((MainActivity)context).setNotification(count, 1);
     }
 
     /**

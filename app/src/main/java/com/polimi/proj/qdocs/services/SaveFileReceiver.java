@@ -9,6 +9,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.ProgressBarDialog;
 import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.support.PathResolver;
@@ -73,7 +74,11 @@ public class SaveFileReceiver extends ResultReceiver {
 
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
-        if (resultCode == DownloadFileService.DOWNLOAD_OK && resultData != null) {
+        if ((resultCode == DownloadFileService.DOWNLOAD_OK || resultCode == DownloadFileService.ALREADY_STORED)
+                && resultData != null) {
+            if (resultCode == DownloadFileService.DOWNLOAD_OK) {
+                ((MainActivity) context).setNotification(1,1);
+            }
             // all goes well
             Log.d(TAG, "Results received from DownloadFileService: OK");
             Uri fileUri = (Uri) resultData.get(DownloadFileService.RESULT_KEY_URI);

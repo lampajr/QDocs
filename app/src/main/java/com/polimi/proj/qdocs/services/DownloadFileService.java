@@ -16,6 +16,7 @@ import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
+import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.support.PathResolver;
 
@@ -67,6 +68,7 @@ public class DownloadFileService extends IntentService {
 
     // results
     public static final int DOWNLOAD_OK = 1;
+    public static final int ALREADY_STORED = 4;
     public static final int DOWNLOAD_ERROR = -1;
     public static final int START_DOWNLOAD = 2;
     public static final int SET_PROGRESS = 3;
@@ -127,7 +129,7 @@ public class DownloadFileService extends IntentService {
         else {
             Log.d(TAG,"File already stored in " + storageFile.getAbsolutePath());
             localFile = storageFile;
-            getBackResults(filename, extension);
+            getBackResults(ALREADY_STORED, filename, extension);
         }
     }
 
@@ -162,7 +164,7 @@ public class DownloadFileService extends IntentService {
                             resultBundle.putFloat(RESULT_KEY_PROGRESS, 100f);
                             receiver.send(SET_PROGRESS, resultBundle);
                             Log.d(TAG, "MyFile downloaded successfully: onSuccess");
-                            getBackResults(filename, extension);
+                            getBackResults(DOWNLOAD_OK, filename, extension);
                         }
                     }).addOnCanceledListener(new OnCanceledListener() {
                 @Override
@@ -196,7 +198,7 @@ public class DownloadFileService extends IntentService {
      * @param extension of the file created
      * result -> fileUri uri of the temporary file created and its MimeType extension
      */
-    private void getBackResults(final String filename, final String extension) {
+    private void getBackResults(int result, final String filename, final String extension) {
         //Uri fileUri = FileProvider.getUriForFile(getApplicationContext(),
         //        "com.polimi.proj.qdocs.fileprovider",
         //        localFile);
@@ -217,6 +219,6 @@ public class DownloadFileService extends IntentService {
         resultBundle.putString(RESULT_KEY_MIME_TYPE, mimeType);
 
         // call the Result Receiver
-        receiver.send(DOWNLOAD_OK, resultBundle);
+        receiver.send(result, resultBundle);
     }
 }

@@ -68,6 +68,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
     private PartialSheetMenu fsm;
 
     private List<StorageElement> files;
+    private int count;
 
     /**
      * Use this factory method to create a new instance of
