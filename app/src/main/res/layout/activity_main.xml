@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <!--
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/main_navigation_bar"
         app:elevation="5dp"
@@ -26,5 +27,14 @@
         style="@style/bottom_navigation_view_style"
         app:menu="@menu/main_navigation_bar_menu"
         app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"/>
+        -->
+
+    <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
+        android:id="@+id/main_navigation_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_navigation_view_dim"
+        android:layout_gravity="bottom"
+        android:layout_alignParentBottom="true"
+        style="@style/bottom_navigation_view_style"/>
 
 </RelativeLayout>

@@ -125,6 +125,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
             if (isVisibleToUser) {
                 Log.d(TAG, "Resumed");
                 loadLocalFiles();
+                ((MainActivity)context).resetNotification(1);
             } else {
                 Log.d(TAG, "Paused");
             }

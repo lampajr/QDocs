@@ -19,7 +19,8 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.polimi.proj.qdocs.R;
@@ -46,7 +47,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int HOME_ID = 0, OFFLINE_ID = 1, SCANNER_ID = 2,
             RECENT_ID = 3, STORAGE_ID = 4;
 
-    private com.google.android.material.bottomnavigation.BottomNavigationView navigationBar;
+    private AHBottomNavigation navigationBar;
+    private AHBottomNavigationAdapter navigationAdapter;
     private int prevFragmentIdx = -1;
 
     private RelativeLayout.LayoutParams params;
@@ -144,7 +146,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int i) {
                 prevFragmentIdx = i;
-                navigationBar.getMenu().getItem(i).setChecked(true);
+                navigationBar.setCurrentItem(i);
+                //navigationBar.getMenu().getItem(i).setChecked(true);
             }
 
             @Override
@@ -158,15 +161,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * set the notification to a specific item
+     * @param count notification count
+     * @param position item position
+     */
+    public void setNotification(int count, int position) {
+        navigationBar.setNotification(count + "", position);
+    }
+
+    public void resetNotification(int position) {
+        navigationBar.setNotification("", position);
+    }
+
+    /**
      * setup the bottom navigation bar that allows user to switch
      * between scanner layout and files list layout
      */
     private void setupNavigationBar() {
-        navigationBar.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
-                switch (menuItem.getItemId()) {
+        navigationBar.setForceTint(true);
+
+        navigationBar.setDefaultBackgroundColor(getColor(R.color.colorPrimaryDark));
+        navigationBar.setAccentColor(getColor(R.color.colorAccent));
+        navigationBar.setInactiveColor(getColor(R.color.colorPrimary));
+
+        navigationBar.setBehaviorTranslationEnabled(true);
+
+        navigationAdapter = new AHBottomNavigationAdapter(this, R.menu.main_navigation_bar_menu);
+        navigationAdapter.setupWithBottomNavigation(navigationBar);
+
+        navigationBar.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+            @Override
+            public boolean onTabSelected(int position, boolean wasSelected) {
+                switch (navigationAdapter.getMenuItem(position).getItemId()) {
                     case R.id.home_item:
                         changePage(HOME_ID);
                         return true;
