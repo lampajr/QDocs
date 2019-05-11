@@ -6,10 +6,10 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
-import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar;
 import com.polimi.proj.qdocs.R;

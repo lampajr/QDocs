@@ -3,37 +3,33 @@ package com.polimi.proj.qdocs.activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.polimi.proj.qdocs.R;
-import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.fragments.HomeFragment;
 import com.polimi.proj.qdocs.fragments.OfflineFilesFragment;
 import com.polimi.proj.qdocs.fragments.RecentFilesFragment;
 import com.polimi.proj.qdocs.fragments.ScannerFragment;
+import com.polimi.proj.qdocs.fragments.StorageFragment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int HOME_ID = 0, OFFLINE_ID = 1, SCANNER_ID = 2,
             RECENT_ID = 3, STORAGE_ID = 4;
 
-    private BottomNavigationView navigationBar;
+    private com.google.android.material.bottomnavigation.BottomNavigationView navigationBar;
     private int prevFragmentIdx = -1;
 
     private RelativeLayout.LayoutParams params;

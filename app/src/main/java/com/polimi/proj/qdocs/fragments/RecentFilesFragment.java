@@ -2,13 +2,6 @@ package com.polimi.proj.qdocs.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -17,6 +10,14 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -31,9 +32,10 @@ import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.InfoDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
+import com.polimi.proj.qdocs.support.BottomSheetMenu;
 import com.polimi.proj.qdocs.support.DividerDecorator;
-import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
+import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.StorageAdapter;
 import com.polimi.proj.qdocs.support.StorageElement;
@@ -66,6 +68,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView storageView;
     private StorageAdapter myStorageAdapter;
+    private BottomSheetMenu bsm;
 
     private List<StorageElement> files;
 
@@ -205,47 +208,38 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      * This method will show the settings menu of a specific file
      *
      */
-    private void showFileSettingsMenu(MyFile file) {
+    private void showFileSettingsMenu(final MyFile file) {
         Log.d(TAG, "Showing file settings menu");
-        Utility.generateBottomSheetMenu((MainActivity)context, context.getString(R.string.settings_string), R.menu.file_settings_menu, getOnItemMenuClickListener(file)).show();
-    }
 
-    /**
-     * Return a callback method called on the file setting menu
-     * @param file file which the menu refers to
-     * @return callback OnMenuItemClickListener
-     */
-    MenuItem.OnMenuItemClickListener getOnItemMenuClickListener(final MyFile file) {
-        return new MenuItem.OnMenuItemClickListener() {
+        bsm = BottomSheetMenu.getInstance(new View.OnClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.delete_option:
-                        deletePersonalFile(file);
-                        break;
-
-                    case R.id.save_option:
-                        saveFile(file);
-                        break;
-
-                    case R.id.get_qrcode_option:
-                        showQrCode(file);
-                        break;
-
-                    case R.id.info_option:
-                        showInfos(file);
-                        break;
-                }
-                return false;
+            public void onClick(View v) {
+                saveFile(file);
             }
-        };
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deletePersonalFile(file);
+            }
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showQrCode(file);
+            }
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showInfos(file);
+            }
+        });
+        bsm.show(((MainActivity)context).getSupportFragmentManager(), "file_settings_" + file.getFilename());
     }
 
     /**
      * Loads all the user's recent files
      * @param ref reference from which retrieve files
      */
-    void setupFirebaseStorageListener(final DatabaseReference ref, final StorageReference storageReference) {
+    private void setupFirebaseStorageListener(final DatabaseReference ref, final StorageReference storageReference) {
         swipeRefreshLayout.setRefreshing(true);
         // TODO: doesn't load all files
 
@@ -301,6 +295,10 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     private void deletePersonalFile(final MyFile file) {
         //TODO: implement "are you sure?" dialog
         Log.d(TAG, "Deleting file: " + file.getFilename());
+
+        if (bsm != null)
+            bsm.dismiss();
+
         fbHelper.deletePersonalFile(file.getStReference(), file.getFilename(), new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
@@ -322,6 +320,9 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      */
     private void saveFile(final MyFile file) {
         Log.d(TAG, "Saving file: " + file.getFilename());
+
+        if (bsm != null)
+            bsm.dismiss();
 
         fbHelper.updateLastAccessAttribute(file.getKey());
         fbHelper.madeOfflineFile(file.getKey());
@@ -361,6 +362,10 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      */
     private void showQrCode(final MyFile file) {
         Log.d(TAG, "Showing QR code");
+
+        if (bsm != null)
+            bsm.dismiss();
+
         QrCodeDialog dialog = new QrCodeDialog(context, null, file);
         dialog.show();
     }
@@ -371,6 +376,10 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      */
     private void showInfos(StorageElement element) {
         Log.d(TAG, "Showing infos");
+
+        if (bsm != null)
+            bsm.dismiss();
+
         InfoDialog dialog = new InfoDialog(context, null, element);
         dialog.show();
     }

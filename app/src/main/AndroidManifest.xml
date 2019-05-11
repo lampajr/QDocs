@@ -24,12 +24,13 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:icon">
-        <activity android:name=".activities.GenericFileActivity"></activity>
+        <activity android:name=".activities.GenericFileActivity" />
         <activity android:name=".activities.PlayAudioActivity" />
         <activity android:name=".activities.ShowImageActivity" />
-        <activity android:name=".activities.MainActivity" /> <!-- FILE PROVIDER -->
+        <activity android:name=".activities.MainActivity" />
+        <!-- FILE PROVIDER -->
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="com.polimi.proj.qdocs.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">

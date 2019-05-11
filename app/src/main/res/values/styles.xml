@@ -53,9 +53,4 @@
         <item name="android:paddingEnd">3dp</item>
     </style>
 
-    <style name="bottom_sheet_style" parent="BottomSheet.Dialog">
-        <item name="bs_dialogBackground">@drawable/settings_shape</item>
-        <item name="android:strokeColor">#00000000</item>
-    </style>
-
 </resources>

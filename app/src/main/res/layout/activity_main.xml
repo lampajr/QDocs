@@ -8,20 +8,23 @@
     android:background="@color/colorPrimary">
 
 
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/main_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <android.support.design.widget.BottomNavigationView
+    <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/main_navigation_bar"
-        style="@style/bottom_navigation_view_style"
+        app:elevation="5dp"
         android:layout_width="match_parent"
         android:layout_height="@dimen/bottom_navigation_view_dim"
+        android:layout_gravity="bottom"
         android:layout_alignParentBottom="true"
+        android:background="@color/colorPrimaryDark"
         app:itemIconTint="@color/bottom_tint_icon"
         app:itemTextColor="@color/bottom_tint_icon"
-
-        app:menu="@menu/main_navigation_bar_menu"/>
+        style="@style/bottom_navigation_view_style"
+        app:menu="@menu/main_navigation_bar_menu"
+        app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"/>
 
 </RelativeLayout>

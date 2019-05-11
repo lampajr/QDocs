@@ -4,13 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -20,14 +13,22 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.google.firebase.storage.FirebaseStorage;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.InfoDialog;
-import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
+import com.polimi.proj.qdocs.support.BottomSheetMenu;
 import com.polimi.proj.qdocs.support.DividerDecorator;
-import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
+import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageAdapter;
@@ -64,6 +65,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView storageView;
     private StorageAdapter myStorageAdapter;
+    private BottomSheetMenu bsm;
 
     private List<StorageElement> files;
 
@@ -202,29 +204,32 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
      * This method will show the settings menu of a specific file
      *
      */
-    private void showFileSettingsMenu(MyFile file) {
+    private void showFileSettingsMenu(final MyFile file) {
         Log.d(TAG, "Showing file settings menu");
-        Utility.generateBottomSheetMenu((MainActivity)context, context.getString(R.string.settings_string), R.menu.offline_file_settings_menu, getOnItemMenuClickListener(file)).show();
-    }
 
-    MenuItem.OnMenuItemClickListener getOnItemMenuClickListener(final MyFile file) {
-        return new MenuItem.OnMenuItemClickListener() {
+        bsm = BottomSheetMenu.getInstance(new View.OnClickListener() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.delete_option:
-                        deleteLocalFile(file);
-                        break;
-
-                    case R.id.info_option:
-                        showInfos(file);
-                        break;
-                }
-                return false;
+            public void onClick(View v) {
+                // do nothing
             }
-        };
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteLocalFile(file);
+            }
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // do nothing
+            }
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showInfos(file);
+            }
+        });
+        bsm.show(((MainActivity)context).getSupportFragmentManager(), "file_settings_" + file.getFilename());
     }
-
 
     private void loadLocalFiles() {
         Log.d(TAG, "Loading local files..");
@@ -266,6 +271,10 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
      */
     private void deleteLocalFile(final MyFile file) {
         Log.d(TAG, "Deleting local file: " + file.getFilename());
+
+        if (bsm != null)
+            bsm.dismiss();
+
         File baseDirectory = PathResolver.getPublicDocFileDir(context);
 
         // get local files that matches the filename of the file to delete
@@ -309,6 +318,10 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
      */
     private void showInfos(StorageElement element) {
         Log.d(TAG, "Showing infos");
+
+        if (bsm != null)
+            bsm.dismiss();
+
         InfoDialog dialog = new InfoDialog(context, null, element);
         dialog.show();
     }

@@ -16,7 +16,6 @@ import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
-import com.polimi.proj.qdocs.dialogs.ProgressBarDialog;
 import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.support.PathResolver;
 

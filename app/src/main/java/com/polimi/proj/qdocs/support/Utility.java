@@ -5,16 +5,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
-import android.support.annotation.DrawableRes;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MenuItem;
 
-import com.cocosw.bottomsheet.BottomSheet;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
-import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.GenericFileActivity;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.activities.PlayAudioActivity;
@@ -48,15 +43,15 @@ public class Utility {
      * @param listener listener on the menu items click
      * @return new object, NB: need to be showed
      */
-    public static BottomSheet.Builder generateBottomSheetMenu(AppCompatActivity activity,
-                                                       String title,
-                                                       int menuId,
-                                                       MenuItem.OnMenuItemClickListener listener) {
+    /*public static BottomSheet.Builder generateBottomSheetMenu(AppCompatActivity activity,
+                                                              String title,
+                                                              int menuId,
+                                                              MenuItem.OnMenuItemClickListener listener) {
         return new BottomSheet.Builder(activity, R.style.bottom_sheet_style)
                 .title(title)
                 .sheet(menuId)
                 .listener(listener);
-    }
+    }*/
 
     /**
      * Downloads the specific file, if not yet download, and saves it locally

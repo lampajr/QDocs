@@ -14,8 +14,4 @@
         android:top="0.1dp"
         android:bottom="0.1dp"/>
 
-    <stroke
-        android:width="0dp"
-        android:color="#F96007"/>
-
 </shape>

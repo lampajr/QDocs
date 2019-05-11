@@ -7,7 +7,7 @@
     android:background="@color/colorPrimary"
     tools:context=".fragments.ScannerFragment">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipChildren="false"
@@ -22,7 +22,7 @@
             app:zxing_preview_scaling_strategy='centerCrop'
             />
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
 
 

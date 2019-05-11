@@ -1,7 +1,6 @@
 package com.polimi.proj.qdocs.fragments;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -9,19 +8,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout.LayoutParams;
@@ -31,7 +19,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cocosw.bottomsheet.BottomSheet;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -45,6 +41,7 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 import com.polimi.proj.qdocs.R;
@@ -53,11 +50,11 @@ import com.polimi.proj.qdocs.dialogs.InfoDialog;
 import com.polimi.proj.qdocs.dialogs.InputDialog;
 import com.polimi.proj.qdocs.dialogs.ProgressBarDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
-import com.polimi.proj.qdocs.listeners.DragAndDropTouchListener;
 import com.polimi.proj.qdocs.listeners.OnInputListener;
+import com.polimi.proj.qdocs.support.BottomSheetMenu;
 import com.polimi.proj.qdocs.support.DividerDecorator;
-import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
+import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageAdapter;
@@ -101,6 +98,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private Context context;
     private MainActivity parentActivity;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private BottomSheetMenu bsm;
 
     /**
      * Required empty public constructor
@@ -130,9 +128,9 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_storage, container, false);
 
-        uploadGenericFileFloatingButton = view.findViewById(R.id.upload_file_button);
+        //uploadGenericFileFloatingButton = view.findViewById(R.id.upload_file_button);
 
-        setupUploadFileFloatingButton();
+        //setupUploadFileFloatingButton();
 
         fbHelper = new FirebaseHelper();
 
@@ -235,6 +233,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * of the mobile phone
      */
     private void setupUploadFileFloatingButton() {
+
         //uploadGenericFileFloatingButton.setOnTouchListener(dragAndDropListener);
 
         // upload image button
@@ -415,7 +414,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
             @Override
             public void onFileOptionClick(MyFile file) {
-                showFileBottomSheetMenu(file);
+                showFileSettingsMenu(file);
             }
 
             @Override
@@ -546,6 +545,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      */
     private void saveFile(MyFile file) {
         Log.d(TAG, "Saving file: " + file.getFilename());
+        if (bsm != null)
+            bsm.dismiss();
         fbHelper.updateLastAccessAttribute(file.getKey());
         fbHelper.madeOfflineFile(file.getKey());
 
@@ -561,6 +562,10 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private void deletePersonalFile(final String filename) {
         //TODO: implement "are you sure?" dialog
         Log.w(TAG, "Deleting file: " + filename);
+
+        if (bsm != null)
+            bsm.dismiss();
+
         fbHelper.deletePersonalFile(null, filename, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
@@ -605,6 +610,10 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      */
     private void showQrCode(final String filename) {
         Log.d(TAG, "Showing QR code");
+
+        if (bsm != null)
+            bsm.dismiss();
+
         MyFile f = StorageElement.retrieveFileByName(filename, storageElements);
         QrCodeDialog dialog = new QrCodeDialog(context, null, f);
         dialog.show();
@@ -616,6 +625,10 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      */
     private void showInfos(StorageElement element) {
         Log.d(TAG, "Showing infos");
+
+        if (bsm != null)
+            bsm.dismiss();
+
         InfoDialog dialog = new InfoDialog(context, null, element);
         dialog.show();
     }
@@ -687,7 +700,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     /**
      * Notifies the adapters that data has been changed
      */
-    public void notifyAdapter() {
+    private void notifyAdapter() {
         myStorageAdapter.notifyDataSetChanged();
     }
 
@@ -722,34 +735,29 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * shows the bottom menu providing settings about the specific file
      * @param file file for which show settings
      */
-    private void showFileBottomSheetMenu(final MyFile file) {
-        Utility.generateBottomSheetMenu(parentActivity,
-                "SETTINGS",
-                R.menu.file_settings_menu,
-                new MenuItem.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        String name = file.getFilename();
-                        switch (item.getItemId()) {
-                            case R.id.delete_option:
-                                deletePersonalFile(name);
-                                break;
-
-                            case R.id.save_option:
-                                saveFile(file);
-                                break;
-
-                            case R.id.get_qrcode_option:
-                                showQrCode(name);
-                                break;
-
-                            case R.id.info_option:
-                                showInfos(file);
-                                break;
-                        }
-                        return false;
-                    }
-                }).show();
+    private void showFileSettingsMenu(final MyFile file) {
+        bsm = BottomSheetMenu.getInstance(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveFile(file);
+            }
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deletePersonalFile(file.getFilename());
+            }
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showQrCode(file.getFilename());
+            }
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showInfos(file);
+            }
+        });
+        bsm.show(((MainActivity)context).getSupportFragmentManager(), "file_settings_" + file.getFilename());
     }
 
     /**
@@ -757,7 +765,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * @param dir directory object
      */
     private void showDirectoryBottomSheetMenu(final MyDirectory dir) {
-        new BottomSheet.Builder(parentActivity)
+        // TODO: re-implement menu for directory
+        /*new BottomSheet.Builder(parentActivity)
                 .title(getString(R.string.settings_string))
                 .sheet(R.menu.directory_settings_menu)
                 .listener(new MenuItem.OnMenuItemClickListener() {
@@ -774,7 +783,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                         }
                         return false;
                     }
-                }).show();
+                }).show();*/
     }
 
     /**

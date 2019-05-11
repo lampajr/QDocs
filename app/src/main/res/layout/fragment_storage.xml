@@ -8,7 +8,7 @@
 
     <include layout="@layout/titlebar" android:id="@+id/titlebar"/>
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_below="@id/titlebar"
         android:layout_width="match_parent"
@@ -16,17 +16,28 @@
         android:paddingBottom="@dimen/bottom_navigation_view_dim">
 
         <!-- FILES RECYCLER VIEW -->
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/storage_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingBottom="@dimen/bottom_navigation_view_dim"/>
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/upload_file_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="70dp"
+        android:backgroundTint="@color/add_button_color"
+        android:src="@drawable/ic_add_24dp"/>
 
-    <android.support.design.widget.FloatingActionButton
+<!--
+    <com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton
         android:id="@+id/upload_file_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -35,6 +46,6 @@
         android:src="@drawable/ic_add_24dp"
         android:backgroundTint="@color/add_button_color"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true" />
+        android:layout_alignParentBottom="true" />-->
 
 </RelativeLayout>
