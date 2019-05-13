@@ -36,24 +36,6 @@ public class Utility {
     private static final String TEXT = "application";
 
     /**
-     * Generate a new BottomSheet menu given the following parameters
-     * @param activity parent activity that will show the menu
-     * @param title title of the menu
-     * @param menuId resource id of the menu to inflate
-     * @param listener listener on the menu items click
-     * @return new object, NB: need to be showed
-     */
-    /*public static BottomSheet.Builder generateBottomSheetMenu(AppCompatActivity activity,
-                                                              String title,
-                                                              int menuId,
-                                                              MenuItem.OnMenuItemClickListener listener) {
-        return new BottomSheet.Builder(activity, R.style.bottom_sheet_style)
-                .title(title)
-                .sheet(menuId)
-                .listener(listener);
-    }*/
-
-    /**
      * Downloads the specific file, if not yet download, and saves it locally
      * @param context activity's context
      * @param pathname pathname of the file to save
@@ -131,15 +113,6 @@ public class Utility {
         showFileIntent.putExtra(DownloadFileService.RESULT_KEY_FILENAME, filename);
 
         ((MainActivity) context).startActivityForResult(showFileIntent, ShowImageActivity.DELETE_CODE);
-
-    }
-
-    /**
-     * Show the local file getting it from the local public directory
-     * @param context activity's context
-     * @param filename name of the file to show
-     */
-    public static void showLocalFile(Context context, final String filename) {
 
     }
 

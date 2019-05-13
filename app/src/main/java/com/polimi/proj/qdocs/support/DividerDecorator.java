@@ -20,8 +20,8 @@ public class DividerDecorator extends RecyclerView.ItemDecoration {
                        @NonNull RecyclerView.State state) {
         super.onDraw(canvas, parent, state);
 
-        int dividerLeft = 32;
-        int dividerRight = parent.getWidth() - 32;
+        int dividerLeft = 5;
+        int dividerRight = parent.getWidth() - 5;
 
         for (int i = 0; i < parent.getChildCount() - 1; i++) {
             View child = parent.getChildAt(i);

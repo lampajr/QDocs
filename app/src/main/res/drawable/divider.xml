@@ -4,5 +4,8 @@
     <size
         android:width="1dp"
         android:height="1dp" />
-    <solid android:color="@color/transparent_primary_dark" />
+    <gradient android:startColor="@color/colorPrimary"
+        android:centerColor="@color/transparent_primary_dark"
+        android:endColor="@color/colorPrimary"
+        android:type="linear"/>
 </shape>
