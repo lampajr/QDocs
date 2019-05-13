@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/titlebar"
-        android:paddingBottom="@dimen/bottom_navigation_view_dim"
+        android:paddingBottom="@dimen/bottom_list_padding"
         android:id="@+id/swipe_refresh_layout">
 
         <!-- FILES RECYCLER VIEW -->
@@ -20,7 +20,7 @@
             android:id="@+id/storage_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingBottom="@dimen/bottom_navigation_view_dim"
+            android:paddingBottom="@dimen/bottom_list_padding"
             android:clipToPadding="false"/>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -1,6 +1,7 @@
 package com.polimi.proj.qdocs.fragments;
 
 import android.Manifest;
+import android.animation.Animator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -127,13 +128,12 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         titlebar = view.findViewById(R.id.titlebar);
         directoryPathText = titlebar.findViewById(R.id.title);
-        directoryPathText.setText("HOME");
         getBackDirectoryButton = titlebar.findViewById(R.id.get_back_directory);
+        setupDirectoryLayout();
 
         speedDialView = view.findViewById(R.id.upload_button);
         setupSpeedDialView();
 
-        setupDirectoryLayout();
 
         // RecyclerView for elements
         storageView = view.findViewById(R.id.storage_view);
@@ -176,7 +176,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
-
 
     @Override
     public void onRefresh() {
@@ -281,6 +280,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 getBackDirectory();
             }
         });
+        directoryPathText.setText("HOME");
     }
 
     /**
@@ -374,6 +374,42 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 });
             }
         });
+    }
+
+    private void showTitlebar() {
+        titlebar.setAlpha(0.0f);
+        titlebar.setVisibility(View.VISIBLE);
+        titlebar.animate()
+                .translationY(titlebar.getHeight())
+                .alpha(1.0f)
+                .setListener(null);
+    }
+
+    private void hideTitlebar() {
+        titlebar.animate()
+                .translationY(0)
+                .alpha(0.0f)
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        titlebar.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
     }
 
     /**

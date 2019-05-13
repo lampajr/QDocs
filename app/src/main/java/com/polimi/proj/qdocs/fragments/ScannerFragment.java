@@ -164,9 +164,7 @@ public class ScannerFragment extends Fragment {
 
         // get the barcode view
         barcodeView = scannerView.findViewById(R.id.barcode_view);
-        // TODO: re-add swipe listener
-        //barcodeView.setOnTouchListener(onSwipeTouchListener);
-        barcodeView.setStatusText("");
+        setupBarcodeScanner();
 
         return scannerView;
     }
@@ -185,6 +183,26 @@ public class ScannerFragment extends Fragment {
                 barcodeView.decodeContinuous(emptyCallback);
             }
         }
+    }
+
+    /**
+     * Setup the barcode adding its OnClick listener that will hide/restore
+     * the Bottom Navigation Bar
+     */
+    private void setupBarcodeScanner() {
+        barcodeView.setStatusText("");
+        barcodeView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainActivity parent = (MainActivity) context;
+                if (parent.navigationBarIsHidden()) {
+                    parent.restoreBottomNavigationBar();
+                }
+                else {
+                    parent.hideBottomNavigationBar();
+                }
+            }
+        });
     }
 
     /**

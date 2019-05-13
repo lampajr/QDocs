@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int i) {
                 prevFragmentIdx = i;
                 navigationBar.setCurrentItem(i);
-                //navigationBar.getMenu().getItem(i).setChecked(true);
+                navigationBar.restoreBottomNavigation();
             }
 
             @Override
@@ -318,6 +318,28 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    /**
+     * Hides the Bottom Navigation View
+     */
+    public void hideBottomNavigationBar() {
+        navigationBar.hideBottomNavigation();
+    }
+
+    /**
+     * Restore the Bottom Navigation View
+     */
+    public void restoreBottomNavigationBar() {
+        navigationBar.restoreBottomNavigation();
+    }
+
+    /**
+     * Check the state of the Bottom Navigation View
+     * @return true if it is hidden, false otherwise
+     */
+    public boolean navigationBarIsHidden() {
+        return navigationBar.isHidden();
     }
 
     /**
