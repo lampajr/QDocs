@@ -65,7 +65,7 @@ public class ShowFileReceiver extends ResultReceiver {
 
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
-        if (resultCode == DownloadFileService.DOWNLOAD_OK && resultData != null) {
+        if ((resultCode == DownloadFileService.DOWNLOAD_OK || resultCode == DownloadFileService.ALREADY_STORED) && resultData != null) {
             // all goes well
             Log.d(TAG, "Results received from DownloadFileService: OK");
             Uri fileUri = (Uri) resultData.get(DownloadFileService.RESULT_KEY_URI);
@@ -90,7 +90,7 @@ public class ShowFileReceiver extends ResultReceiver {
         }
         else {
             // something goes wrong: resultCode == DOWNLOAD_ERROR
-            Log.e(TAG, "Results received from DownloadFileService: ERROR" +
+            Log.e(TAG, "Results received from DownloadFileService: ERROR " +
                     DownloadFileService.DOWNLOAD_ERROR);
 
             // TODO: implement error handling
