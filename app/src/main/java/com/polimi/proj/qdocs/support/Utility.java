@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
@@ -80,31 +82,20 @@ public class Utility {
      * @param mimeType extension in mimeType format
      * @param extension extension in string format
      */
-    public static void showFile(Context context, Uri fileUri, String filename, String mimeType, String extension) {
-
-        String type = "";
-        if (mimeType != null) {
-            type = mimeType.split("/")[0];
-        }
+    public static void showFile(Context context, Uri fileUri, String filename, @NonNull String mimeType, String extension) {
         Intent showFileIntent;
 
-        switch (type){
-
-            case IMAGE:
-                Log.d(TAG, "Instantiating 'show image' activity...");
-                showFileIntent = new Intent(context, ShowImageActivity.class);
-                break;
-
-            case AUDIO:
-                Log.d(TAG, "Instantiating 'play audio' activity...");
-                showFileIntent = new Intent(context, PlayAudioActivity.class);
-                break;
-
-            default:
-                Log.d(TAG, "Instantiating 'generic' activity...");
-                showFileIntent = new Intent(context, GenericFileActivity.class);
-                break;
-
+        if (mimeType.contains(IMAGE)) {
+            Log.d(TAG, "Instantiating 'show image' activity...");
+            showFileIntent = new Intent(context, ShowImageActivity.class);
+        }
+        else if (mimeType.contains(AUDIO) || mimeType.contains("mpeg") || mimeType.contains("mp4")) {
+            Log.d(TAG, "Instantiating 'play audio' activity...");
+            showFileIntent = new Intent(context, PlayAudioActivity.class);
+        }
+        else {
+            Log.d(TAG, "Instantiating 'generic' activity...");
+            showFileIntent = new Intent(context, GenericFileActivity.class);
         }
 
         showFileIntent.putExtra(DownloadFileService.RESULT_KEY_URI, fileUri);
