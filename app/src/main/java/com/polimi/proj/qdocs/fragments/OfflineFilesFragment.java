@@ -45,6 +45,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.polimi.proj.qdocs.support.MyFile.emptyElement;
+
 
 /**
  * @author Lamparelli Andrea
@@ -226,6 +228,8 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
     private void loadLocalFiles() {
         Log.d(TAG, "Loading local files..");
 
+        files.clear();
+
         File baseDirectory = PathResolver.getPublicDocFileDir(context);
         File[] localFiles = baseDirectory.listFiles();
 
@@ -319,7 +323,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
     }
 
     private void notifyAdapter() {
-        loadLocalFiles();
+        //loadLocalFiles();
         myStorageAdapter.notifyDataSetChanged();
     }
 

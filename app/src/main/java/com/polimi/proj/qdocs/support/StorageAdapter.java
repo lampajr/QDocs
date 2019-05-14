@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.fragments.StorageFragment;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -125,79 +126,92 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
             if (element instanceof MyFile) {
                 isFile = true;
                 final MyFile file = (MyFile) element;
-                elementNameView.setText(file.getFilename().split("\\.")[0]);
-                elementDescriptionView.setText(file.getContentType());
-                Log.d(TAG, "Adding file to the recycler view");
-
-                final StorageReference refUsed = file.getStReference() == null ? ref : file.getStReference();
-
-                if (file.getContentType() == null) {
-                    elementImage.setImageResource(R.drawable.ic_unsupported_file_24dp);
-                }
-                else if (file.getContentType().contains("image")) {
-                    // preview image for image file
-
-                    File[] files = null;
-
-                    if (file.isOffline()) {
-                        // if offline file load the preview image from local directory
-                        File baseDir = PathResolver.getPublicDocFileDir(context);
-                        files = baseDir.listFiles(new FilenameFilter() {
-                            @Override
-                            public boolean accept(File dir, String name) {
-                                return name.equals(file.getFilename());
-                            }
-                        });
-
-                        if (files != null && files.length != 0) {
-                            File offlineFile = files[0];
-                            Bitmap myBitmap = BitmapFactory.decodeFile(offlineFile.getAbsolutePath());
-                            elementImage.setImageBitmap(myBitmap);
-                        }
-                    }
-                    
-                    if (files == null || files.length == 0){
-                        // if not offline load the image from Firebase
-                        refUsed.child(file.getFilename()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                Log.d(TAG, "preview image loaded successfully");
-                                Glide.with(context).load(uri).into(elementImage);
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                // TODO: handle the situation where you are not able to download the preview image, setting default image
-                            }
-                        });
-                    }
-
-                }
-                else if (file.getContentType().contains("audio")) {
-                    // image for audio
-                    elementImage.setImageResource(R.drawable.ic_mic_24dp);
-                }
-                else if (file.getContentType().contains("pdf")) {
-                    elementImage.setImageResource(R.drawable.ic_tmp_pdf_24dp);
+                if (file.getFilename().equals(MyFile.EMPTY_ELEMENT)) {
+                    elementNameView.setText("");
+                    elementDescriptionView.setText("");
+                    elementImage.setVisibility(View.INVISIBLE);
+                    elementOptionView.setVisibility(View.INVISIBLE);
+                    elementOptionView.setClickable(false);
                 }
                 else {
-                    elementImage.setImageResource(R.drawable.ic_unsupported_file_24dp);
+                    Log.d(TAG, "Adding file to the recycler view");
+
+                    elementNameView.setText(file.getFilename().split("\\.")[0]);
+                    elementDescriptionView.setText(file.getContentType());
+                    elementImage.setVisibility(View.VISIBLE);
+                    elementOptionView.setVisibility(View.VISIBLE);
+                    elementOptionView.setClickable(true);
+
+                    final StorageReference refUsed = file.getStReference() == null ? ref : file.getStReference();
+
+                    if (file.getContentType() == null) {
+                        elementImage.setImageResource(R.drawable.ic_unsupported_file_24dp);
+                    }
+                    else if (file.getContentType().contains("image")) {
+                        // preview image for image file
+
+                        File[] files = null;
+
+                        if (file.isOffline()) {
+                            // if offline file load the preview image from local directory
+                            File baseDir = PathResolver.getPublicDocFileDir(context);
+                            files = baseDir.listFiles(new FilenameFilter() {
+                                @Override
+                                public boolean accept(File dir, String name) {
+                                    return name.equals(file.getFilename());
+                                }
+                            });
+
+                            if (files != null && files.length != 0) {
+                                File offlineFile = files[0];
+                                Bitmap myBitmap = BitmapFactory.decodeFile(offlineFile.getAbsolutePath());
+                                elementImage.setImageBitmap(myBitmap);
+                            }
+                        }
+
+                        if (files == null || files.length == 0) {
+                            // if not offline load the image from Firebase
+                            refUsed.child(file.getFilename()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    Log.d(TAG, "preview image loaded successfully");
+                                    Glide.with(context).load(uri).into(elementImage);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    // TODO: handle the situation where you are not able to download the preview image, setting default image
+                                }
+                            });
+                        }
+                    }
+                    else if (file.getContentType().contains("audio")) {
+                        // image for audio
+                        elementImage.setImageResource(R.drawable.ic_mic_24dp);
+                    }
+                    else if (file.getContentType().contains("pdf")) {
+                        elementImage.setImageResource(R.drawable.ic_tmp_pdf_24dp);
+                    }
+                    else {
+                        elementImage.setImageResource(R.drawable.ic_unsupported_file_24dp);
+                    }
+
+                    mainLayout.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            onFileClick(file);
+                        }
+                    });
+
+                    elementOptionView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // will show the bottom menu here
+                            onFileOptionClick(file);
+                        }
+                    });
+
                 }
-
-                mainLayout.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onFileClick(file);
-                    }
-                });
-
-                elementOptionView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // will show the bottom menu here
-                        onFileOptionClick(file);
-                    }
-                });
             }
             else {
                 // the current element is a directory

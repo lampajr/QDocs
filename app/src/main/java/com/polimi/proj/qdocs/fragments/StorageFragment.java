@@ -64,6 +64,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.polimi.proj.qdocs.support.MyFile.emptyElement;
+
 //TODO: separate delete operation from this class in order to reuse them in offlineFilesFragment
 
 
@@ -468,6 +470,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      */
     private void setupFirebaseStorageListener() {
         storageElements.clear();
+        addElement(emptyElement);
+        addElement(emptyElement.duplicate());
         // Showing refresh animation before making requests to firebase server
         swipeRefreshLayout.setRefreshing(true);
 
@@ -667,6 +671,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             fbHelper.backwardDatabaseDirectory();
             fbHelper.backwardStorageDirectory();
             storageElements.clear();
+            addElement(emptyElement);
+            addElement(emptyElement.duplicate());
             //TODO: change directory text
             String pastText = directoryPathText.getText().toString();
             directoryPathText.setText(pastText.substring(0, pastText.lastIndexOf(">")));
@@ -699,6 +705,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         fbHelper.updateDatabaseReference(directoryName);
         fbHelper.updateStorageReference(directoryName);
         storageElements.clear();
+        addElement(emptyElement);
+        addElement(emptyElement.duplicate());
         notifyAdapter();
         setupFirebaseStorageListener();
         //TODO: change directory text

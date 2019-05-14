@@ -26,13 +26,16 @@ import com.google.firebase.storage.StorageReference;
 @IgnoreExtraProperties
 public class MyFile extends StorageElement{
 
-    public static final String KEY = "key";
-    public static final String FILENAME = "filename";
-    public static final String CONTENT_TYPE = "contentType";
-    public static final String SIZE = "size";
-    public static final String TIME = "time";
-    public static final String LAST_ACCESS = "lastAccess";
-    public static final String OFFLINE = "offline";
+    static final String KEY = "key";
+    static final String FILENAME = "filename";
+    static final String CONTENT_TYPE = "contentType";
+    static final String SIZE = "size";
+    static final String TIME = "time";
+    static final String LAST_ACCESS = "lastAccess";
+    static final String OFFLINE = "offline";
+
+    public static final String EMPTY_ELEMENT = "empty_element_59834823";
+    public static MyFile emptyElement = new MyFile(EMPTY_ELEMENT, "", "", "", "", 0L, false);
 
 
     // file's attribute stored in the database
@@ -105,4 +108,7 @@ public class MyFile extends StorageElement{
         this.dbReference = dbReference;
     }
 
+    public MyFile duplicate() {
+        return new MyFile(filename, contentType, key, size, time, lastAccess, offline);
+    }
 }

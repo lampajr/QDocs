@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.polimi.proj.qdocs.support.MyFile.emptyElement;
+
 
 /**
  * @author Lamparelli Andrea
