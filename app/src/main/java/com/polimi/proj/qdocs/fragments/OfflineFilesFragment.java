@@ -54,7 +54,6 @@ import static com.polimi.proj.qdocs.support.MyFile.emptyElement;
  *
  * Fragment that will show the list of user's offline files
  */
-//TODO: show qrcode saved locally
 public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private final String TAG = "OFFLINE_FILES_FRAGMENT";
 

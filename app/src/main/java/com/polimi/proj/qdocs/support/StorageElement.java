@@ -16,7 +16,9 @@ public abstract class StorageElement implements Comparable<StorageElement>{
     /**
      * the compaison is made in according to the lastAccess
      * @param o object to compare with
-     * @return -1, 0 or 1
+     * @return -1   if lastAccess < o.lastAccess,
+     *          0   if lastAccess = o.lastAccess,
+     *          1   if lastAccess > o.lastAccess
      */
     @Exclude
     @Override
