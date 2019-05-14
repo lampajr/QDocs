@@ -14,7 +14,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -22,7 +21,6 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.polimi.proj.qdocs.R;
 
@@ -42,20 +40,13 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private static final int GOOGLE_SIGN_IN = 100;
-    private static final int FACE_SIGN_IN = 200;
     private LoginButton facebookButton;
-    private Button customFacebookButton;
-    private Button signUpButton;
-    private Button signInButton;
     private EditText emailView;
     private EditText passwordView;
     private String TAG = "LOGIN";
     private FirebaseAuth mAuth;
     private CallbackManager callbackManager;
     private GoogleSignInClient mGoogleSignInClient;
-    //private SignInButton googleButton;
-    private Button googleButton;
-    private boolean anonymous;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,9 +59,7 @@ public class LoginActivity extends AppCompatActivity {
         emailView = findViewById(R.id.email_text);
         passwordView = findViewById(R.id.password_text);
 
-        // TODO: implementare il passaggio allo scaner
-
-        signInButton = findViewById(R.id.submit_button);
+        Button signInButton = findViewById(R.id.submit_button);
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        signUpButton = findViewById(R.id.sign_up);
+        Button signUpButton = findViewById(R.id.sign_up);
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -119,21 +108,19 @@ public class LoginActivity extends AppCompatActivity {
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(LoginActivity.this, gso);
-        googleButton = findViewById(R.id.google_button);
+        //private SignInButton googleButton;
+        Button googleButton = findViewById(R.id.google_button);
         googleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.google_button:
-                        Log.d(TAG, "start login with google");
-                        signInWithGoogle();
-                        break;
-
+                if (v.getId() == R.id.google_button) {
+                    Log.d(TAG, "start login with google");
+                    signInWithGoogle();
                 }
             }
         });
 
-        customFacebookButton = findViewById(R.id.custom_facebook_button);
+        Button customFacebookButton = findViewById(R.id.custom_facebook_button);
         customFacebookButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -157,7 +144,6 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
                             startMain();
                         } else {
                             // If sign in fails, display a message to the user.
@@ -187,6 +173,7 @@ public class LoginActivity extends AppCompatActivity {
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
+                assert account != null;
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
@@ -211,7 +198,6 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success with google");
-                            FirebaseUser user = mAuth.getCurrentUser();
                             Log.d(TAG, "user "+mAuth.getCurrentUser());
                             startMain();
                         } else {
@@ -291,7 +277,6 @@ public class LoginActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "signInWithEmail:success");
-                                    FirebaseUser user = mAuth.getCurrentUser();
                                     startMain();
                                 } else {
                                     // If sign in fails, display a message to the user.
