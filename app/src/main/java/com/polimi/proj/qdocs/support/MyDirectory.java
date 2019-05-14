@@ -13,6 +13,7 @@ public class MyDirectory extends StorageElement {
 
     public MyDirectory(String directoryName) {
         this.directoryName = directoryName;
+        this.lastAccess = 0L;
     }
 
     public String getDirectoryName() {
