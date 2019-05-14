@@ -232,7 +232,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                         return true;
                     case R.id.upload_file:
                         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                        intent.setType("*//*");
+                        intent.setType("*/*");
                         intent.addCategory(Intent.CATEGORY_OPENABLE);
                         startActivityForResult(intent, FILE_PRV);
                         return true;
@@ -501,7 +501,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                //TODO: implement onChildChanged listener on db
                 Log.d(TAG, "onChildChanged");
                 if (StorageElement.isFile(dataSnapshot)) {
                     // update the file
