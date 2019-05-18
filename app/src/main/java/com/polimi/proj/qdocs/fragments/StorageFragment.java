@@ -139,12 +139,12 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         speedDialView = view.findViewById(R.id.upload_button);
         setupSpeedDialView();
 
-
         // RecyclerView for elements
         storageView = view.findViewById(R.id.storage_view);
         setupStorageView();
 
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        setupSwipeRefreshListener();
 
         onInputListener = this;
 
