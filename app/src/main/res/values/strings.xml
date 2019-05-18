@@ -26,7 +26,6 @@
     <string name="email_already_used">email already in use</string>
     <string name="format_not_recognized">Format not recognized, please check it!!</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="image_viewer_description">IMAGE VIEWER</string>
     <string name="no_operation">operation not yet implemented</string>

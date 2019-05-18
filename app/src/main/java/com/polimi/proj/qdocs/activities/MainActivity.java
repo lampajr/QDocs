@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
             if (data != null) {
                 Log.d(TAG, "Delete operation received from file");
                 String filename = data.getStringExtra(ShowImageActivity.FILE_NAME);
-                // TODO: check from which fragment it comes
                 if (prevFragmentIdx==STORAGE_ID) {
                     Log.d(TAG, "Removing file from storage view");
                     StorageFragment fr = (StorageFragment) fragments.get(STORAGE_ID);
@@ -310,7 +309,6 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Files permission granted");
                 filesPermissionGranted = true;
-                //TODO: do something if needed
             }
             else {
                 Log.d(TAG, "Files permission denied.. you cannot access files list page!");
