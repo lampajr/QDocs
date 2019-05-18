@@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.listeners.OnInputListener;
 
+import java.util.Objects;
+
 public class InputDialog extends Dialog {
     public InputDialog(@NonNull Context context,
                        @Nullable DialogInterface.OnCancelListener cancelListener,
@@ -23,7 +25,7 @@ public class InputDialog extends Dialog {
 
         setTitle(title);
         setContentView(R.layout.dialog_insert_name);
-        getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        Objects.requireNonNull(getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         final EditText nameEditTex = findViewById(R.id.name_text);
 

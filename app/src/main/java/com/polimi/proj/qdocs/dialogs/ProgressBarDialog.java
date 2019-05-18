@@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
 import com.akexorcist.roundcornerprogressbar.RoundCornerProgressBar;
 import com.polimi.proj.qdocs.R;
 
+import java.util.Objects;
+
 public class ProgressBarDialog extends Dialog {
 
     private RoundCornerProgressBar progressBar;
@@ -28,7 +30,7 @@ public class ProgressBarDialog extends Dialog {
         this.title = title;
 
         setContentView(R.layout.dialog_progress_bar);
-        getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        Objects.requireNonNull(getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         TextView textView = findViewById(R.id.title_text);
         textView.setText(title);

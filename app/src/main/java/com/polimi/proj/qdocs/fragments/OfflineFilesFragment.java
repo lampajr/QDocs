@@ -24,12 +24,11 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.InfoDialog;
-import com.polimi.proj.qdocs.support.BottomSheetMenu;
 import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.MyFile;
-import com.polimi.proj.qdocs.support.PartialSheetMenu;
+import com.polimi.proj.qdocs.dialogs.PartialSheetMenu;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageAdapter;
 import com.polimi.proj.qdocs.support.StorageElement;
@@ -44,8 +43,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.polimi.proj.qdocs.support.MyFile.emptyElement;
 
 
 /**
@@ -199,7 +196,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
      */
     private void showFile(MyFile file) {
         Log.d(TAG, "Showing file " + file.getFilename());
-        Uri fileUri = Uri.fromFile(new File(PathResolver.getPublicDocFileDir(context).getAbsolutePath() + "/" + file.getFilename()));
+        Uri fileUri = Uri.fromFile(new File(PathResolver.getPublicDocStorageDir(context).getAbsolutePath() + "/" + file.getFilename()));
         Utility.showFile(context, fileUri, file.getFilename().split("\\.")[0], file.getContentType(), file.getFilename().split("\\.")[1]);
     }
 
@@ -229,7 +226,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
 
         files.clear();
 
-        File baseDirectory = PathResolver.getPublicDocFileDir(context);
+        File baseDirectory = PathResolver.getPublicDocStorageDir(context);
         File[] localFiles = baseDirectory.listFiles();
 
         if (localFiles != null && localFiles.length != 0) {
@@ -270,7 +267,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
         if (fsm != null)
             fsm.dismiss();
 
-        File baseDirectory = PathResolver.getPublicDocFileDir(context);
+        File baseDirectory = PathResolver.getPublicDocStorageDir(context);
 
         // get local files that matches the filename of the file to delete
         File[] localFiles = baseDirectory.listFiles(new FileFilter() {

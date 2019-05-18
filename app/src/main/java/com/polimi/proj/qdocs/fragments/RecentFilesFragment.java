@@ -1,6 +1,7 @@
 package com.polimi.proj.qdocs.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,9 +30,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
+import com.polimi.proj.qdocs.dialogs.ConfirmDialog;
 import com.polimi.proj.qdocs.dialogs.InfoDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
-import com.polimi.proj.qdocs.support.BottomSheetMenu;
+import com.polimi.proj.qdocs.dialogs.BottomSheetMenu;
 import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyDirectory;
@@ -43,8 +45,6 @@ import com.polimi.proj.qdocs.support.Utility;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static com.polimi.proj.qdocs.support.MyFile.emptyElement;
 
 
 /**
@@ -220,7 +220,13 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         }, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deletePersonalFile(file);
+                new ConfirmDialog(context, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deletePersonalFile(file);
+                    }
+                });
+                //deletePersonalFile(file);
             }
         }, new View.OnClickListener() {
             @Override
@@ -242,7 +248,6 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      */
     private void setupFirebaseStorageListener(final DatabaseReference ref, final StorageReference storageReference) {
         swipeRefreshLayout.setRefreshing(true);
-        // TODO: doesn't load all files
 
         ref.addChildEventListener(new ChildEventListener() {
             @Override
@@ -294,7 +299,6 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      * @param file file to delete
      */
     private void deletePersonalFile(final MyFile file) {
-        //TODO: implement "are you sure?" dialog
         Log.d(TAG, "Deleting file: " + file.getFilename());
 
         if (bsm != null)
@@ -404,9 +408,14 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      * @param filename name of the file to delete
      */
     public void onDeleteFromFile(String filename) {
-        MyFile file = StorageElement.retrieveFileByName(filename, files);
+        final MyFile file = StorageElement.retrieveFileByName(filename, files);
         if (file != null) {
-            deletePersonalFile(file);
+            new ConfirmDialog(context, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    deletePersonalFile(file);
+                }
+            });
         }
         else {
             Log.w(TAG, "File to delete not found!");

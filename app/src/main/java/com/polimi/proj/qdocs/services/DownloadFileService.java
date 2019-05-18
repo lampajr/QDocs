@@ -16,7 +16,6 @@ import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
-import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.support.PathResolver;
 
@@ -116,7 +115,7 @@ public class DownloadFileService extends IntentService {
         }*/
 
         // TODO: checks if the fil already exists in the personal directory
-        File storageFile = new File(PathResolver.getPublicDocFileDir(getApplicationContext()).getAbsolutePath(), filename + "." + extension);
+        File storageFile = new File(PathResolver.getPublicDocStorageDir(getApplicationContext()).getAbsolutePath(), filename + "." + extension);
         if(!storageFile.exists()) {
             try {
                 localFile = File.createTempFile(filename, extension, getCacheDir());

@@ -1,4 +1,4 @@
-package com.polimi.proj.qdocs.support;
+package com.polimi.proj.qdocs.dialogs;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

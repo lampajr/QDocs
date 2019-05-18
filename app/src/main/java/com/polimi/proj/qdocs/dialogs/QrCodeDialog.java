@@ -67,7 +67,7 @@ public class QrCodeDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 String filename = file.getFilename().split("\\.")[0] + ".png";
-                File dst = new File(PathResolver.createPublicDocStorageDir(context).getAbsolutePath(),
+                File dst = new File(PathResolver.getPublicDocStorageDir(context).getAbsolutePath(),
                         context.getString(R.string.qrcode_string) + "-" + filename);
                 try {
                     Integer result = new SaveQRCodeTask(qrCodeBitmap, dst).execute(qrCodeBitmap).get();

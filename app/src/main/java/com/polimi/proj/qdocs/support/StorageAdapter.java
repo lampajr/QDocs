@@ -19,7 +19,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
-import com.polimi.proj.qdocs.fragments.StorageFragment;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -154,7 +153,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
 
                         if (file.isOffline()) {
                             // if offline file load the preview image from local directory
-                            File baseDir = PathResolver.getPublicDocFileDir(context);
+                            File baseDir = PathResolver.getPublicDocStorageDir(context);
                             files = baseDir.listFiles(new FilenameFilter() {
                                 @Override
                                 public boolean accept(File dir, String name) {

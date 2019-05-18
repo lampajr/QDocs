@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:orientation="vertical" android:layout_height="match_parent"
     android:paddingStart="20dp"
     android:paddingEnd="20dp"
@@ -10,7 +12,7 @@
 
     <EditText
         android:id="@+id/name_text"
-        android:background="@color/zxing_transparent"
+        android:background="@drawable/edit_text_shape"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -20,14 +22,26 @@
         android:autofillHints="@string/default_folder_string"
         android:inputType="text"
         android:textColor="@color/colorAccent"
-        android:textAlignment="center"/>
+        android:textAlignment="center"
+        tools:targetApi="o" />
 
     <LinearLayout
         android:layout_gravity="center"
         android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        style="?android:attr/buttonBarButtonStyle"
         android:padding="10dp">
+
+        <Button
+            android:text="@string/cancel_upper_string"
+            android:id="@+id/cancel_button"
+            android:background="@color/zxing_transparent"
+            android:layout_marginEnd="10dp"
+            android:textColor="#FF0000"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/buttonBarButtonStyle"/>
 
         <Button
             android:id="@+id/confirm_button"
@@ -36,16 +50,8 @@
             android:background="@color/zxing_transparent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"/>
-
-        <Button
-            android:text="@string/cancel_upper_string"
-            android:id="@+id/cancel_button"
-            android:background="@color/zxing_transparent"
             android:layout_marginStart="10dp"
-            android:textColor="#FF0000"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            style="?android:attr/buttonBarButtonStyle"/>
 
     </LinearLayout>
 

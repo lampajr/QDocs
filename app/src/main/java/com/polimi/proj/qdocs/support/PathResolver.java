@@ -239,14 +239,10 @@ public class PathResolver {
         String mimeType = context.getContentResolver().getType(uri);
         String filename = null;
 
-        if (mimeType == null && context != null) {
+        if (mimeType == null) {
             String path = "";//getPath(context, uri);
-            if (path == null) {
-                filename = getName(uri.toString());
-            } else {
-                File file = new File(path);
-                filename = file.getName();
-            }
+            File file = new File(path);
+            filename = file.getName();
         } else {
             Cursor returnCursor = context.getContentResolver().query(uri, null, null, null, null);
             if (returnCursor != null) {
@@ -297,11 +293,12 @@ public class PathResolver {
      * if does not already exists
      * @return the new File created
      */
-    public static File createPublicDocStorageDir(Context context) {
+    public static File getPublicDocStorageDir(Context context) {
         FirebaseUser user;
         String localdir =  context.getString(R.string.app_name);
         if ((user=FirebaseAuth.getInstance().getCurrentUser()) != null) {
-            localdir += "/" + user.getDisplayName();
+            String name = "".equals(user.getDisplayName()) ? user.getEmail() : user.getDisplayName();
+            localdir += "/" + name;
         }
 
         // Get the directory for the user's public pictures directory.
@@ -316,15 +313,16 @@ public class PathResolver {
     /**
      * Returns the personal directory if exists, null otherwise
      * @return File obj
-     */
-    public static File getPublicDocFileDir(Context context) {
+     *
+    public static File getPublicDocStorageDir(Context context) {
         FirebaseUser user;
         String localdir =  context.getString(R.string.app_name);
         if ((user=FirebaseAuth.getInstance().getCurrentUser()) != null) {
-            localdir += "/" + user.getDisplayName();
+            String name = user.getDisplayName() == null ? user.getEmail() : user.getDisplayName();
+            localdir += "/" + name;
         }
         // Get the directory for the user's public pictures directory.
         return new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOCUMENTS), localdir);
-    }
+    }*/
 }

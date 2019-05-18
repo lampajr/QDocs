@@ -48,12 +48,12 @@ import com.polimi.proj.qdocs.dialogs.InputDialog;
 import com.polimi.proj.qdocs.dialogs.ProgressBarDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
 import com.polimi.proj.qdocs.listeners.OnInputListener;
-import com.polimi.proj.qdocs.support.BottomSheetMenu;
+import com.polimi.proj.qdocs.dialogs.BottomSheetMenu;
 import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.MyFile;
-import com.polimi.proj.qdocs.support.PartialSheetMenu;
+import com.polimi.proj.qdocs.dialogs.PartialSheetMenu;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageAdapter;
 import com.polimi.proj.qdocs.support.StorageElement;
@@ -292,7 +292,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private void createDirectory(final String name) {
         // TODO: check that the directory's name does not already exist
         Log.d(TAG, "Creating new directory");
-        File baseDir = PathResolver.getPublicDocFileDir(context);
+        File baseDir = PathResolver.getPublicDocStorageDir(context);
         File secretFile = new File(baseDir.getAbsolutePath() + "/" + MainActivity.SECRET_FILE);
         try {
             if (!secretFile.exists()) {

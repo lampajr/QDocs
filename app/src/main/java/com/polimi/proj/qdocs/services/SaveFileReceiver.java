@@ -115,7 +115,7 @@ public class SaveFileReceiver extends ResultReceiver {
      * @param filename name of the file
      */
     private void saveFile(Uri fileUri, String filename) {
-        String absPath = PathResolver.createPublicDocStorageDir(context).getAbsolutePath();
+        String absPath = PathResolver.getPublicDocStorageDir(context).getAbsolutePath();
         File dst = new File(absPath, filename);
         Log.d(TAG, "destination file path = " + absPath + "/" + filename);
         if (!dst.exists()) {
