@@ -9,9 +9,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class DividerDecorator extends RecyclerView.ItemDecoration {
     private Drawable divider;
+    private int bottomSpace;
+
+    public DividerDecorator(Drawable divider, int bottomSpace) {
+        this.divider = divider;
+        this.bottomSpace = bottomSpace;
+    }
 
     public DividerDecorator(Drawable divider) {
         this.divider = divider;
+        this.bottomSpace = 2;
     }
 
     @Override
@@ -23,7 +30,7 @@ public class DividerDecorator extends RecyclerView.ItemDecoration {
         int dividerLeft = 5;
         int dividerRight = parent.getWidth() - 5;
 
-        for (int i = 0; i < parent.getChildCount() - 2; i++) {
+        for (int i = 0; i < parent.getChildCount() - bottomSpace; i++) {
             View child = parent.getChildAt(i);
             StorageAdapter.DataViewHolder vHolder = (StorageAdapter.DataViewHolder) parent.getChildViewHolder(child);
 

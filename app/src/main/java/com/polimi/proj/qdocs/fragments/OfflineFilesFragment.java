@@ -142,7 +142,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
         storageView.setHasFixedSize(true);
         storageView.setLayoutManager(new LinearLayoutManager(context));
 
-        RecyclerView.ItemDecoration dividerItemDecoration = new DividerDecorator(ContextCompat.getDrawable(context, R.drawable.divider));
+        RecyclerView.ItemDecoration dividerItemDecoration = new DividerDecorator(ContextCompat.getDrawable(context, R.drawable.divider), 0);
         storageView.addItemDecoration(dividerItemDecoration);
 
         myStorageAdapter = new StorageAdapter(context, files, FirebaseStorage.getInstance().getReference()) {

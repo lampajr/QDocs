@@ -1,7 +1,6 @@
 package com.polimi.proj.qdocs.fragments;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,10 +30,9 @@ import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.AreYouSureDialog;
-import com.polimi.proj.qdocs.dialogs.ConfirmDialog;
+import com.polimi.proj.qdocs.dialogs.BottomSheetMenu;
 import com.polimi.proj.qdocs.dialogs.InfoDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
-import com.polimi.proj.qdocs.dialogs.BottomSheetMenu;
 import com.polimi.proj.qdocs.listeners.OnYesListener;
 import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
@@ -147,7 +145,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         storageView.setHasFixedSize(true);
         storageView.setLayoutManager(new LinearLayoutManager(context));
 
-        RecyclerView.ItemDecoration dividerItemDecoration = new DividerDecorator(ContextCompat.getDrawable(context, R.drawable.divider));
+        RecyclerView.ItemDecoration dividerItemDecoration = new DividerDecorator(ContextCompat.getDrawable(context, R.drawable.divider), 0);
         storageView.addItemDecoration(dividerItemDecoration);
 
         myStorageAdapter = new StorageAdapter(context, files, FirebaseStorage.getInstance().getReference()) {
