@@ -69,8 +69,6 @@ import java.util.List;
 
 import static com.polimi.proj.qdocs.support.MyFile.emptyElement;
 
-//TODO: separate delete operation from this class in order to reuse them in offlineFilesFragment
-
 
 public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener, OnInputListener {
 
@@ -111,8 +109,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         return new StorageFragment();
     }
 
-    //TODO: add on the settings menu of the file the information about it
-    //TODO: add settings on directories
     //////////////////// OVERRIDE METHODS //////////////////////////
 
     @Override
@@ -663,7 +659,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      */
     private void showInfos(StorageElement element) {
         Log.d(TAG, "Showing infos");
-        //TODO: show infos about directory
 
         if (bsm != null)
             bsm.dismiss();

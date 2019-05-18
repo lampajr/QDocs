@@ -18,6 +18,7 @@ import com.polimi.proj.qdocs.support.StorageElement;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 public class InfoDialog extends Dialog {
     private static final String TAG = "INFO_DIALOG";
@@ -32,7 +33,7 @@ public class InfoDialog extends Dialog {
         this.storageElement = element;
 
         setTitle(context.getString(R.string.info_string).toUpperCase());
-        getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        Objects.requireNonNull(getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         if (storageElement instanceof MyFile)
             setupFileInfoDialog();
@@ -79,6 +80,9 @@ public class InfoDialog extends Dialog {
      */
     private void setupDirectoryInfoDialog() {
         MyDirectory dir = (MyDirectory) storageElement;
-        //TODO:setContentView(R.layout.dialog_dir_info);
+        setContentView(R.layout.dialog_dir_info);
+
+        TextView dirName = findViewById(R.id.directory_name_text);
+        dirName.setText(dir.getDirectoryName());
     }
 }
