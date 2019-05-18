@@ -49,6 +49,9 @@ dependencies {
     // storage
     implementation 'com.google.firebase:firebase-storage:17.0.0'
 
+    // crashes
+    implementation 'com.google.firebase:firebase-crash:16.2.1'
+
     // zxing
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
 
