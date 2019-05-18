@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 public class PathResolver {
     private static final String TAG = "PATH_RESOLVER";
@@ -272,7 +273,7 @@ public class PathResolver {
             is = context.getContentResolver().openInputStream(uri);
             bos = new BufferedOutputStream(new FileOutputStream(destinationPath, false));
             byte[] buf = new byte[1024];
-            is.read(buf);
+            Objects.requireNonNull(is).read(buf);
             do {
                 bos.write(buf);
             } while (is.read(buf) != -1);
@@ -309,20 +310,4 @@ public class PathResolver {
         }
         return file;
     }
-
-    /**
-     * Returns the personal directory if exists, null otherwise
-     * @return File obj
-     *
-    public static File getPublicDocStorageDir(Context context) {
-        FirebaseUser user;
-        String localdir =  context.getString(R.string.app_name);
-        if ((user=FirebaseAuth.getInstance().getCurrentUser()) != null) {
-            String name = user.getDisplayName() == null ? user.getEmail() : user.getDisplayName();
-            localdir += "/" + name;
-        }
-        // Get the directory for the user's public pictures directory.
-        return new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOCUMENTS), localdir);
-    }*/
 }

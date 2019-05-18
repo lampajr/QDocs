@@ -30,10 +30,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
+import com.polimi.proj.qdocs.dialogs.AreYouSureDialog;
 import com.polimi.proj.qdocs.dialogs.ConfirmDialog;
 import com.polimi.proj.qdocs.dialogs.InfoDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
 import com.polimi.proj.qdocs.dialogs.BottomSheetMenu;
+import com.polimi.proj.qdocs.listeners.OnYesListener;
 import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyDirectory;
@@ -220,13 +222,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         }, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new ConfirmDialog(context, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        deletePersonalFile(file);
-                    }
-                });
-                //deletePersonalFile(file);
+                deletePersonalFile(file);
             }
         }, new View.OnClickListener() {
             @Override
@@ -304,19 +300,24 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         if (bsm != null)
             bsm.dismiss();
 
-        fbHelper.deletePersonalFile(file.getStReference(), file.getFilename(), new OnFailureListener() {
+        new AreYouSureDialog(context, new OnYesListener() {
             @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(TAG, "Failure occurred during file removing");
-                Toast.makeText(context, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
-                        .show();
+            public void onYes() {
+                fbHelper.deletePersonalFile(file.getStReference(), file.getFilename(), new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Failure occurred during file removing");
+                        Toast.makeText(context, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                }, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "File correctly removed!");
+                    }
+                });
             }
-        }, new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Log.d(TAG, "File correctly removed!");
-            }
-        });
+        }).show();
     }
 
     /**
@@ -410,12 +411,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     public void onDeleteFromFile(String filename) {
         final MyFile file = StorageElement.retrieveFileByName(filename, files);
         if (file != null) {
-            new ConfirmDialog(context, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    deletePersonalFile(file);
-                }
-            });
+            deletePersonalFile(file);
         }
         else {
             Log.w(TAG, "File to delete not found!");

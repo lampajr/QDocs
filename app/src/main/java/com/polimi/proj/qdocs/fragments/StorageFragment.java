@@ -43,17 +43,20 @@ import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
+import com.polimi.proj.qdocs.dialogs.AreYouSureDialog;
+import com.polimi.proj.qdocs.dialogs.DirectorySheetMenu;
 import com.polimi.proj.qdocs.dialogs.InfoDialog;
 import com.polimi.proj.qdocs.dialogs.InputDialog;
 import com.polimi.proj.qdocs.dialogs.ProgressBarDialog;
 import com.polimi.proj.qdocs.dialogs.QrCodeDialog;
 import com.polimi.proj.qdocs.listeners.OnInputListener;
 import com.polimi.proj.qdocs.dialogs.BottomSheetMenu;
+import com.polimi.proj.qdocs.listeners.OnYesListener;
 import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.MyFile;
-import com.polimi.proj.qdocs.dialogs.PartialSheetMenu;
+import com.polimi.proj.qdocs.dialogs.OfflineSheetMenu;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageAdapter;
 import com.polimi.proj.qdocs.support.StorageElement;
@@ -95,7 +98,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private MainActivity parentActivity;
     private SwipeRefreshLayout swipeRefreshLayout;
     private BottomSheetMenu bsm;
-    private PartialSheetMenu psm;
+    private DirectorySheetMenu psm;
 
     private SpeedDialView speedDialView;
 
@@ -583,25 +586,29 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * @param filename name of the file to delete
      */
     private void deletePersonalFile(final String filename) {
-        //TODO: implement "are you sure?" dialog
         Log.w(TAG, "Deleting file: " + filename);
 
         if (bsm != null)
             bsm.dismiss();
 
-        fbHelper.deletePersonalFile(null, filename, new OnFailureListener() {
+        new AreYouSureDialog(context, new OnYesListener() {
             @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(TAG, "Failure occurred during file removing");
-                Toast.makeText(context, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
-                        .show();
+            public void onYes() {
+                fbHelper.deletePersonalFile(null, filename, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Failure occurred during file removing");
+                        Toast.makeText(context, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                }, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "File correctly removed!");
+                    }
+                });
             }
-        }, new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Log.d(TAG, "File correctly removed!");
-            }
-        });
+        }).show();
     }
 
     /**
@@ -609,25 +616,29 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * @param path name of the directory to remove, or deep path of directories
      */
     private void deletePersonalDirectory(final String path) {
-        //TODO: implement "are you sure?" dialog
+        Log.d(TAG, "Deleting directory: " + path);
 
         if (psm != null)
             psm.dismiss();
 
-        Log.d(TAG, "Deleting directory: " + path);
-        fbHelper.deletePersonalDirectory(path, new OnFailureListener() {
+        new AreYouSureDialog(context, new OnYesListener() {
             @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(TAG, "Failure occurred during file removing");
-                Toast.makeText(context, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
-                        .show();
+            public void onYes() {
+                fbHelper.deletePersonalDirectory(path, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Failure occurred during file removing");
+                        Toast.makeText(context, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                }, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "File correctly removed!");
+                    }
+                });
             }
-        }, new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Log.d(TAG, "File correctly removed!");
-            }
-        });
+        }).show();
     }
 
     /**
@@ -652,6 +663,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      */
     private void showInfos(StorageElement element) {
         Log.d(TAG, "Showing infos");
+        //TODO: show infos about directory
 
         if (bsm != null)
             bsm.dismiss();
@@ -686,7 +698,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             myStorageAdapter.updateStorageReference(fbHelper.getStorageReference());
         }
         else {
-            Log.d(TAG, "you are already at root");
+            Log.d(TAG, "You are already at root");
             Toast.makeText(context, getString(R.string.already_at_root_level),
                     Toast.LENGTH_SHORT).show();
         }
@@ -796,7 +808,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * @param dir directory object
      */
     private void showDirectoryBottomSheetMenu(final MyDirectory dir) {
-        psm = PartialSheetMenu.getInstance(new View.OnClickListener() {
+        psm = DirectorySheetMenu.getInstance(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 deletePersonalDirectory(dir.getDirectoryName());
@@ -804,22 +816,9 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         }, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: show infos of directory
+                showInfos(dir);
             }
         });
         psm.show(((MainActivity)context).getSupportFragmentManager(), "directory_settings_" + dir.getDirectoryName());
-    }
-
-    /**
-     * Shows a dialog which will show to user the infos
-     * about the specific file
-     * @param file file from which get infos
-     */
-    private void showFileInfoDialog(MyFile file) {
-        //TODO: show infos about file
-    }
-
-    private void showDirInfoDialog(MyDirectory dir) {
-        //TODO: show infos about directory
     }
 }

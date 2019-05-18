@@ -12,19 +12,19 @@ import androidx.annotation.Nullable;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.polimi.proj.qdocs.R;
 
-public class PartialSheetMenu extends BottomSheetDialogFragment {
+public class OfflineSheetMenu extends BottomSheetDialogFragment {
     private View.OnClickListener onSave, onDelete, onGetQrCode, onInfo;
 
-    private PartialSheetMenu(View.OnClickListener onDelete,
+    private OfflineSheetMenu(View.OnClickListener onDelete,
                              View.OnClickListener onInfo) {
         this.onDelete = onDelete;
         this.onInfo = onInfo;
     }
 
-    public static PartialSheetMenu getInstance(View.OnClickListener onDelete,
+    public static OfflineSheetMenu getInstance(View.OnClickListener onDelete,
                                                View.OnClickListener onInfo) {
 
-        return new PartialSheetMenu(onDelete, onInfo);
+        return new OfflineSheetMenu(onDelete, onInfo);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class PartialSheetMenu extends BottomSheetDialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.partial_bottom_sheet, container, false);
+        final View view = inflater.inflate(R.layout.offline_bottom_sheet, container, false);
 
         TextView deleteOption = view.findViewById(R.id.delete_option),
                 infoOption = view.findViewById(R.id.info_option);

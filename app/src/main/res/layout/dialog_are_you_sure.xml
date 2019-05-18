@@ -11,20 +11,14 @@
     android:paddingBottom="10dp"
     android:background="@drawable/dialog_shape">
 
-    <EditText
-        android:id="@+id/name_text"
-        android:background="@drawable/edit_text_shape"
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="10dp"
-        android:hint="@string/default_folder_string"
-        android:textColorHint="@color/colorPrimary"
-        android:autofillHints="@string/default_folder_string"
-        android:inputType="text"
-        android:textColor="@color/colorAccent"
+        android:text="@string/are_you_sure_string"
         android:textAlignment="center"
-        tools:targetApi="o" />
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:textSize="@dimen/big_text_size"/>
 
     <LinearLayout
         android:layout_gravity="center"
@@ -35,8 +29,8 @@
         android:padding="10dp">
 
         <Button
-            android:text="@string/cancel_upper_string"
-            android:id="@+id/cancel_button"
+            android:id="@+id/no_button"
+            android:text="@string/no_upper_string"
             android:background="@color/zxing_transparent"
             android:layout_marginEnd="10dp"
             android:textColor="#FF0000"
@@ -45,8 +39,8 @@
             style="?android:attr/buttonBarButtonStyle"/>
 
         <Button
-            android:id="@+id/confirm_button"
-            android:text="@string/confirm_upper_string"
+            android:id="@+id/yes_button"
+            android:text="@string/yes_upper_string"
             android:textColor="@color/colorPrimaryDark"
             android:background="@color/zxing_transparent"
             android:layout_width="wrap_content"

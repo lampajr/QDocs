@@ -28,7 +28,7 @@ import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.MyFile;
-import com.polimi.proj.qdocs.dialogs.PartialSheetMenu;
+import com.polimi.proj.qdocs.dialogs.OfflineSheetMenu;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageAdapter;
 import com.polimi.proj.qdocs.support.StorageElement;
@@ -63,7 +63,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView storageView;
     private StorageAdapter myStorageAdapter;
-    private PartialSheetMenu fsm;
+    private OfflineSheetMenu fsm;
 
     private List<StorageElement> files;
     private int count;
@@ -207,7 +207,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
     private void showFileSettingsMenu(final MyFile file) {
         Log.d(TAG, "Showing file settings menu");
 
-        fsm = PartialSheetMenu.getInstance(new View.OnClickListener() {
+        fsm = OfflineSheetMenu.getInstance(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 deleteLocalFile(file);

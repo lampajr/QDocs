@@ -57,7 +57,7 @@
     <string name="logout_string">Log out</string>
     <string name="offline_string">OFFLINE</string>
     <string name="recent_string">RECENT</string>
-    <string name="are_you_sure_string">Are you Sure</string>
+    <string name="are_you_sure_string">Are you Sure?</string>
     <string name="qr_code_dialog_title">QR CODE</string>
     <string name="qrcode_string">QRCODE</string>
     <string name="qr_code_saved">QR code successfully saved</string>
@@ -69,6 +69,8 @@
     <string name="default_folder_string">my_folder</string>
     <string name="confirm_upper_string">CONFIRM</string>
     <string name="cancel_upper_string">CANCEL</string>
+    <string name="yes_upper_string">YES</string>
+    <string name="no_upper_string">NO</string>
 
 
 </resources>
