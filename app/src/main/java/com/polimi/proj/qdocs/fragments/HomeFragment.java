@@ -140,17 +140,25 @@ public class HomeFragment extends Fragment {
      * setup the user profile
      */
     private void setupProfile() {
-        final Uri photoUri = user.getPhotoUrl();
-        Log.d(TAG, "profile photo uri = " + photoUri);
 
-        SetupProfileImageTask task = new SetupProfileImageTask();
-        task.setListener(new SetupProfileImageTask.Listener() {
-            @Override
-            public void onSuccess(Bitmap profileBitmap) {
-                profileImage.setImageBitmap(profileBitmap);
-            }
-        });
-        task.execute(photoUri.toString());
+        final Uri photoUri = user.getPhotoUrl();
+
+        if (photoUri != null) {
+            Log.d(TAG, "profile photo uri = " + photoUri);
+
+            SetupProfileImageTask task = new SetupProfileImageTask();
+            task.setListener(new SetupProfileImageTask.Listener() {
+                @Override
+                public void onSuccess(Bitmap profileBitmap) {
+                    profileImage.setImageBitmap(profileBitmap);
+                }
+            });
+
+            task.execute(photoUri.toString());
+        }
+        else {
+            profileImage.setImageDrawable(context.getDrawable(R.drawable.ic_001_account));
+        }
 
         displayName.setText(user.getDisplayName());
         personalEmail.setText(user.getEmail());
