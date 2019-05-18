@@ -135,12 +135,9 @@ public class DownloadFileService extends IntentService {
      * @param pathname name of the file
      * @param extension extension of the file
      */
-    private void downloadFileFromFilename(final String ciao, final String filename, final String extension) {
-        Log.d(TAG, "Downloading file: " + ciao);
+    private void downloadFileFromFilename(final String pathname, final String filename, final String extension) {
+        Log.d(TAG, "Downloading file: " + pathname);
 
-        // TODO: handle FirebaseStorage exceptions
-
-        final String pathname = "pippo";
         StorageReference storageRef = FirebaseStorage.getInstance().getReference()
                 .child(user.getUid()).child(pathname);
 
