@@ -8,7 +8,10 @@ import android.os.ResultReceiver;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.tasks.OnCanceledListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -132,13 +135,16 @@ public class DownloadFileService extends IntentService {
      * @param pathname name of the file
      * @param extension extension of the file
      */
-    private void downloadFileFromFilename(final String pathname, final String filename, final String extension) {
-        Log.d(TAG, "Downloading file: " + pathname);
+    private void downloadFileFromFilename(final String ciao, final String filename, final String extension) {
+        Log.d(TAG, "Downloading file: " + ciao);
 
         // TODO: handle FirebaseStorage exceptions
 
+        final String pathname = "pippo";
         StorageReference storageRef = FirebaseStorage.getInstance().getReference()
                 .child(user.getUid()).child(pathname);
+
+        Log.d(TAG, "mao");
 
         if (localFile != null) {
             Log.d(TAG, "Local file created: " + localFile.getAbsolutePath());
@@ -158,7 +164,15 @@ public class DownloadFileService extends IntentService {
                             Log.d(TAG, "MyFile downloaded successfully: onSuccess");
                             getBackResults(DOWNLOAD_OK, filename, extension);
                         }
-                    }).addOnCanceledListener(new OnCanceledListener() {
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d(TAG, "Failure occurred.");
+                    Bundle resultBundle = new Bundle();
+                    resultBundle.putFloat(RESULT_KEY_PROGRESS, -1F);
+                    receiver.send(SET_PROGRESS, resultBundle);
+                }
+            }).addOnCanceledListener(new OnCanceledListener() {
                 @Override
                 public void onCanceled() {
                     Log.e(TAG, "Error occurred during download of " + pathname + " from FirebaseStorage");

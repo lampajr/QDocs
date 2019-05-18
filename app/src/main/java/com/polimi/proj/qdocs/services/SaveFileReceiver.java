@@ -98,7 +98,15 @@ public class SaveFileReceiver extends ResultReceiver {
             progressBar.show();
         }
         else if (resultCode == DownloadFileService.SET_PROGRESS && resultData != null) {
-            progressBar.setProgress(resultData.getFloat(DownloadFileService.RESULT_KEY_PROGRESS));
+            float value = resultData.getFloat(DownloadFileService.RESULT_KEY_PROGRESS);
+            if (value == -1F) {
+                Log.d(TAG, "Failure occurred during download");
+                Toast.makeText(context, "Error during download!", Toast.LENGTH_SHORT).show();
+                progressBar.dismiss();
+            }
+            else {
+                progressBar.setProgress(value);
+            }
         }
         else {
             // something goes wrong: resultCode == DOWNLOAD_ERROR

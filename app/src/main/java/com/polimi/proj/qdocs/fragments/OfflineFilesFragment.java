@@ -293,6 +293,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
                             Toast.makeText(context, "Local file deleted!", Toast.LENGTH_SHORT).show();
                             files.remove(file);
                             notifyAdapter();
+                            ((MainActivity) context).restoreBottomNavigationBar();
                         }
                         else {
                             Log.d(TAG, "Deletion failed!");
