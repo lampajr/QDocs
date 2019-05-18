@@ -3,6 +3,8 @@ package com.polimi.proj.qdocs.support;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
@@ -135,5 +137,17 @@ public class Utility {
         String code = time + "";// + "" + new Random().nextLong();
         Log.d(TAG, "new code: " + code);
         return code;
+    }
+
+    /**
+     * Checks the availability of the network
+     * @param context calling context
+     * @return true if connected, false if not
+     */
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

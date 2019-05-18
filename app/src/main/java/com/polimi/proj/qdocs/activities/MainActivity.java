@@ -29,6 +29,7 @@ import com.polimi.proj.qdocs.fragments.OfflineFilesFragment;
 import com.polimi.proj.qdocs.fragments.RecentFilesFragment;
 import com.polimi.proj.qdocs.fragments.ScannerFragment;
 import com.polimi.proj.qdocs.fragments.StorageFragment;
+import com.polimi.proj.qdocs.support.Utility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
         filesPermissionGranted = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -287,6 +287,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        if (!Utility.isNetworkAvailable(this)) {
+            // TODO: handle the case in which there is no connection
+            // TODO: use BroadcastReceiver
+        }
         initialize();
     }
 

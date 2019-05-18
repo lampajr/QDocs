@@ -120,6 +120,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         // retain this fragment
         setRetainInstance(true);
+
     }
 
     @Override
@@ -144,7 +145,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         setupStorageView();
 
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
-        setupSwipeRefreshListener();
 
         onInputListener = this;
 
