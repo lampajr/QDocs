@@ -19,6 +19,7 @@
         android:layout_gravity="center"
         android:layout_marginBottom="10dp"
         android:hint="@string/default_folder_string"
+        android:padding="10dp"
         android:textColorHint="@color/colorPrimary"
         android:autofillHints="@string/default_folder_string"
         android:inputType="text"
@@ -32,7 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="?android:attr/buttonBarButtonStyle"
-        android:padding="10dp">
+        android:padding="4dp">
 
         <Button
             android:text="@string/cancel_upper_string"

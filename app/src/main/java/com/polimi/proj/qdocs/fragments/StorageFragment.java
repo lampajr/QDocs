@@ -56,16 +56,19 @@ import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.MyFile;
-import com.polimi.proj.qdocs.dialogs.OfflineSheetMenu;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageAdapter;
 import com.polimi.proj.qdocs.support.StorageElement;
 import com.polimi.proj.qdocs.support.Utility;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.polimi.proj.qdocs.support.MyFile.emptyElement;
 
@@ -289,19 +292,25 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * @param name name of the new directory
      */
     private void createDirectory(final String name) {
-        // TODO: check that the directory's name does not already exist
         Log.d(TAG, "Creating new directory");
-        File baseDir = PathResolver.getPublicDocStorageDir(context);
-        File secretFile = new File(baseDir.getAbsolutePath() + "/" + MainActivity.SECRET_FILE);
-        try {
-            if (!secretFile.exists()) {
-                boolean result = secretFile.createNewFile();
-                Log.d(TAG, "Secret file created: " + result);
-            }
-            uploadFile(Uri.fromFile(secretFile), name, "Creating directory..");
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (StorageElement.retrieveDirectoryByName(name, storageElements) != null) {
+            // A directory with this name already exist
+            Toast.makeText(context, "Directory name already used!!", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            File baseDir = PathResolver.getPublicDocStorageDir(context);
+            File secretFile = new File(baseDir.getAbsolutePath() + "/" + MainActivity.SECRET_FILE);
+            try {
+                if (!secretFile.exists()) {
+                    boolean result = secretFile.createNewFile();
+                    Log.d(TAG, "Secret file created: " + result);
+                }
+                uploadFile(Uri.fromFile(secretFile), name, "Creating directory..");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -311,106 +320,70 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      *
      */
     private void uploadFile(@NonNull final Uri fileUri, final String pathname, String progressTitle) {
-        //TODO: check name of the file, for instance if it contains dot it cannot be uploaded
-        //uploadGenericFileFloatingButton.performClick();
         speedDialView.close();
 
-        //Uri fileUri = data.getData();
+        try {
+            String child = Objects.requireNonNull(fileUri.getLastPathSegment());
+            //TODO: check name of the file, for instance if it contains dot it cannot be uploaded
+            StorageReference fileRef = !pathname.equals("") ?
+                    fbHelper.getStorageReference().child(pathname).child(child)
+                    : fbHelper.getStorageReference().child(child);
 
-        //String absoluteFilePath = PathResolver.getPathFromUri(context, fileUri);
-        //final Uri file = Uri.fromFile(new File(absoluteFilePath));
+            // file information
+            final String contentType = context.getContentResolver().getType(fileUri);
 
-        StorageReference fileRef = !pathname.equals("") ?
-                fbHelper.getStorageReference().child(pathname).child(fileUri.getLastPathSegment())
-                : fbHelper.getStorageReference().child(fileUri.getLastPathSegment());
+            StorageMetadata metadata = new StorageMetadata.Builder()
+                    .setContentType(contentType)
+                    .setCustomMetadata(KEY_METADATA, Utility.generateCode())
+                    .setCustomMetadata(UID_METADATA, fbHelper.getUserId())
+                    .build();
 
-        // file information
-        final String contentType = context.getContentResolver().getType(fileUri);
+            final UploadTask uploadTask = fileRef.putFile(fileUri, metadata);
 
-        StorageMetadata metadata = new StorageMetadata.Builder()
-                .setContentType(contentType)
-                .setCustomMetadata(KEY_METADATA, Utility.generateCode())
-                .setCustomMetadata(UID_METADATA, fbHelper.getUserId())
-                .build();
+            final ProgressBarDialog progressDialog = new ProgressBarDialog(context,
+                    null, progressTitle);
+            progressDialog.show();
 
-        final UploadTask uploadTask = fileRef.putFile(fileUri, metadata);
-
-        final ProgressBarDialog progressDialog = new ProgressBarDialog(context,
-                null, progressTitle);
-        progressDialog.show();
-
-        Log.d(TAG, "starting uploading");
-        // Register observers to listen for when the download is done or if it fails
-        parentActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                uploadTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        Log.e(TAG, exception.toString());
-                    }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        Log.d(TAG, "Upload complete");
-                        progressDialog.setProgress(100);
-                    }
-                }).addOnCanceledListener(new OnCanceledListener() {
-                    @Override
-                    public void onCanceled() {
-                        Log.e(TAG, "Upload canceled");
-                    }
-                }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                        Log.d(TAG, "Upload paused");
-                    }
-                }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                        final int progress = (int)((100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
-                        Log.d(TAG, "PROGRESS -> " + progress);
-                        progressDialog.setProgress(progress);
-                    }
-                });
-            }
-        });
-    }
-
-    private void showTitlebar() {
-        titlebar.setAlpha(0.0f);
-        titlebar.setVisibility(View.VISIBLE);
-        titlebar.animate()
-                .translationY(titlebar.getHeight())
-                .alpha(1.0f)
-                .setListener(null);
-    }
-
-    private void hideTitlebar() {
-        titlebar.animate()
-                .translationY(0)
-                .alpha(0.0f)
-                .setListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        titlebar.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-
-                    }
-                });
+            Log.d(TAG, "starting uploading");
+            // Register observers to listen for when the download is done or if it fails
+            parentActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            Log.e(TAG, exception.toString());
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Log.d(TAG, "Upload complete");
+                            progressDialog.setProgress(100);
+                        }
+                    }).addOnCanceledListener(new OnCanceledListener() {
+                        @Override
+                        public void onCanceled() {
+                            Log.e(TAG, "Upload canceled");
+                        }
+                    }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+                            Log.d(TAG, "Upload paused");
+                        }
+                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            final int progress = (int) ((100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
+                            Log.d(TAG, "PROGRESS -> " + progress);
+                            progressDialog.setProgress(progress);
+                        }
+                    });
+                }
+            });
+        }
+        catch (NullPointerException ex) {
+            Toast.makeText(context, "Something went wrong!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -725,17 +698,19 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public void onNameInserted(String name) {
-        createDirectory(name);
+        createDirectory(filterDirectoryName(name));
     }
 
     /**
-     * Filters the pathname removing illegal characters
-     * @param pathname name to filter
-     * @return the filtered pathname
+     * Filters the name removing illegal characters
+     * @param name name to filter
+     * @return the filtered name
      */
-    private String filterPathname(String pathname) {
-        //TODO: implement pathname filter
-        return pathname;
+    private String filterDirectoryName(String name) {
+        //TODO: implement name filter
+        name = name.replace("/", "_");
+        name = StringUtils.deleteWhitespace(name);
+        return name;
     }
 
     /**
