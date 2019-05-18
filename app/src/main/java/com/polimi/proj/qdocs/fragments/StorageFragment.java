@@ -663,6 +663,9 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         if (bsm != null)
             bsm.dismiss();
 
+        if (psm != null)
+            psm.dismiss();
+
         InfoDialog dialog = new InfoDialog(context, null, element);
         dialog.show();
     }
