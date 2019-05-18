@@ -30,8 +30,6 @@ public class PathResolver {
 
     private static final String DOCUMENTS_DIR = "documents";
 
-    //TODO: implement methods that retrieve information about the file from uri
-
     public static String getPathFromUri(final Context context, final Uri uri) {
 
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
@@ -48,8 +46,6 @@ public class PathResolver {
                 if ("primary".equalsIgnoreCase(type)) {
                     return Environment.getExternalStorageDirectory() + "/" + split[1];
                 }
-
-                // TODO handle non-primary volumes
             }
             // DownloadsProvider
             /*else if (isDownloadsDocument(uri)) {

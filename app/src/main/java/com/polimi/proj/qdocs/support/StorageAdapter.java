@@ -62,7 +62,6 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
     @NonNull
     @Override
     public DataViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        //TODO: change layout according to the viewType
         View view;
         if (viewType == FILE) {
             view = inflater.inflate(R.layout.single_file_layout, parent, false);
@@ -179,7 +178,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    // TODO: handle the situation where you are not able to download the preview image, setting default image
+                                    elementImage.setImageResource(R.drawable.ic_unloaded_preview);
                                 }
                             });
                         }
