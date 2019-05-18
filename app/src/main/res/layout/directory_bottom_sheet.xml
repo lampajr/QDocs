@@ -16,8 +16,6 @@
         android:gravity="center"
         android:layout_gravity="center"/>
 
-    <include layout="@layout/divider" />
-
     <TextView
         android:id="@+id/delete_option"
         android:layout_width="match_parent"
