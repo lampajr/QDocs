@@ -82,13 +82,12 @@ public class SaveFileReceiver extends ResultReceiver {
             // all goes well
             Log.d(TAG, "Results received from DownloadFileService: OK");
             Uri fileUri = (Uri) resultData.get(DownloadFileService.RESULT_KEY_URI);
-            Log.d(TAG, "URI received: " + fileUri.toString());
+            Log.d(TAG, "URI received: " + (fileUri != null ? fileUri.toString() : null));
             String filename = resultData.getString(DownloadFileService.RESULT_KEY_FILENAME);
             Log.d(TAG, "FILENAME received: " + filename);
             String mimeType = resultData.getString(DownloadFileService.RESULT_KEY_MIME_TYPE);
             Log.d(TAG, "MIME TYPE received: " + mimeType);
 
-            // TODO: implement dialog to tell whether user want to see the file or not
             String name = mimeType != null ? filename + "." + mimeType.split("/")[1] : filename + ".tmp";
             saveFile(fileUri, name);
         }
@@ -99,21 +98,13 @@ public class SaveFileReceiver extends ResultReceiver {
         }
         else if (resultCode == DownloadFileService.SET_PROGRESS && resultData != null) {
             float value = resultData.getFloat(DownloadFileService.RESULT_KEY_PROGRESS);
-            if (value == -1F) {
-                Log.d(TAG, "Failure occurred during download");
-                Toast.makeText(context, "Error during download!", Toast.LENGTH_SHORT).show();
-                progressBar.dismiss();
-            }
-            else {
-                progressBar.setProgress(value);
-            }
+            progressBar.setProgress(value);
         }
-        else {
-            // something goes wrong: resultCode == DOWNLOAD_ERROR
-            Log.e(TAG, "Results received from DownloadFileService: ERROR" +
-                    DownloadFileService.DOWNLOAD_ERROR);
-
-            // TODO: implement error handling
+        else if (resultCode == DownloadFileService.DOWNLOAD_ERROR){
+            Log.d(TAG, "Failure occurred during download");
+            Toast.makeText(context, "Error during download!", Toast.LENGTH_SHORT).show();
+            if (progressBar.isShowing())
+                progressBar.dismiss();
         }
     }
 

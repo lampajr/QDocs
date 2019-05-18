@@ -110,7 +110,6 @@ public class DownloadFileService extends IntentService {
         final String filename = elements[0];  // filename of the file without extension
         String extension = contentType.split("/")[1];
 
-        // TODO: checks if the fil already exists in the personal directory
         File storageFile = new File(PathResolver.getPublicDocStorageDir(getApplicationContext()).getAbsolutePath(), filename + "." + extension);
         if(!storageFile.exists()) {
             try {
@@ -165,9 +164,7 @@ public class DownloadFileService extends IntentService {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     Log.d(TAG, "Failure occurred.");
-                    Bundle resultBundle = new Bundle();
-                    resultBundle.putFloat(RESULT_KEY_PROGRESS, -1F);
-                    receiver.send(SET_PROGRESS, resultBundle);
+                    sendError();
                 }
             }).addOnCanceledListener(new OnCanceledListener() {
                 @Override
