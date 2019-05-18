@@ -23,7 +23,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.firebase.storage.FirebaseStorage;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
+import com.polimi.proj.qdocs.dialogs.AreYouSureDialog;
 import com.polimi.proj.qdocs.dialogs.InfoDialog;
+import com.polimi.proj.qdocs.listeners.OnYesListener;
 import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyDirectory;
@@ -267,40 +269,45 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
         if (fsm != null)
             fsm.dismiss();
 
-        File baseDirectory = PathResolver.getPublicDocStorageDir(context);
-
-        // get local files that matches the filename of the file to delete
-        File[] localFiles = baseDirectory.listFiles(new FileFilter() {
+        new AreYouSureDialog(context, new OnYesListener() {
             @Override
-            public boolean accept(File f) {
-                String pathname = f.getAbsolutePath();
-                return pathname.substring(pathname.lastIndexOf("/") + 1).split("\\.")[0].equals(file.getFilename().split("\\.")[0]);
-            }
-        });
+            public void onYes() {
+                File baseDirectory = PathResolver.getPublicDocStorageDir(context);
 
-        File toDelete;
-        if (localFiles.length != 0) {
-            if ((toDelete = localFiles[0]).exists()) {
-                Log.d(TAG,"Removing local file named " + file.getFilename() + "..");
-                if (toDelete.delete()) {
-                    Log.d(TAG, "Local file deleted successfully!");
-                    fbHelper.updateOfflineAttribute(file.getKey(), false);
-                    Toast.makeText(context, "Local file deleted!", Toast.LENGTH_SHORT).show();
-                    files.remove(file);
-                    notifyAdapter();
+                // get local files that matches the filename of the file to delete
+                File[] localFiles = baseDirectory.listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        String pathname = f.getAbsolutePath();
+                        return pathname.substring(pathname.lastIndexOf("/") + 1).split("\\.")[0].equals(file.getFilename().split("\\.")[0]);
+                    }
+                });
+
+                File toDelete;
+                if (localFiles.length != 0) {
+                    if ((toDelete = localFiles[0]).exists()) {
+                        Log.d(TAG,"Removing local file named " + file.getFilename() + "..");
+                        if (toDelete.delete()) {
+                            Log.d(TAG, "Local file deleted successfully!");
+                            fbHelper.updateOfflineAttribute(file.getKey(), false);
+                            Toast.makeText(context, "Local file deleted!", Toast.LENGTH_SHORT).show();
+                            files.remove(file);
+                            notifyAdapter();
+                        }
+                        else {
+                            Log.d(TAG, "Deletion failed!");
+                            Toast.makeText(context, "Deletion failed!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    else {
+                        Log.d(TAG, "File not found!");
+                    }
                 }
                 else {
-                    Log.d(TAG, "Deletion failed!");
-                    Toast.makeText(context, "Deletion failed!", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "No matching files found!");
                 }
             }
-            else {
-                Log.d(TAG, "File not found!");
-            }
-        }
-        else {
-            Log.d(TAG, "No matching files found!");
-        }
+        }).show();
     }
 
 
