@@ -6,6 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/toolbar_height"
     app:title="Toolbar"
-    app:navigationIcon="@drawable/ic_arrow_back_black_24dp"
-    android:background="@color/colorPrimaryDark">
+    app:navigationIcon="@drawable/ic_arrow_back_black_24dp">
+    <!--android:background="@color/colorPrimaryDark">-->
 </androidx.appcompat.widget.Toolbar>

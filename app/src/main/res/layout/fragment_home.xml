@@ -13,8 +13,7 @@
         android:layout_height="100dp"
         android:layout_marginTop="@dimen/personal_page_dim"
         android:layout_marginBottom="@dimen/personal_page_dim"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"/>
+        android:layout_centerHorizontal="true"/>
 
     <TextView
         android:id="@+id/display_name"
@@ -23,6 +22,7 @@
         android:layout_below="@id/profile_image"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/personal_page_dim"
+        android:textColor="@color/colorOnBackground"
         android:text="display name"/>
 
     <TextView
@@ -32,6 +32,7 @@
         android:layout_below="@id/display_name"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/personal_page_dim"
+        android:textColor="@color/colorOnBackground"
         android:text="email used"/>
 
     <LinearLayout

@@ -184,9 +184,9 @@ public class MainActivity extends AppCompatActivity {
 
         navigationBar.setForceTint(true);
 
-        navigationBar.setDefaultBackgroundColor(getColor(R.color.colorPrimaryDark));
+        navigationBar.setDefaultBackgroundColor(getColor(R.color.colorPrimary));
         navigationBar.setAccentColor(getColor(R.color.colorAccent));
-        navigationBar.setInactiveColor(getColor(R.color.colorPrimary));
+        navigationBar.setInactiveColor(getColor(R.color.white));
 
         navigationBar.setBehaviorTranslationEnabled(true);
 

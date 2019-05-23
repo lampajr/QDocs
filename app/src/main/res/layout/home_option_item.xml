@@ -22,5 +22,6 @@
         android:paddingStart="10dp"
         android:gravity="center_vertical"
         android:textSize="20sp"
+        android:textColor="@color/colorOnBackground"
         android:text="option"/>
 </LinearLayout>

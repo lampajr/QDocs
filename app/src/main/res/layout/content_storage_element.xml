@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:textSize="@dimen/normal_text_size"
-            android:textColor="@color/orange"
+            android:textColor="@color/colorOnBackground"
             android:text="filename"
             android:layout_marginBottom="2dp"/>
 
@@ -52,7 +52,7 @@
             android:id="@+id/element_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/orange"
+            android:textColor="@color/colorOnBackground"
             android:maxLines="1"
             android:textSize="@dimen/small_text_size"
             android:text="description"/>
@@ -67,7 +67,7 @@
         android:layout_centerVertical="true"
         android:layout_centerInParent="true"
         android:background="@android:color/transparent"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/colorPrimary"
         android:textSize="25sp"
         android:textAlignment="center"
         android:text="@string/settings_points_string"/>

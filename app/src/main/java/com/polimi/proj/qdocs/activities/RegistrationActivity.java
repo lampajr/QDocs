@@ -49,7 +49,11 @@ public class RegistrationActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d(TAG, "start registration");
                 if(emailText.getText().toString().equals("") || passwordText.getText().toString().equals("")){
-                    Toast.makeText(RegistrationActivity.this, "Illegal email or password", Toast.LENGTH_LONG).show();
+                    if(emailText.getText().toString().equals(""))
+                        labelError.setText(getString(R.string.null_email));
+                    else
+                        labelError.setText(getString(R.string.null_password));
+
                 }
                 else {
                     mAuth.createUserWithEmailAndPassword(emailText.getText().toString(), passwordText.getText().toString())

@@ -70,6 +70,8 @@
     <string name="cancel_upper_string">CANCEL</string>
     <string name="yes_upper_string">YES</string>
     <string name="no_upper_string">NO</string>
+    <string name="null_email">Please insert the email</string>
+    <string name="null_password">Please insert a password</string>
 
 
 </resources>
