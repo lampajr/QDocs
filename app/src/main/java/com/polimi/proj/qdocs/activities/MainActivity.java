@@ -94,15 +94,21 @@ public class MainActivity extends AppCompatActivity {
                     StorageFragment fr = (StorageFragment) fragments.get(STORAGE_ID);
                     fr.onDeleteFromFile(filename);
                 }
-                else if (prevFragmentIdx==RECENT_ID) {
+                if (prevFragmentIdx==RECENT_ID) {
                     Log.d(TAG, "Removing file from recent files view");
                     RecentFilesFragment fr = (RecentFilesFragment) fragments.get(RECENT_ID);
                     fr.onDeleteFromFile(filename);
                 }
-                else {
+                else if (prevFragmentIdx==OFFLINE_ID) {
                     // OfflineFragment
                     Log.d(TAG, "Removing file from offline files view");
                     OfflineFilesFragment fr = (OfflineFilesFragment) fragments.get(OFFLINE_ID);
+                    fr.onDeleteFromFile(filename);
+                }
+                else if (prevFragmentIdx==SCANNER_ID) {
+                    // ScannerFragment
+                    Log.d(TAG, "Removing file from offline files view");
+                    ScannerFragment fr = (ScannerFragment) fragments.get(SCANNER_ID);
                     fr.onDeleteFromFile(filename);
                 }
             }

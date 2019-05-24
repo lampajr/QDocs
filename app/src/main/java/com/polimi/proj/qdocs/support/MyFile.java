@@ -1,5 +1,7 @@
 package com.polimi.proj.qdocs.support;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
@@ -121,5 +123,11 @@ public class MyFile extends StorageElement{
 
     public MyFile duplicate() {
         return new MyFile(filename, contentType, key, size, time, lastAccess, offline);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return filename;
     }
 }

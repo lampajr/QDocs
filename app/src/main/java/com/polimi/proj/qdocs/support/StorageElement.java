@@ -35,7 +35,10 @@ public abstract class StorageElement implements Comparable<StorageElement>{
         for(StorageElement el : storageElements) {
             if (el instanceof MyFile) {
                 MyFile f = (MyFile) el;
-                if (f.getFilename().equals(filename)) return f;
+                if (f.getFilename().equals(filename) ||
+                        f.getFilename().equals(filename.split("\\.")[0]) ||
+                        f.getFilename().split("\\.")[0].equals(filename.split("\\.")[0]))
+                    return f;
             }
         }
         return null;

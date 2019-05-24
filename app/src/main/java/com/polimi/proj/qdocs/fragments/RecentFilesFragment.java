@@ -55,7 +55,7 @@ import java.util.List;
  */
 public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     public final String TAG = "RECENT_FILES_FRAGMENT";
-    private static final int N_RECENT_FILES = 5; // number of recent files to show
+    private static final int N_RECENT_FILES = 10; // number of recent files to show
 
     // the more recent the more higher
     private boolean ascending = true;

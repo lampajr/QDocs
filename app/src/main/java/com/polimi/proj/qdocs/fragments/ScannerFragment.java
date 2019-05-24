@@ -15,6 +15,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -32,6 +35,8 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
+import com.polimi.proj.qdocs.dialogs.AreYouSureDialog;
+import com.polimi.proj.qdocs.listeners.OnYesListener;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
@@ -39,6 +44,7 @@ import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.StorageElement;
 import com.polimi.proj.qdocs.support.Utility;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -263,6 +269,32 @@ public class ScannerFragment extends Fragment {
                 loadAllFiles(ds, pathFolder);
             }
         }
+    }
+
+    public void onDeleteFromFile(final String filename) {
+        for (MyFile f : filesMap.values()) {
+            Log.w(TAG, "" + f);
+        }
+        Log.w(TAG, "FFFFF " + filename);
+        final MyFile f = StorageElement.retrieveFileByName(filename, new ArrayList<StorageElement>(filesMap.values()));
+        new AreYouSureDialog(context, new OnYesListener() {
+            @Override
+            public void onYes() {
+                fbHelper.deletePersonalFile(null, f.getPathname(), new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, "Failure occurred during file removing");
+                        Toast.makeText(context, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                }, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "File correctly removed!");
+                    }
+                });
+            }
+        }).show();
     }
 
     /**
