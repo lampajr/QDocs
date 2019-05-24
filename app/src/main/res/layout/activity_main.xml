@@ -18,6 +18,7 @@
         android:layout_height="@dimen/bottom_navigation_view_dim"
         android:layout_gravity="bottom"
         android:layout_alignParentBottom="true"
+        android:background="@drawable/bottom_navigation_view_shape"
         style="@style/bottom_navigation_view_style"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

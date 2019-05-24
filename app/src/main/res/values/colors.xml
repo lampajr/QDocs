@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- The color displayed most frequently across your app’s screens and components -->
-    <color name="colorPrimary">#1565E0</color>
+    <color name="colorPrimary">#303F9F</color>
     <color name="colorPrimaryLight">#EBEFFF</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimaryDark">#1D2663</color>
     <color name="colorSecondary">#ffa000</color>
     <color name="colorSecondaryLight">#ffd149</color>
     <color name="colorSecondaryDark">#c67100</color>
