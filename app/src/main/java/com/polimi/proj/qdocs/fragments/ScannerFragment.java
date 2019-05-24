@@ -22,6 +22,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.BeepManager;
@@ -33,7 +34,10 @@ import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.services.DownloadFileService;
 import com.polimi.proj.qdocs.services.ShowFileReceiver;
+import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyFile;
+import com.polimi.proj.qdocs.support.StorageElement;
+import com.polimi.proj.qdocs.support.Utility;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -68,7 +72,9 @@ public class ScannerFragment extends Fragment {
     private static final String BASE_REFERENCE = "documents";
     private static final String FILENAME_KEY = "filename";
 
-    private final HashMap<String, String> filesMap = new HashMap<>();
+    private final HashMap<String, MyFile> filesMap = new HashMap<>();
+
+    private FirebaseHelper fbHelper;
 
     // scan data
     private DecoratedBarcodeView barcodeView;
@@ -81,9 +87,6 @@ public class ScannerFragment extends Fragment {
 
     // authentication
     private FirebaseUser user;
-
-    // database reference
-    private DatabaseReference dbRef;
 
     // callback on the barcode, listening on results
     private BarcodeCallback barcodeCallback = new BarcodeCallback() {
@@ -149,7 +152,7 @@ public class ScannerFragment extends Fragment {
         }
 
         user = FirebaseAuth.getInstance().getCurrentUser();
-        dbRef = FirebaseDatabase.getInstance().getReference().child(BASE_REFERENCE);
+        fbHelper = new FirebaseHelper();
 
         // retain this fragment
         setRetainInstance(true);
@@ -166,6 +169,8 @@ public class ScannerFragment extends Fragment {
         barcodeView = scannerView.findViewById(R.id.barcode_view);
         setupBarcodeScanner();
 
+        setFilesEventListener();
+
         return scannerView;
     }
 
@@ -177,10 +182,13 @@ public class ScannerFragment extends Fragment {
             if (isVisibleToUser) {
                 Log.d(TAG, "Scanning resumed");
                 barcodeView.decodeContinuous(barcodeCallback);
+                lastText = "";
+                setFilesEventListener();
             }
             else {
                 Log.d(TAG, "Scanning paused");
                 barcodeView.decodeContinuous(emptyCallback);
+                lastText = "";
             }
         }
     }
@@ -206,22 +214,6 @@ public class ScannerFragment extends Fragment {
     }
 
     /**
-     * start the FileViewer which will show the file
-     * @param filename name of the file to show
-     */
-    private void startRetrieveFileService(String filename) {
-        Intent viewerIntentService = new Intent(context, DownloadFileService.class);
-
-        viewerIntentService.setAction(DownloadFileService.ACTION_DOWNLOAD_TMP_FILE);
-
-        // create the result receiver for the IntentService
-        ShowFileReceiver receiver = new ShowFileReceiver(context, new Handler());
-        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_RECEIVER, receiver);
-        viewerIntentService.putExtra(DownloadFileService.EXTRA_PARAM_FILENAME, filename);
-        context.startService(viewerIntentService);
-    }
-
-    /**
      * start the barcode scanner, called only whether there are
      * the required Camera permission
      */
@@ -234,43 +226,43 @@ public class ScannerFragment extends Fragment {
         beepManager = new BeepManager(parentActivity);
     }
 
-    /**
-     * load all the files into an HashMap obj <keycode, pathname>
-     * @param folder nested folder, null if it the root
-     */
-    private void loadFiles(final String folder) {
-        DatabaseReference reference = folder == null ? dbRef.child(user.getUid())
-                : dbRef.child(user.getUid()).child(folder);
-        reference.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if (dataSnapshot.getKey().matches("\\d+")) {
-                    // the element is a file
-                    MyFile file = dataSnapshot.getValue(MyFile.class);
-                    String pathname = folder == null ? file.getFilename()
-                            : folder + "/" + file.getFilename();
-                    filesMap.put(file.getKey(), pathname);
-                }
-                else {
-                    String pathFolder = folder == null ? dataSnapshot.getKey()
-                            : folder + "/" + dataSnapshot.getKey();
-                    loadFiles(pathFolder);
-                }
 
+    private void setFilesEventListener() {
+        Log.d(TAG, "Setting value event listener on the Firebase db");
+        filesMap.clear();
+
+        fbHelper.getDatabaseReference().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                loadAllFiles(dataSnapshot, null);
+                Log.d(TAG, "Files loaded");
             }
 
             @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}
+            }
         });
+    }
+
+    private void loadAllFiles(DataSnapshot dataSnapshot, String folder) {
+        for (DataSnapshot ds: dataSnapshot.getChildren()) {
+            if (StorageElement.isFile(ds)) {
+                MyFile f = ds.getValue(MyFile.class);
+                if (f != null) {
+                    if (folder != null)
+                        f.setPathname(folder + "/" + f.getFilename());
+                    else f.setPathname(f.getFilename());
+
+                    filesMap.put(f.getKey(), f);
+                }
+            }
+            else {
+                String pathFolder = folder == null ? ds.getKey()
+                        : folder + "/" + ds.getKey();
+                loadAllFiles(ds, pathFolder);
+            }
+        }
     }
 
     /**
@@ -282,7 +274,8 @@ public class ScannerFragment extends Fragment {
             Map.Entry entry = (Map.Entry) o;
             if (entry.getKey().equals(code)) {
                 Log.d(TAG, "QRCode's associated file found!");
-                startRetrieveFileService((String) entry.getValue());
+                MyFile f = (MyFile) entry.getValue();
+                Utility.startShowFileService(context, f.getPathname(), f.getContentType());
                 return;
             }
         }
@@ -308,8 +301,6 @@ public class ScannerFragment extends Fragment {
         super.onStart();
         Log.d(TAG, "On Start!");
         lastText = "";
-        filesMap.clear();
-        loadFiles(null);
         Log.d(TAG, "Starting barcode scanner!");
         startBarcodeScanner();
     }

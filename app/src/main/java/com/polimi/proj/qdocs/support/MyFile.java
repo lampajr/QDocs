@@ -46,6 +46,8 @@ public class MyFile extends StorageElement{
     private String time;
     //private long lastAccess;
     private boolean offline;
+
+    private String pathname = null;
     private StorageReference stReference = null;
     private DatabaseReference dbReference = null;
 
@@ -98,6 +100,15 @@ public class MyFile extends StorageElement{
     @Exclude
     public DatabaseReference getDbReference() {
         return dbReference;
+    }
+
+    @Exclude
+    public String getPathname() {
+        return pathname;
+    }
+
+    public void setPathname(String pathname) {
+        this.pathname = pathname;
     }
 
     public void setStReference(StorageReference stReference) {
