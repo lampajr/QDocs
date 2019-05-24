@@ -431,7 +431,13 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * @param filename name of the file to delete
      */
     public void onDeleteFromFile(String filename) {
-        deletePersonalFile(filename);
+        MyFile f = StorageElement.retrieveFileByName(filename, storageElements);
+        if (f != null) {
+            deletePersonalFile(f.getFilename());
+        }
+        else {
+            Toast.makeText(context, "Unable to find " + filename, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**

@@ -272,29 +272,32 @@ public class ScannerFragment extends Fragment {
     }
 
     public void onDeleteFromFile(final String filename) {
-        for (MyFile f : filesMap.values()) {
-            Log.w(TAG, "" + f);
-        }
-        Log.w(TAG, "FFFFF " + filename);
+        Log.d(TAG, "Removing file: " + filename);
+
         final MyFile f = StorageElement.retrieveFileByName(filename, new ArrayList<StorageElement>(filesMap.values()));
-        new AreYouSureDialog(context, new OnYesListener() {
-            @Override
-            public void onYes() {
-                fbHelper.deletePersonalFile(null, f.getPathname(), new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "Failure occurred during file removing");
-                        Toast.makeText(context, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
-                                .show();
-                    }
-                }, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Log.d(TAG, "File correctly removed!");
-                    }
-                });
-            }
-        }).show();
+        if (f != null) {
+            new AreYouSureDialog(context, new OnYesListener() {
+                @Override
+                public void onYes() {
+                    fbHelper.deletePersonalFile(null, f.getPathname(), new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "Failure occurred during file removing");
+                            Toast.makeText(context, getString(R.string.delition_failed), Toast.LENGTH_SHORT)
+                                    .show();
+                        }
+                    }, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Log.d(TAG, "File correctly removed!");
+                        }
+                    });
+                }
+            }).show();
+        }
+        else {
+            Toast.makeText(context, "Unable to find " + filename, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
