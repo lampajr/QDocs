@@ -63,8 +63,8 @@ public class PlayAudioActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar_widget);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Audio Player");
-        toolbar.getNavigationIcon().setTint(getResources().getColor(R.color.colorPrimary));
-        toolbar.setTitleTextColor(getColor(R.color.colorPrimary));
+        toolbar.getNavigationIcon().setTint(getResources().getColor(R.color.colorPrimaryLight));
+        toolbar.setTitleTextColor(getColor(R.color.colorPrimaryLight));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

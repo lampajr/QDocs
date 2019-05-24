@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/storage_padding"
     tools:context=".activities.MainActivity">
 
     <include layout="@layout/titlebar" android:id="@+id/titlebar"/>
@@ -12,7 +11,8 @@
         android:id="@+id/swipe_refresh_layout"
         android:layout_below="@id/titlebar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_margin="5dp">
 
         <!-- FILES RECYCLER VIEW -->
         <androidx.recyclerview.widget.RecyclerView
@@ -30,6 +30,6 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="7dp"
-        android:layout_marginBottom="45dp"/>
+        android:layout_marginBottom="50dp"/>
 
 </RelativeLayout>

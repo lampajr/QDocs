@@ -18,13 +18,15 @@
             android:layout_gravity="start"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorOnBackground"
             android:text="Filename:"/>
 
         <TextView
             android:layout_gravity="start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/filename_text"/>
+            android:id="@+id/filename_text"
+            android:textColor="@color/colorOnBackground"/>
     </LinearLayout>
 
     <LinearLayout
@@ -38,12 +40,14 @@
             android:layout_gravity="start"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorOnBackground"
             android:text="Content Type:"/>
 
         <TextView
             android:layout_gravity="start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorOnBackground"
             android:id="@+id/content_type_text"/>
     </LinearLayout>
 
@@ -58,12 +62,14 @@
             android:layout_gravity="start"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorOnBackground"
             android:text="Created At:"/>
 
         <TextView
             android:layout_gravity="start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorOnBackground"
             android:id="@+id/created_at_text"/>
     </LinearLayout>
 
@@ -78,12 +84,14 @@
             android:layout_gravity="start"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorOnBackground"
             android:text="Last Access:"/>
 
         <TextView
             android:layout_gravity="start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorOnBackground"
             android:id="@+id/last_access_text"/>
     </LinearLayout>
 
@@ -98,12 +106,14 @@
             android:layout_gravity="start"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorOnBackground"
             android:text="Size:"/>
 
         <TextView
             android:layout_gravity="start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorOnBackground"
             android:id="@+id/size_text"/>
     </LinearLayout>
 

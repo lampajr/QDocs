@@ -86,6 +86,7 @@ public class ShowImageActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+        toolbar.setTitle("Image Viewer");
         Objects.requireNonNull(toolbar.getNavigationIcon()).setTint(getResources().getColor(R.color.white));
     }
 

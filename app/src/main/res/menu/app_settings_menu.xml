@@ -3,9 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="saveourcar.soc.MainActivity">
+
+      <item android:id="@+id/info_option"
+          android:title="@string/info_string"
+          app:showAsAction="ifRoom"
+          android:icon="@drawable/ic_info_light"/>
+
+      <item android:id="@+id/download_option"
+          android:title="download"
+          app:showAsAction="ifRoom"
+          android:icon="@drawable/ic_file_download_light"/>
+
       <item android:id="@+id/delete_option"
             android:title="@string/delete_file_string"
             app:showAsAction="ifRoom"
-            android:icon="@drawable/ic_delete_white_24dp"
-            android:iconTint="@color/colorPrimary"/>
+            android:icon="@drawable/ic_delete_white_24dp" />
 </menu>

@@ -33,7 +33,7 @@
         android:src="@drawable/ic_play_arrow_black_24dp"
         android:tint="@color/colorPrimaryDark"
         app:layout_constraintHorizontal_chainStyle="packed"
-        app:cb_color="@color/colorPrimary"
+        app:cb_color="@color/colorPrimaryLight"
         app:cb_pressedRingWidth="8dip"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/seek_layout"
@@ -51,7 +51,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:paddingBottom="50dp"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/colorPrimaryLight"
         app:layout_constraintBottom_toTopOf="@+id/seek_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -81,16 +81,16 @@
             android:layout_marginStart="16dp"
             android:text=""
             android:textAlignment="center"
-            android:textColor="@color/colorPrimary" />
+            android:textColor="@color/colorPrimaryLight" />
 
         <SeekBar
             android:id="@+id/seekBar"
             android:layout_width="189dp"
             android:layout_height="43dp"
             android:layout_gravity="center"
-            android:progressBackgroundTint="@color/colorPrimary"
-            android:progressTint="@color/colorPrimary"
-            android:thumbTint="@color/colorPrimary"/>
+            android:progressBackgroundTint="@color/colorPrimaryLight"
+            android:progressTint="@color/colorAccent"
+            android:thumbTint="@color/colorPrimaryLight"/>
 
         <TextView
             android:id="@+id/end_time_text"
@@ -99,7 +99,7 @@
             android:layout_gravity="center"
             android:text=""
             android:textAlignment="center"
-            android:textColor="@color/colorPrimary" />
+            android:textColor="@color/colorPrimaryLight" />
     </LinearLayout>
 
 

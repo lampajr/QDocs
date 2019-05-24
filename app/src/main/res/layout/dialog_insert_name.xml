@@ -20,10 +20,10 @@
         android:layout_marginBottom="10dp"
         android:hint="@string/default_folder_string"
         android:padding="10dp"
-        android:textColorHint="@color/colorPrimary"
+        android:textColorHint="@color/colorSecondary"
         android:autofillHints="@string/default_folder_string"
         android:inputType="text"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/colorPrimary"
         android:textAlignment="center"
         tools:targetApi="o" />
 

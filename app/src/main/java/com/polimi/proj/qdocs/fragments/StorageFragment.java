@@ -194,31 +194,31 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private void setupSpeedDialView() {
         //speedDialView.inflate(R.menu.upload_file_menu);
         speedDialView.setMainFabOpenedDrawable(context.getDrawable(R.drawable.ic_close_24dp));
-        speedDialView.setMainFabOpenedBackgroundColor(context.getColor(R.color.colorSecondary));
+        speedDialView.setMainFabOpenedBackgroundColor(context.getColor(R.color.colorSecondaryLight));
         speedDialView.setMainFabClosedDrawable(context.getDrawable(R.drawable.ic_add_24dp));
         speedDialView.setMainFabClosedBackgroundColor(context.getColor(R.color.colorSecondaryLight));
 
         speedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id.upload_image, R.drawable.ic_picture_24dp)
-                .setFabBackgroundColor(context.getColor(R.color.colorSecondary))
-                .setLabelBackgroundColor(context.getColor(R.color.colorSecondary))
+                .setFabBackgroundColor(context.getColor(R.color.colorSecondaryLight))
+                .setLabelBackgroundColor(context.getColor(R.color.colorSecondaryLight))
                 .setLabelClickable(false)
                 .create());
 
         speedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id.upload_audio, R.drawable.ic_note_24dp)
-                .setFabBackgroundColor(context.getColor(R.color.colorSecondary))
-                .setLabelBackgroundColor(context.getColor(R.color.colorSecondary))
+                .setFabBackgroundColor(context.getColor(R.color.colorSecondaryLight))
+                .setLabelBackgroundColor(context.getColor(R.color.colorSecondaryLight))
                 .setLabelClickable(false)
                 .create());
 
         speedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id.upload_file, R.drawable.ic_document_24dp)
-                .setFabBackgroundColor(context.getColor(R.color.colorSecondary))
-                .setLabelBackgroundColor(context.getColor(R.color.colorSecondary))
+                .setFabBackgroundColor(context.getColor(R.color.colorSecondaryLight))
+                .setLabelBackgroundColor(context.getColor(R.color.colorSecondaryLight))
                 .setLabelClickable(false)
                 .create());
 
-        speedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id.create_directory, R.drawable.ic_folder_24dp)
-                .setFabBackgroundColor(context.getColor(R.color.colorSecondary))
-                .setLabelBackgroundColor(context.getColor(R.color.colorSecondary))
+        speedDialView.addActionItem(new SpeedDialActionItem.Builder(R.id.create_directory, R.drawable.ic_folder_1)
+                .setFabBackgroundColor(context.getColor(R.color.colorSecondaryLight))
+                .setLabelBackgroundColor(context.getColor(R.color.colorSecondaryLight))
                 .setLabelClickable(false)
                 .create());
 

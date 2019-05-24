@@ -34,7 +34,7 @@
         app:rcRadius="10dp"
         app:rcBackgroundPadding="5dp"
         app:rcReverse="false"
-        app:rcProgressColor="@color/colorPrimary"
-        app:rcBackgroundColor="@color/colorPrimaryDark" />
+        app:rcProgressColor="@color/colorSecondaryLight"
+        app:rcBackgroundColor="@color/colorPrimary" />
 
 </LinearLayout>
