@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -758,7 +759,9 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * @param file file for which show settings
      */
     private void showFileSettingsMenu(final MyFile file) {
-        bsm = BottomSheetMenu.getInstance(new View.OnClickListener() {
+        Bitmap qrcode_bitmap = Utility.generateQrCode(file.getKey());
+        bsm = BottomSheetMenu.getInstance(qrcode_bitmap,
+                new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 saveFile(file);
@@ -779,6 +782,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 showInfos(file);
             }
         });
+
         bsm.show(((MainActivity)context).getSupportFragmentManager(), "file_settings_" + file.getFilename());
     }
 

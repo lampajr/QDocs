@@ -1,6 +1,7 @@
 package com.polimi.proj.qdocs.fragments;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -211,8 +212,9 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      */
     private void showFileSettingsMenu(final MyFile file) {
         Log.d(TAG, "Showing file settings menu");
-
-        bsm = BottomSheetMenu.getInstance(new View.OnClickListener() {
+        Bitmap qrcode_bitmap = Utility.generateQrCode(file.getKey());
+        bsm = BottomSheetMenu.getInstance(qrcode_bitmap,
+                new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 saveFile(file);
