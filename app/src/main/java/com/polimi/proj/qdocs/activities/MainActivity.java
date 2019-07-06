@@ -297,7 +297,9 @@ public class MainActivity extends AppCompatActivity {
             // TODO: handle the case in which there is no connection
             // TODO: use BroadcastReceiver
         }
-        initialize();
+        else{
+            initialize();
+        }
     }
 
     @Override
@@ -360,6 +362,7 @@ public class MainActivity extends AppCompatActivity {
             super(manager);
         }
 
+        @NonNull
         @Override
         public Fragment getItem(int i) {
             return mFragmentList.get(i);

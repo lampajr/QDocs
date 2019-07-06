@@ -35,6 +35,8 @@ import java.net.URLConnection;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
+// TODO: reorganize layout
+
 public class HomeFragment extends Fragment {
     private static final String TAG = "HOME_FRAGMENT";
 
@@ -89,7 +91,6 @@ public class HomeFragment extends Fragment {
         setupLogout();
 
         setupProfile();
-        setupList();
 
         return view;
     }
@@ -125,7 +126,7 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.context = context;
         this.parentActivity = (MainActivity) context;
@@ -162,13 +163,6 @@ public class HomeFragment extends Fragment {
 
         displayName.setText(user.getDisplayName());
         personalEmail.setText(user.getEmail());
-    }
-
-    /**
-     * setup the action list
-     */
-    private void setupList() {
-        //TODO: create list
     }
 
     private static class SetupProfileImageTask extends AsyncTask<String, Void, Bitmap> {

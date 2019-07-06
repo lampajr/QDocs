@@ -71,16 +71,16 @@ public class GenericFileActivity extends AppCompatActivity {
 
     private void checkParameter() {
         if(fileUri != null && mimeType != null){
-            Log.d(TAG, "file URI recived: " + fileUri);
-            Log.d(TAG, "mime type recived: " + mimeType);
+            Log.d(TAG, "file URI received: " + fileUri);
+            Log.d(TAG, "mime type received: " + mimeType);
         }
         else {
 
             if (fileUri == null) {
-                Log.e(TAG, "URI recived is NULL");
+                Log.e(TAG, "URI received is NULL");
             }
             if (mimeType == null) {
-                Log.e(TAG, "mime type recived is NULL");
+                Log.e(TAG, "mime type received is NULL");
             }
 
             //TODO: handle error
