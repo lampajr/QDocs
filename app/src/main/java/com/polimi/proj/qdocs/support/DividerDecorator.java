@@ -17,8 +17,7 @@ public class DividerDecorator extends RecyclerView.ItemDecoration {
     }
 
     public DividerDecorator(Drawable divider) {
-        this.divider = divider;
-        this.bottomSpace = 2;
+        this(divider, 2);
     }
 
     @Override
