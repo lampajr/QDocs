@@ -63,7 +63,7 @@ public class HomeFragment extends Fragment {
     private TextView logoutOption, aboutOption;
 
     private RadioButton italianButton, englishButton;
-    private int prevLangId = R.id.english_button;
+    private int prevLangId = R.id.english_button; // TODO: set to the default language
 
     private TextView totalSpaceView, storedFilesView;
     private int storedFiles = 0;
@@ -117,7 +117,7 @@ public class HomeFragment extends Fragment {
         italianButton = view.findViewById(R.id.italian_button);
         englishButton = view.findViewById(R.id.english_button);
 
-        LinearLayout titlebar = view.findViewById(R.id.titlebar);
+        RelativeLayout titlebar = view.findViewById(R.id.titlebar);
         TextView titleText = titlebar.findViewById(R.id.title);
         titleText.setText(getString(R.string.home));
 

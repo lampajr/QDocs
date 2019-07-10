@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,7 +61,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
     private Context context;
     private FirebaseHelper fbHelper;
 
-    private LinearLayout titlebar;
+    private RelativeLayout titlebar;
     private TextView titleText;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView storageView;
