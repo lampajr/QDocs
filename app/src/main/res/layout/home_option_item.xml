@@ -13,5 +13,6 @@
     android:paddingEnd="10dp"
     android:gravity="center_vertical"
     android:textSize="20sp"
+    android:textStyle="bold"
     android:textColor="@color/colorOnBackground"
     android:text="@string/option_string"/>
