@@ -93,7 +93,7 @@ public class SaveFileReceiver extends ResultReceiver {
         }
         else if (resultCode == DownloadFileService.START_DOWNLOAD && resultData != null) {
             progressBar = new ProgressBarDialog(context, null,
-                    resultData.getString(DownloadFileService.RESULT_KEY_TITLE));
+                    context.getString(resultData.getInt(DownloadFileService.RESULT_KEY_TITLE)));
             progressBar.show();
         }
         else if (resultCode == DownloadFileService.SET_PROGRESS && resultData != null) {
@@ -102,7 +102,7 @@ public class SaveFileReceiver extends ResultReceiver {
         }
         else if (resultCode == DownloadFileService.DOWNLOAD_ERROR){
             Log.d(TAG, "Failure occurred during download");
-            Toast.makeText(context, "Error during download!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.error_download), Toast.LENGTH_SHORT).show();
             if (progressBar.isShowing())
                 progressBar.dismiss();
         }
@@ -131,10 +131,12 @@ public class SaveFileReceiver extends ResultReceiver {
                     }
                 }
             } catch (FileNotFoundException e) {
+                Toast.makeText(context, context.getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "File not found!! - " + e.getMessage());
                 e.printStackTrace();
             } catch (IOException e) {
                 Log.e(TAG, "Error during copy of the file!! - " + e.getMessage());
+                Toast.makeText(context, context.getString(R.string.error_copying_file), Toast.LENGTH_SHORT).show();
             }
         }
         else {

@@ -8,6 +8,7 @@ import android.os.ResultReceiver;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.dialogs.ProgressBarDialog;
 import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.support.Utility;
@@ -83,12 +84,12 @@ public class ShowFileReceiver extends ResultReceiver {
                 Utility.showFile(context, fileUri, filename, mimeType, extension);
             }
             else {
-                Toast.makeText(context, "Unable to show the file, mimeType is null!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, context.getString(R.string.unable_show_file), Toast.LENGTH_SHORT).show();
             }
         }
         else if (resultCode == DownloadFileService.START_DOWNLOAD && resultData != null) {
             progressBar = new ProgressBarDialog(context, null,
-                    resultData.getString(DownloadFileService.RESULT_KEY_TITLE));
+                    context.getString(resultData.getInt(DownloadFileService.RESULT_KEY_TITLE)));
             progressBar.show();
         }
         else if (resultCode == DownloadFileService.SET_PROGRESS && resultData != null) {
@@ -97,7 +98,7 @@ public class ShowFileReceiver extends ResultReceiver {
         }
         else if (resultCode == DownloadFileService.DOWNLOAD_ERROR){
             Log.d(TAG, "Failure occurred during download");
-            Toast.makeText(context, "Error during download!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.error_download), Toast.LENGTH_SHORT).show();
             if (progressBar.isShowing())
                 progressBar.dismiss();
         }

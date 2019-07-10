@@ -72,20 +72,28 @@
     <string name="no_upper_string">NO</string>
     <string name="null_email">Please insert the email</string>
     <string name="null_password">Please insert a password</string>
-    <string name="option_string">option</string>
-    <string name="email_used_string">email used</string>
-    <string name="display_name_string">display name</string>
+    <string name="option_string">Option</string>
+    <string name="email_used_string">Email used:</string>
+    <string name="display_name_string">Display name:</string>
     <string name="version">version 1.0.0</string>
-    <string name="total_space_used">total space used:</string>
-    <string name="file_number_stored">file stored:</string>
+    <string name="total_space_used">Total space used:</string>
+    <string name="file_number_stored">File stored:</string>
     <string name="offline">OFFLINE</string>
     <string name="home">HOME</string>
     <string name="storage">STORAGE</string>
     <string name="recent">RECENT</string>
-    <string name="about">..About..</string>
+    <string name="about">About</string>
     <string name="english">English</string>
     <string name="italian">Italian</string>
     <string name="language">Language</string>
+    <string name="local_file_deleted">Local file deleted!</string>
+    <string name="downloading_file">Downloading file..</string>
+    <string name="error_download">Error occurred during download!</string>
+    <string name="unable_show_file">Unable to show the file, content file not recognized!</string>
+    <string name="file_not_found">File not found!</string>
+    <string name="error_copying_file">Error copying the file!</string>
+    <string name="deletion_failed">Deletion failed!</string>
+    <string name="error_removing_file">Error removing file</string>
 
 
 </resources>

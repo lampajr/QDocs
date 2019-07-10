@@ -291,14 +291,14 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
                         if (toDelete.delete()) {
                             Log.d(TAG, "Local file deleted successfully!");
                             fbHelper.updateOfflineAttribute(file.getKey(), false);
-                            Toast.makeText(context, "Local file deleted!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, getString(R.string.local_file_deleted), Toast.LENGTH_SHORT).show();
                             files.remove(file);
                             notifyAdapter();
                             ((MainActivity) context).restoreBottomNavigationBar();
                         }
                         else {
                             Log.d(TAG, "Deletion failed!");
-                            Toast.makeText(context, "Deletion failed!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, context.getString(R.string.deletion_failed), Toast.LENGTH_SHORT).show();
                         }
                     }
                     else {
@@ -349,7 +349,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
         }
         else {
             Log.w(TAG, "File to delete not found!");
-            Toast.makeText(context, "Error removing file", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.error_removing_file), Toast.LENGTH_SHORT).show();
         }
     }
 }

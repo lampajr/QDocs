@@ -62,8 +62,8 @@
     <string name="qr_code_saved">QR code salvato con successo</string>
     <string name="qrcode_already_saved">Qr code già salvato!</string>
     <string name="go_back_directory_button_description">go-back directory button</string>
-    <string name="fileName_string">fileName</string>
-    <string name="image_preview_description">Image preview</string>
+    <string name="fileName_string">nome del file</string>
+    <string name="image_preview_description">Anteprima d\'immagine</string>
     <string name="root_string">home</string>
     <string name="default_folder_string">my_folder</string>
     <string name="confirm_upper_string">Conferma</string>
@@ -73,19 +73,25 @@
     <string name="null_email">Inserisci email</string>
     <string name="null_password">Inserisci una password</string>
     <string name="option_string">Opzioni</string>
-    <string name="email_used_string">email usata</string>
-    <string name="display_name_string">display name</string>
+    <string name="email_used_string">Email usata:</string>
+    <string name="display_name_string">Nome visualizzato:</string>
     <string name="version">versione 1.0.0</string>
     <string name="total_space_used">Totale spazio usato:</string>
-    <string name="file_number_stored">file salvati:</string>
+    <string name="file_number_stored">File salvati:</string>
     <string name="offline">OFFLINE</string>
     <string name="home">HOME</string>
     <string name="storage">STORAGE</string>
     <string name="recent">RECENTI</string>
-    <string name="about">..About..</string>
-    <string name="english">English</string>
+    <string name="about">Info</string>
+    <string name="english">Inglese</string>
     <string name="italian">Italiano</string>
     <string name="language">Lingua</string>
-
-
+    <string name="local_file_deleted">File locale eliminato!</string>
+    <string name="downloading_file">File in caricamento..</string>
+    <string name="error_download">Errore occorso durante il caricamento!</string>
+    <string name="unable_show_file">Impossibile aprire il file, estensione non riconosciuta!</string>
+    <string name="file_not_found">File non trovato!</string>
+    <string name="error_copying_file">Errore durante la copia del file!</string>
+    <string name="deletion_failed">Eliminazione fallita!</string>
+    <string name="error_removing_file">Errore durante l\'eliminazione del file</string>
 </resources>

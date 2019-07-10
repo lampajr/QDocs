@@ -19,6 +19,7 @@ import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
+import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.support.PathResolver;
 
@@ -140,13 +141,11 @@ public class DownloadFileService extends IntentService {
         StorageReference storageRef = FirebaseStorage.getInstance().getReference()
                 .child(user.getUid()).child(pathname);
 
-        Log.d(TAG, "mao");
-
         if (localFile != null) {
             Log.d(TAG, "Local file created: " + localFile.getAbsolutePath());
 
             Bundle resultBundle = new Bundle();
-            resultBundle.putString(RESULT_KEY_TITLE, "Downlaoding file..");
+            resultBundle.putInt(RESULT_KEY_TITLE, R.string.downloading_file);
             receiver.send(START_DOWNLOAD, resultBundle);
 
             // download file

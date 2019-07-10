@@ -110,6 +110,7 @@
             android:layout_marginBottom="10dp"
             android:gravity="center"
             android:textSize="20sp"
+            android:textStyle="bold"
             android:textColor="@color/colorOnBackground"
             android:text="@string/language"/>
 
@@ -142,6 +143,10 @@
         </RadioGroup>
 
         <include layout="@layout/divider" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
 
         <include
             android:id="@+id/about"
