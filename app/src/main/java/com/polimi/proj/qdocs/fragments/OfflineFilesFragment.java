@@ -94,7 +94,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
 
         titlebar = view.findViewById(R.id.titlebar);
         titleText = titlebar.findViewById(R.id.title);
-        titleText.setText("OFFLINE");
+        titleText.setText(getString(R.string.offline));
 
         setupStorageView();
         setupSwipeRefresh();

@@ -134,6 +134,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         titlebar = view.findViewById(R.id.titlebar);
         directoryPathText = titlebar.findViewById(R.id.title);
+        directoryPathText.setText(getString(R.string.storage));
         getBackDirectoryButton = titlebar.findViewById(R.id.get_back_directory);
         setupDirectoryLayout();
 
@@ -285,7 +286,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 getBackDirectory();
             }
         });
-        directoryPathText.setText("HOME");
     }
 
     /**

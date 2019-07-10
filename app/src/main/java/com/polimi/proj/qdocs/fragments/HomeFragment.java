@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -48,6 +47,9 @@ public class HomeFragment extends Fragment {
     private CircleImageView profileImage;
     private TextView displayName, personalEmail;
     private LinearLayout logoutOption, aboutOption;
+
+    private LinearLayout titlebar;
+    private TextView titleText;
 
 
     /**
@@ -88,21 +90,32 @@ public class HomeFragment extends Fragment {
         personalEmail = view.findViewById(R.id.personal_email);
 
         logoutOption = view.findViewById(R.id.logout_option);
-        setupLogout();
+
+        titlebar = view.findViewById(R.id.titlebar);
+        titleText = titlebar.findViewById(R.id.title);
+        titleText.setText(getString(R.string.home));
 
         setupProfile();
+
+        setupAboutOption();
+        setupLogoutOption();
+
 
         return view;
     }
 
-    private void setupAbout() {
-        //TODO: implement about option
+    private void setupAboutOption() {
+        // TODO: implement about option
+    }
+
+    private void setupLanguageOption() {
+        // TODO: implement language option
     }
 
     /**
      * setup the logout option
      */
-    private void setupLogout() {
+    private void setupLogoutOption() {
         logoutOption.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,10 +123,6 @@ public class HomeFragment extends Fragment {
                 startLoginActivity();
             }
         });
-        ImageView img = logoutOption.findViewById(R.id.option_image);
-        img.setImageResource(R.drawable.ic_logout);
-        TextView textOption = logoutOption.findViewById(R.id.option_text);
-        textOption.setText(getString(R.string.logout_string));
     }
 
     /**

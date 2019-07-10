@@ -72,6 +72,16 @@
     <string name="no_upper_string">NO</string>
     <string name="null_email">Please insert the email</string>
     <string name="null_password">Please insert a password</string>
+    <string name="option_string">option</string>
+    <string name="email_used_string">email used</string>
+    <string name="display_name_string">display name</string>
+    <string name="version">version</string>
+    <string name="total_space_used">total space used:</string>
+    <string name="file_number_stored">file number stored:</string>
+    <string name="offline">OFFLINE</string>
+    <string name="home">HOME</string>
+    <string name="storage">STORAGE</string>
+    <string name="recent">RECENT</string>
 
 
 </resources>

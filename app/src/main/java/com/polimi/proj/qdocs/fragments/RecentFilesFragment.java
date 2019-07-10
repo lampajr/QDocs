@@ -89,7 +89,6 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         fbHelper = new FirebaseHelper();
     }
 
-    @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recent_files, container, false);
@@ -98,7 +97,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
 
         titlebar = view.findViewById(R.id.titlebar);
         titleText = titlebar.findViewById(R.id.title);
-        titleText.setText("RECENT");
+        titleText.setText(getString(R.string.recent));
 
         setupStorageView();
         setupSwipeRefresh();
