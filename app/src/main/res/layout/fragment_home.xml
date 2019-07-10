@@ -52,31 +52,84 @@
             android:id="@+id/space_used_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:textColor="@color/colorOnBackground"
             android:text="@string/total_space_used"/>
 
         <TextView
-            android:id="@+id/file_number_text_view"
+            android:id="@+id/stored_files_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:textColor="@color/colorOnBackground"
             android:text="@string/file_number_stored"/>
 
-        <!-- TODO include about option -->
+        <include layout="@layout/divider" />
 
-        <!-- TODO include language option -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:textColor="@color/colorOnBackground"
+            android:text="@string/language"/>
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="15dp">
+
+            <RadioButton
+                android:id="@+id/english_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:gravity="center"
+                android:textSize="15sp"
+                android:textColor="@color/colorOnBackground"
+                android:buttonTint="@color/colorOnBackground"
+                android:text="@string/english"/>
+
+            <RadioButton
+                android:id="@+id/italian_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="15sp"
+                android:textColor="@color/colorOnBackground"
+                android:buttonTint="@color/colorOnBackground"
+                android:onClick="onRadioButtonClicked"
+                android:text="@string/italian"/>
+        </RadioGroup>
+
+        <include layout="@layout/divider" />
 
         <include
-            android:id="@+id/logout_option"
+            android:id="@+id/about"
+            layout="@layout/home_option_item" />
+
+        <include
+            android:id="@+id/logout"
             layout="@layout/home_option_item" />
 
     </LinearLayout>
 
     <TextView
         android:id="@+id/version_text_view"
-        android:layout_below="@id/options_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingStart="20dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
+        android:textSize="15sp"
+        android:textColor="@color/colorOnBackground"
         android:text="@string/version"/>
 
 </RelativeLayout>

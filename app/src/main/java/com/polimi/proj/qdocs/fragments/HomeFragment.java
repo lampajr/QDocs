@@ -3,33 +3,44 @@ package com.polimi.proj.qdocs.fragments;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.LoginActivity;
 import com.polimi.proj.qdocs.activities.MainActivity;
+import com.polimi.proj.qdocs.support.FirebaseHelper;
+import com.polimi.proj.qdocs.support.MyFile;
+import com.polimi.proj.qdocs.support.StorageElement;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -39,18 +50,24 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class HomeFragment extends Fragment {
     private static final String TAG = "HOME_FRAGMENT";
 
+    private static final String EN = "en", IT = "it";
+
     private Context context;
     private MainActivity parentActivity;
 
     private FirebaseUser user;
+    private FirebaseHelper fbHelper;
 
     private CircleImageView profileImage;
     private TextView displayName, personalEmail;
-    private LinearLayout logoutOption, aboutOption;
+    private TextView logoutOption, aboutOption;
 
-    private LinearLayout titlebar;
-    private TextView titleText;
+    private RadioButton italianButton, englishButton;
+    private int prevLangId = R.id.english_button;
 
+    private TextView totalSpaceView, storedFilesView;
+    private int storedFiles = 0;
+    private long totalSpace = 0;
 
     /**
      * Required empty public constructor
@@ -72,6 +89,8 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         user = FirebaseAuth.getInstance().getCurrentUser();
 
+        fbHelper = new FirebaseHelper();
+
         // retain this fragment
         setRetainInstance(true);
     }
@@ -89,27 +108,132 @@ public class HomeFragment extends Fragment {
         displayName = view.findViewById(R.id.display_name);
         personalEmail = view.findViewById(R.id.personal_email);
 
-        logoutOption = view.findViewById(R.id.logout_option);
+        logoutOption = view.findViewById(R.id.logout);
+        aboutOption = view.findViewById(R.id.about);
 
-        titlebar = view.findViewById(R.id.titlebar);
-        titleText = titlebar.findViewById(R.id.title);
+        totalSpaceView = view.findViewById(R.id.space_used_text_view);
+        storedFilesView = view.findViewById(R.id.stored_files_text_view);
+
+        italianButton = view.findViewById(R.id.italian_button);
+        englishButton = view.findViewById(R.id.english_button);
+
+        LinearLayout titlebar = view.findViewById(R.id.titlebar);
+        TextView titleText = titlebar.findViewById(R.id.title);
         titleText.setText(getString(R.string.home));
+
+        setupLanguageOption();
 
         setupProfile();
 
         setupAboutOption();
         setupLogoutOption();
 
+        computeInfos();
 
         return view;
     }
 
+    private void computeInfos() {
+        Log.d(TAG, "Setting value event listener on the Firebase db");
+        totalSpace = 0;
+        storedFiles = 0;
+
+        fbHelper.getDatabaseReference().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                loadAllFiles(dataSnapshot, null);
+                Log.d(TAG, "Infos computed");
+
+                String size = "";
+                if (totalSpace > 1000) {
+                    long sizeMb = totalSpace / 1000;
+                    size = sizeMb + " Mb";
+                }
+                else {
+                    size = totalSpace + " Kb";
+                }
+
+                String space = totalSpaceView.getText() + " " + size;
+                totalSpaceView.setText(space);
+
+                String number = storedFilesView.getText() + " " + storedFiles;
+                storedFilesView.setText(number);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void loadAllFiles(DataSnapshot dataSnapshot, String folder) {
+        for (DataSnapshot ds: dataSnapshot.getChildren()) {
+            if (StorageElement.isFile(ds)) {
+                MyFile f = ds.getValue(MyFile.class);
+                if (f != null) {
+
+                    // increase the number of stored files by one
+                    storedFiles += 1;
+
+                    // increase the space used
+                    if (!f.getSize().equals(""))
+                        totalSpace += Long.parseLong(f.getSize()) / 1000;
+                }
+            }
+            else {
+                String pathFolder = folder == null ? ds.getKey()
+                        : folder + "/" + ds.getKey();
+                loadAllFiles(ds, pathFolder);
+            }
+        }
+    }
+
     private void setupAboutOption() {
-        // TODO: implement about option
+        aboutOption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: implement
+            }
+        });
+
+        aboutOption.setCompoundDrawablesRelativeWithIntrinsicBounds(ContextCompat.getDrawable(parentActivity, R.drawable.ic_info_black_24dp),
+                null, null, null);
+
+        aboutOption.setText(getString(R.string.about));
     }
 
     private void setupLanguageOption() {
-        // TODO: implement language option
+        englishButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (englishButton.isChecked() && englishButton.getId() != prevLangId) {
+                    prevLangId = englishButton.getId();
+                    updateLanguage(EN);
+                    parentActivity.recreate();
+                }
+            }
+        });
+
+        italianButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (italianButton.isChecked() && italianButton.getId() != prevLangId) {
+                    prevLangId = italianButton.getId();
+                    updateLanguage(IT);
+                    parentActivity.recreate();
+                }
+            }
+        });
+    }
+
+    private void updateLanguage(String language) {
+        Resources res = context.getResources();
+        // Change locale settings in the app.
+        DisplayMetrics dm = res.getDisplayMetrics();
+        android.content.res.Configuration conf = res.getConfiguration();
+        conf.setLocale(new Locale(language.toLowerCase()));
+        res.updateConfiguration(conf, dm);
     }
 
     /**
@@ -123,6 +247,12 @@ public class HomeFragment extends Fragment {
                 startLoginActivity();
             }
         });
+
+        logoutOption.setCompoundDrawablesRelativeWithIntrinsicBounds(ContextCompat.getDrawable(parentActivity, R.drawable.ic_logout),
+                null, null, null);
+
+        logoutOption.setText(getString(R.string.logout_string));
+
     }
 
     /**

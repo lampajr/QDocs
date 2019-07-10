@@ -43,7 +43,7 @@
     <string name="empty_string" />
     <string name="files_string">FILES</string>
     <string name="scanner_string">SCANNER</string>
-    <string name="save_file_string">Save File</string>
+    <string name="save_file_string">Salva File</string>
     <string name="delete_file_string">Delete File</string>
     <string name="get_qrcode_string">Get QR Code</string>
     <string name="dot_string">…</string>
@@ -81,7 +81,7 @@
     <string name="offline">OFFLINE</string>
     <string name="home">HOME</string>
     <string name="storage">STORAGE</string>
-    <string name="recent">RECENT</string>
+    <string name="recent">FILE RECENTI</string>
     <string name="about">..About..</string>
     <string name="english">English</string>
     <string name="italian">Italian</string>
