@@ -4,6 +4,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.Exclude;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Interface that represents either a file or a directory,
@@ -80,6 +81,6 @@ public abstract class StorageElement implements Comparable<StorageElement>{
      * @return true if it is a file, false otherwise
      */
     public static boolean isFile(DataSnapshot dataSnapshot) {
-        return dataSnapshot.getKey().matches("\\d+");
+        return Objects.requireNonNull(dataSnapshot.getKey()).matches("\\d+");
     }
 }

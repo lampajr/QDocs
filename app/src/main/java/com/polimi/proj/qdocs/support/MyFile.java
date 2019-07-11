@@ -90,7 +90,7 @@ public class MyFile extends StorageElement{
         return lastAccess;
     }
 
-    public boolean isOffline() {
+    boolean isOffline() {
         return offline;
     }
 

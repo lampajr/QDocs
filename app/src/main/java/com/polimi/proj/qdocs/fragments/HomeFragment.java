@@ -20,13 +20,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.LoginActivity;
@@ -41,6 +44,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Locale;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -133,16 +137,19 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Updates the total space used and the number of stored files information
+     */
     private void computeInfos() {
         Log.d(TAG, "Setting value event listener on the Firebase db");
         totalSpace = 0;
         storedFiles = 0;
 
-        fbHelper.getDatabaseReference().addListenerForSingleValueEvent(new ValueEventListener() {
+        final DatabaseReference ref = fbHelper.getDatabaseReference();
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                loadAllFiles(dataSnapshot, null);
-                Log.d(TAG, "Infos computed");
+                loadAllFiles(dataSnapshot);
 
                 String size = "";
                 if (totalSpace > 1000) {
@@ -153,26 +160,27 @@ public class HomeFragment extends Fragment {
                     size = totalSpace + " Kb";
                 }
 
-                String space = totalSpaceView.getText() + " " + size;
+                String space = totalSpaceView.getText().toString().substring(0, totalSpaceView.getText().toString().lastIndexOf(":")+1) + " " + size;
                 totalSpaceView.setText(space);
 
-                String number = storedFilesView.getText() + " " + storedFiles;
+                String number = storedFilesView.getText().toString().substring(0, storedFilesView.getText().toString().lastIndexOf(":")+1) + " " + storedFiles;
                 storedFilesView.setText(number);
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
         });
     }
 
-    private void loadAllFiles(DataSnapshot dataSnapshot, String folder) {
+    /**
+     * load all the files in the current datasnapshot
+     * @param dataSnapshot current datasnapshot analysed
+     */
+    private void loadAllFiles(DataSnapshot dataSnapshot) {
         for (DataSnapshot ds: dataSnapshot.getChildren()) {
             if (StorageElement.isFile(ds)) {
                 MyFile f = ds.getValue(MyFile.class);
-                if (f != null) {
-
+                if (f != null && !f.getFilename().equals(MainActivity.SECRET_FILE)) {
                     // increase the number of stored files by one
                     storedFiles += 1;
 
@@ -182,9 +190,7 @@ public class HomeFragment extends Fragment {
                 }
             }
             else {
-                String pathFolder = folder == null ? ds.getKey()
-                        : folder + "/" + ds.getKey();
-                loadAllFiles(ds, pathFolder);
+                loadAllFiles(ds);
             }
         }
     }

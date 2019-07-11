@@ -92,7 +92,8 @@ dependencies {
     // String escape utils
     implementation 'org.apache.commons:commons-lang3:3.6'
 
-    implementation 'com.google.android.material:material:1.1.0-alpha08'
+    // NB: keep this version absolutely
+    implementation 'com.google.android.material:material:1.1.0-alpha06'
 
     implementation 'androidx.fragment:fragment:1.0.0'
 }

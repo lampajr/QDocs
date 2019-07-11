@@ -75,9 +75,6 @@ public class ScannerFragment extends Fragment {
 
     private static final int REQUEST_CAMERA_PERMISSION = 1;
 
-    private static final String BASE_REFERENCE = "documents";
-    private static final String FILENAME_KEY = "filename";
-
     private final HashMap<String, MyFile> filesMap = new HashMap<>();
 
     private FirebaseHelper fbHelper;
@@ -86,13 +83,6 @@ public class ScannerFragment extends Fragment {
     private DecoratedBarcodeView barcodeView;
     private BeepManager beepManager;
     private String lastText;
-
-    // swipe data
-    private double previousX=0.0, previousY=0.0;
-    private double offset = 20;
-
-    // authentication
-    private FirebaseUser user;
 
     // callback on the barcode, listening on results
     private BarcodeCallback barcodeCallback = new BarcodeCallback() {
@@ -157,7 +147,8 @@ public class ScannerFragment extends Fragment {
             mIntent = (Intent) getArguments().get(ARG_INTENT);
         }
 
-        user = FirebaseAuth.getInstance().getCurrentUser();
+        // authentication
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         fbHelper = new FirebaseHelper();
 
         // retain this fragment
