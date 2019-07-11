@@ -41,7 +41,7 @@
     <string name="enter_email_string">Inserisci email</string>
     <string name="register_string">Registrati</string>
     <string name="empty_string" />
-    <string name="files_string">FILES</string>
+    <string name="files_string">FILE</string>
     <string name="scanner_string">SCANNER</string>
     <string name="save_file_string">Salva File</string>
     <string name="delete_file_string">Elimina File</string>
@@ -87,11 +87,15 @@
     <string name="italian">Italiano</string>
     <string name="language">Lingua</string>
     <string name="local_file_deleted">File locale eliminato!</string>
-    <string name="downloading_file">File in caricamento..</string>
-    <string name="error_download">Errore occorso durante il caricamento!</string>
+    <string name="downloading_file">File in download..</string>
+    <string name="error_download">Errore occorso durante lo scaricamento!</string>
     <string name="unable_show_file">Impossibile aprire il file, estensione non riconosciuta!</string>
     <string name="file_not_found">File non trovato!</string>
     <string name="error_copying_file">Errore durante la copia del file!</string>
     <string name="deletion_failed">Eliminazione fallita!</string>
     <string name="error_removing_file">Errore durante l\'eliminazione del file</string>
+    <string name="dir_name_already_used">Nome cartella già utilizzato!</string>
+    <string name="creating_directory">Creazione cartella..</string>
+    <string name="uploading_file">Caricamento file..</string>
+
 </resources>

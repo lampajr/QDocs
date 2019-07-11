@@ -176,7 +176,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                         != PackageManager.PERMISSION_GRANTED) {
                     Log.e(TAG,"Permission denied for external storage");
                 }else {
-                    uploadFile(data.getData() , "", "Uploading file..");
+                    uploadFile(Objects.requireNonNull(data.getData()), "", R.string.uploading_file);
                 }
                 return;
             }
@@ -298,7 +298,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         if (StorageElement.retrieveDirectoryByName(name, storageElements) != null) {
             // A directory with this name already exist
-            Toast.makeText(context, "Directory name already used!!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.dir_name_already_used), Toast.LENGTH_SHORT).show();
         }
         else {
             File baseDir = PathResolver.getPublicDocStorageDir(context);
@@ -308,7 +308,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     boolean result = secretFile.createNewFile();
                     Log.d(TAG, "Secret file created: " + result);
                 }
-                uploadFile(Uri.fromFile(secretFile), name, "Creating directory..");
+                uploadFile(Uri.fromFile(secretFile), name, R.string.creating_directory);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -321,7 +321,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * @param fileUri URI of the file to upload
      *
      */
-    private void uploadFile(@NonNull final Uri fileUri, final String pathname, String progressTitle) {
+    private void uploadFile(@NonNull final Uri fileUri, final String pathname, int progressTitleResId) {
         speedDialView.close();
 
         try {
@@ -343,7 +343,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             final UploadTask uploadTask = fileRef.putFile(fileUri, metadata);
 
             final ProgressBarDialog progressDialog = new ProgressBarDialog(context,
-                    null, progressTitle);
+                    null, context.getString(progressTitleResId));
             progressDialog.show();
 
             Log.d(TAG, "starting uploading");

@@ -94,6 +94,9 @@
     <string name="error_copying_file">Error copying the file!</string>
     <string name="deletion_failed">Deletion failed!</string>
     <string name="error_removing_file">Error removing file</string>
+    <string name="dir_name_already_used">Directory name already used!!</string>
+    <string name="creating_directory">Creating directory..</string>
+    <string name="uploading_file">Uploading file..</string>
 
 
 </resources>
