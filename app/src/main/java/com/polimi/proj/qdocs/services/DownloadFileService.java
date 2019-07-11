@@ -20,6 +20,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.fragments.ScannerFragment;
 import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.support.PathResolver;
 
@@ -27,15 +28,27 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @author Andrea Lamparelli
- * @author Chittò Pietro
+ * Copyright 2018-2019 Lamparelli Andrea & Chittò Pietro
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  *
  * IntentService that is able to retrieve the file (downloading it from the firebase cloud
  * storage) save it into the cache directory, retrieve its Uri and notify it to the parent
  * Activity which will send it to appropriate activity that will show it.
  *
  * @see android.app.IntentService
- * @see com.polimi.proj.qdocs.fragments.ScannerFragment
+ * @see ScannerFragment
  * @see StorageFragment
  */
 
