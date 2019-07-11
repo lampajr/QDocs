@@ -81,7 +81,7 @@ public class HomeFragment extends Fragment {
     private TextView logoutOption, aboutOption;
 
     private RadioButton italianButton, englishButton;
-    private int prevLangId = R.id.english_button; // TODO: set to the default language
+    private String prevLang = null;
 
     private TextView totalSpaceView, storedFilesView;
     private int storedFiles = 0;
@@ -108,6 +108,7 @@ public class HomeFragment extends Fragment {
         user = FirebaseAuth.getInstance().getCurrentUser();
 
         fbHelper = new FirebaseHelper();
+        prevLang = prevLang == null ? Locale.getDefault().getLanguage() : prevLang;
 
         // retain this fragment
         setRetainInstance(true);
@@ -134,6 +135,10 @@ public class HomeFragment extends Fragment {
 
         italianButton = view.findViewById(R.id.italian_button);
         englishButton = view.findViewById(R.id.english_button);
+
+        if (prevLang.equals(IT))
+            italianButton.setChecked(true);
+        else englishButton.setChecked(true);
 
         RelativeLayout titlebar = view.findViewById(R.id.titlebar);
         TextView titleText = titlebar.findViewById(R.id.title);
@@ -227,8 +232,9 @@ public class HomeFragment extends Fragment {
         englishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (englishButton.isChecked() && englishButton.getId() != prevLangId) {
-                    prevLangId = englishButton.getId();
+                Log.w(TAG, Locale.getDefault().getDisplayLanguage().toLowerCase());
+                if (englishButton.isChecked() && !prevLang.equals(EN)) {
+                    prevLang = EN;
                     updateLanguage(EN);
                     parentActivity.recreate();
                 }
@@ -238,8 +244,9 @@ public class HomeFragment extends Fragment {
         italianButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (italianButton.isChecked() && italianButton.getId() != prevLangId) {
-                    prevLangId = italianButton.getId();
+                Log.w(TAG, Locale.getDefault().getDisplayLanguage().toLowerCase());
+                if (italianButton.isChecked() && !prevLang.equals(IT)) {
+                    prevLang = IT;
                     updateLanguage(IT);
                     parentActivity.recreate();
                 }
