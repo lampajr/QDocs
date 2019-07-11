@@ -105,4 +105,11 @@
     <string name="lamparelli_andrea_and_chitt_pietro">Lamparelli Andrea e Chittò Pietro</string>
     <string name="licensed_under">Concesso sotto</string>
     <string name="accessed">visitato il</string>
+    <string name="filename">Nome file:</string>
+    <string name="content_type">Formato:</string>
+    <string name="created_at">Creato il:</string>
+    <string name="last_access">Ultimo accesso:</string>
+    <string name="size">Dimensione:</string>
+    <string name="directory_name">Nome cartella:</string>
+
 </resources>

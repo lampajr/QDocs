@@ -19,7 +19,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:textColor="@color/colorOnBackground"
-            android:text="Filename:"/>
+            android:text="@string/filename"/>
 
         <TextView
             android:layout_gravity="start"
@@ -41,7 +41,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:textColor="@color/colorOnBackground"
-            android:text="Content Type:"/>
+            android:text="@string/content_type"/>
 
         <TextView
             android:layout_gravity="start"
@@ -63,7 +63,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:textColor="@color/colorOnBackground"
-            android:text="Created At:"/>
+            android:text="@string/created_at"/>
 
         <TextView
             android:layout_gravity="start"
@@ -85,7 +85,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:textColor="@color/colorOnBackground"
-            android:text="Last Access:"/>
+            android:text="@string/last_access"/>
 
         <TextView
             android:layout_gravity="start"
@@ -107,7 +107,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:textColor="@color/colorOnBackground"
-            android:text="Size:"/>
+            android:text="@string/size"/>
 
         <TextView
             android:layout_gravity="start"

@@ -107,6 +107,12 @@
     <string name="copyright_2018_2019" translatable="false">Copyright 2018&#8211;2019</string>
     <string name="licensed_under">Licensed under</string>
     <string name="accessed">accessed</string>
+    <string name="filename">Filename:</string>
+    <string name="content_type">Content Type:</string>
+    <string name="created_at">Created At:</string>
+    <string name="last_access">Last Access:</string>
+    <string name="size">Size:</string>
+    <string name="directory_name">Directory Name:</string>
 
 
 </resources>
