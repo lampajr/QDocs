@@ -22,6 +22,22 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.polimi.proj.qdocs.R;
 
+/**
+ * Copyright 2018-2019 Lamparelli Andrea & Chittò Pietro
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 public class RegistrationActivity extends AppCompatActivity {
 
     private String TAG = "REGISTRATION";
@@ -42,7 +58,7 @@ public class RegistrationActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         labelError = findViewById(R.id.label_error);
 
-        //TODO: implementare il tasto indietro per tornare al login
+        //TODO: implement get back button toward login
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
