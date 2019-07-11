@@ -52,15 +52,26 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Andrea Lamparelli
- * @author Pietro Chittò
+ * Copyright 2018-2019 Lamparelli Andrea & Chittò Pietro
  *
- * Fragment that provide a custom QR-code detector that for each key detected from qrcode checks
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ * Fragment that provides a custom QR-code detector that for each key detected from qrcode checks
  * whether the current user has a file (on the storage) associated with this key, if yes it calls
  * an IntentService that will be in charge to download it and provide its Uri, then this activity
  * after get back the result has to invoke the appropriate activity that will show the file.
  *
- * @see Fragment
  * @see com.journeyapps.barcodescanner.BarcodeView
  */
 public class ScannerFragment extends Fragment {

@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,12 +25,12 @@ import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.AreYouSureDialog;
 import com.polimi.proj.qdocs.dialogs.InfoDialog;
+import com.polimi.proj.qdocs.dialogs.OfflineSheetMenu;
 import com.polimi.proj.qdocs.listeners.OnYesListener;
 import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyDirectory;
 import com.polimi.proj.qdocs.support.MyFile;
-import com.polimi.proj.qdocs.dialogs.OfflineSheetMenu;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageAdapter;
 import com.polimi.proj.qdocs.support.StorageElement;
@@ -49,11 +48,23 @@ import java.util.List;
 
 
 /**
- * @author Lamparelli Andrea
- * @author Chittò Pietro
+ * Copyright 2018-2019 Lamparelli Andrea & Chittò Pietro
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * Fragment that will show the list of user's offline files
  */
+
 public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private final String TAG = "OFFLINE_FILES_FRAGMENT";
 
