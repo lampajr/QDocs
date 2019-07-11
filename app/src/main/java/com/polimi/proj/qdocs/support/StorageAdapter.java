@@ -140,7 +140,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
 
                     DateFormat simple = DateFormat.getDateTimeInstance();
                     Date lastAccessDate = new Date(file.getLastAccess());
-                    String description = file.getContentType() + ", accessed " + simple.format(lastAccessDate);
+                    String description = file.getContentType() + ", " + context.getString(R.string.accessed) + " " + simple.format(lastAccessDate);
                     elementDescriptionView.setText(description);
                     elementImage.setVisibility(View.VISIBLE);
                     elementOptionView.setVisibility(View.VISIBLE);
