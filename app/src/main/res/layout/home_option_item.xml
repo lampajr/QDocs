@@ -12,7 +12,7 @@
     android:paddingStart="10dp"
     android:paddingEnd="10dp"
     android:gravity="center_vertical"
-    android:textSize="20sp"
+    android:textSize="@dimen/home_option_height"
     android:textStyle="bold"
     android:textColor="@color/colorOnBackground"
     android:text="@string/option_string"/>

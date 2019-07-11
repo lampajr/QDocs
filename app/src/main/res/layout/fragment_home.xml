@@ -25,7 +25,7 @@
         android:layout_below="@id/profile_image"
         android:layout_centerHorizontal="true"
         android:textStyle="bold"
-        android:textSize="20sp"
+        android:textSize="@dimen/home_info_height"
         android:textColor="@color/colorOnBackground"
         android:text="@string/display_name_string"/>
 
@@ -36,7 +36,7 @@
         android:layout_below="@id/display_name_view"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
-        android:textSize="20sp"
+        android:textSize="@dimen/home_info_height"
         android:textColor="@color/colorOnBackground"
         android:text="---------"/>
 
@@ -47,7 +47,7 @@
         android:layout_below="@id/display_name"
         android:layout_centerHorizontal="true"
         android:textStyle="bold"
-        android:textSize="20sp"
+        android:textSize="@dimen/home_info_height"
         android:textColor="@color/colorOnBackground"
         android:text="@string/email_used_string"/>
 
@@ -58,7 +58,7 @@
         android:layout_below="@id/personal_email_view"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
-        android:textSize="20sp"
+        android:textSize="@dimen/home_info_height"
         android:textColor="@color/colorOnBackground"
         android:text="--------"/>
 
@@ -68,7 +68,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/personal_email"
         android:layout_centerHorizontal="true"
-        android:textSize="20sp"
+        android:textSize="@dimen/home_info_height"
         android:textColor="@color/colorOnBackground"
         android:text="@string/total_space_used"/>
 
@@ -80,7 +80,7 @@
         android:layout_marginBottom="20dp"
         android:layout_below="@id/space_used_text_view"
         android:layout_centerHorizontal="true"
-        android:textSize="20sp"
+        android:textSize="@dimen/home_info_height"
         android:textColor="@color/colorOnBackground"
         android:text="@string/file_number_stored"/>
 
@@ -100,7 +100,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
-            android:textSize="25sp"
+            android:textSize="@dimen/home_option_height"
             android:textColor="@color/colorOnBackground"
             android:textStyle="bold"
             android:text="@string/option_string"/>
@@ -113,7 +113,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:gravity="center"
-            android:textSize="20sp"
+            android:textSize="@dimen/home_option_height"
             android:textStyle="bold"
             android:textColor="@color/colorOnBackground"
             android:text="@string/language"/>
@@ -164,7 +164,7 @@
             android:id="@+id/version_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="30dp"
             android:textSize="15sp"
             android:textColor="@color/colorOnBackground"
             android:text="@string/version"/>
