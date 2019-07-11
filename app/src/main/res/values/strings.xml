@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">QDocs</string>
+    <string name="app_name" translatable="false">QDocs</string>
     <string name="title_activity_login">Sign in</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Enter Email</string>
@@ -97,6 +97,10 @@
     <string name="dir_name_already_used">Directory name already used!!</string>
     <string name="creating_directory">Creating directory..</string>
     <string name="uploading_file">Uploading file..</string>
+    <string name="cannot_access_ext_storage">External storage permission denied!</string>
+    <string name="insert_folder_name_caps">INSERT FOLDER NAME</string>
+    <string name="something_went_wrong">Something went wrong :(</string>
+    <string name="unable_to_find">Unable to find</string>
 
 
 </resources>

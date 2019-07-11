@@ -174,6 +174,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             if (resultCode == Activity.RESULT_OK) {
                 if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(context, context.getString(R.string.cannot_access_ext_storage), Toast.LENGTH_SHORT).show();
                     Log.e(TAG,"Permission denied for external storage");
                 }else {
                     uploadFile(Objects.requireNonNull(data.getData()), "", R.string.uploading_file);
@@ -243,7 +244,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                         return true;
                     case R.id.create_directory:
                         speedDialView.close();
-                        new InputDialog(context, null, onInputListener, "INSERT FOLDER NAME").show();
+                        new InputDialog(context, null, onInputListener, context.getString(R.string.insert_folder_name_caps)).show();
                         return true;
                     default:
                         return false;
@@ -384,7 +385,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             });
         }
         catch (NullPointerException ex) {
-            Toast.makeText(context, "Something went wrong!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -438,7 +439,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             deletePersonalFile(f.getFilename());
         }
         else {
-            Toast.makeText(context, "Unable to find " + filename, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.unable_to_find) + " " + filename, Toast.LENGTH_SHORT).show();
         }
     }
 
