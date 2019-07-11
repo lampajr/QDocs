@@ -23,6 +23,7 @@
         android:layout_marginTop="10dp"
         android:layout_centerHorizontal="true"
         android:textSize="@dimen/big_text_size"
+        android:textStyle="bold"
         android:textColor="@color/colorOnPrimary"
         android:text="@string/root_string"/>
 

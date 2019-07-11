@@ -22,6 +22,8 @@ import com.polimi.proj.qdocs.R;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 
 public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter.DataViewHolder>{
@@ -135,7 +137,11 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                     Log.d(TAG, "Adding file to the recycler view");
 
                     elementNameView.setText(file.getFilename().split("\\.")[0]);
-                    elementDescriptionView.setText(file.getContentType());
+
+                    DateFormat simple = DateFormat.getDateTimeInstance();
+                    Date lastAccessDate = new Date(file.getLastAccess());
+                    String description = file.getContentType() + ", accessed " + simple.format(lastAccessDate);
+                    elementDescriptionView.setText(description);
                     elementImage.setVisibility(View.VISIBLE);
                     elementOptionView.setVisibility(View.VISIBLE);
                     elementOptionView.setClickable(true);

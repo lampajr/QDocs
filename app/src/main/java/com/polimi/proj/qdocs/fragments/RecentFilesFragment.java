@@ -29,6 +29,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.leinardi.android.speeddial.SpeedDialView;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.AreYouSureDialog;
@@ -72,6 +73,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     private RecyclerView storageView;
     private StorageAdapter myStorageAdapter;
     private BottomSheetMenu bsm;
+    private SpeedDialView changeOrderButton;
 
     private List<StorageElement> files;
 
@@ -100,6 +102,9 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         titleText = titlebar.findViewById(R.id.title);
         titleText.setText(getString(R.string.recent));
 
+        changeOrderButton = view.findViewById(R.id.change_order_button);
+        setupChangeOrderButton();
+
         setupStorageView();
         setupSwipeRefresh();
 
@@ -113,7 +118,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.context = context;
     }
@@ -135,6 +140,28 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
                 Log.d(TAG, "Paused");
             }
         }
+    }
+
+
+    private void setupChangeOrderButton() {
+        changeOrderButton.setMainFabClosedDrawable(context.getDrawable(R.drawable.ic_change_order));
+        changeOrderButton.setMainFabClosedBackgroundColor(context.getColor(R.color.colorSecondaryLight));
+
+        changeOrderButton.setOnChangeListener(new SpeedDialView.OnChangeListener() {
+            @Override
+            public boolean onMainActionSelected() {
+                ascending = !ascending;
+                files.clear();
+                setupFirebaseStorageListener(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
+                notifyAdapter();
+                return true;
+            }
+
+            @Override
+            public void onToggleChanged(boolean isOpen) {
+
+            }
+        });
     }
 
     /**
@@ -348,17 +375,13 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      * @param file new file to be added if recent
      */
     private void addFileInOrder(MyFile file) {
-        if (files.size() >= N_RECENT_FILES) {
-            Log.d(TAG, "Maximum number of files showed reached!");
-        }
-        else {
-            Log.d(TAG, "New file added: " + file.getFilename() + "; lastAccess: " + file.getLastAccess());
-            files.add(file);
-            Collections.sort(files);
-            if (ascending)
-                Collections.reverse(files);
-            notifyAdapter();
-        }
+
+        Log.d(TAG, "New file added: " + file.getFilename() + "; lastAccess: " + file.getLastAccess());
+        files.add(file);
+        Collections.sort(files);
+        if (ascending)
+            Collections.reverse(files);
+        notifyAdapter();
     }
 
     /**
