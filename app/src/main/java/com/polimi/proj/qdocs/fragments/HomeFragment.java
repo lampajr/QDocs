@@ -34,6 +34,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.LoginActivity;
 import com.polimi.proj.qdocs.activities.MainActivity;
+import com.polimi.proj.qdocs.dialogs.AboutDialog;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.MyFile;
 import com.polimi.proj.qdocs.support.StorageElement;
@@ -48,8 +49,21 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-
-// TODO: reorganize layout
+/**
+ * Copyright 2018-2019 Lamparelli Andrea & Chittò Pietro
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 public class HomeFragment extends Fragment {
     private static final String TAG = "HOME_FRAGMENT";
@@ -160,10 +174,10 @@ public class HomeFragment extends Fragment {
                     size = totalSpace + " Kb";
                 }
 
-                String space = totalSpaceView.getText().toString().substring(0, totalSpaceView.getText().toString().lastIndexOf(":")+1) + " " + size;
+                String space = totalSpaceView.getText().toString().substring(0, totalSpaceView.getText().toString().lastIndexOf(":") + 1) + " " + size;
                 totalSpaceView.setText(space);
 
-                String number = storedFilesView.getText().toString().substring(0, storedFilesView.getText().toString().lastIndexOf(":")+1) + " " + storedFiles;
+                String number = storedFilesView.getText().toString().substring(0, storedFilesView.getText().toString().lastIndexOf(":") + 1) + " " + storedFiles;
                 storedFilesView.setText(number);
             }
 
@@ -199,7 +213,7 @@ public class HomeFragment extends Fragment {
         aboutOption.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: implement
+                new AboutDialog(context, null).show();
             }
         });
 

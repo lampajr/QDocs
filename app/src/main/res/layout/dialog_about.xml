@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:gravity="center"
+    android:padding="40dp"
+    android:background="@drawable/dialog_shape">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorOnBackground"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/version"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginTop="25dp"
+        android:textColor="@color/colorOnBackground"/>
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        android:contentDescription="@string/qdocs_logo"
+        android:src="@mipmap/ic_launcher_1_round"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="@string/copyright_2018_2019"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorOnBackground"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="@string/lamparelli_andrea_and_chitt_pietro"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="15dp"
+        android:textColor="@color/colorOnBackground"/>
+
+    <TextView
+        android:id="@+id/license_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="@string/license"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorOnBackground"/>
+
+</LinearLayout>

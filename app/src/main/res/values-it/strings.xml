@@ -101,4 +101,9 @@
     <string name="something_went_wrong">Qualcosa è andato storto :(</string>
     <string name="unable_to_find">Impossibile trovare </string>
 
+
+    <string name="qdocs_logo">logo QDocsa</string>
+    <string name="license">LICENZA</string>
+    <string name="lamparelli_andrea_and_chitt_pietro">Lamparelli Andrea e Chittò Pietro</string>
+    <string name="licensed_under">Concesso in licenza sotto</string>
 </resources>

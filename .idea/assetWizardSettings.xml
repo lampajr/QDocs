@@ -62,7 +62,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="scalingPercent" value="52" />
+                                                <entry key="scalingPercent" value="63" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -73,8 +73,13 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="f6fff6" />
-                                      <entry key="foregroundImage" value="$USER_HOME$/Scaricati/LogoMakr_1du21N(1).png" />
+                                      <entry key="backgroundColor" value="fdfdfd" />
+                                      <entry key="backgroundLayerName" value="ic_launcher_background_1" />
+                                      <entry key="foregroundImage" value="$USER_HOME$/Pictures/QRdocs_logo2.png" />
+                                      <entry key="foregroundLayerName" value="ic_launcher_foreground_1" />
+                                      <entry key="legacyIconShape" value="CIRCLE" />
+                                      <entry key="outputName" value="ic_launcher_1" />
+                                      <entry key="webIconShape" value="CIRCLE" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -91,17 +96,6 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                              </map>
-                                            </option>
-                                          </PersistentState>
-                                        </value>
-                                      </entry>
-                                      <entry key="clipartAsset">
-                                        <value>
-                                          <PersistentState>
-                                            <option name="values">
-                                              <map>
-                                                <entry key="url" value="jar:file:/usr/local/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/navigation/ic_arrow_back_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>

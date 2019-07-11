@@ -101,6 +101,11 @@
     <string name="insert_folder_name_caps">INSERT FOLDER NAME</string>
     <string name="something_went_wrong">Something went wrong :(</string>
     <string name="unable_to_find">Unable to find</string>
+    <string name="qdocs_logo">QDocs logo</string>
+    <string name="license">LICENSE</string>
+    <string name="lamparelli_andrea_and_chitt_pietro">Lamparelli Andrea and Chittò Pietro</string>
+    <string name="copyright_2018_2019" translatable="false">Copyright 2018&#8211;2019</string>
+    <string name="licensed_under">Licensed under</string>
 
 
 </resources>
