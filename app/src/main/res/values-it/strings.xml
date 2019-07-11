@@ -33,7 +33,7 @@
     <string name="file_already_stored">File già salvato</string>
     <string name="upload_new_file">Carica nuovo file</string>
     <string name="pathname_chooser">selettore percorso del file</string>
-    <string name="delition_failed">Eliminzaione fallita</string>
+    <string name="delition_failed">Eliminzaione fallita!</string>
     <string name="already_at_root_level">Impossibile andare più indietro</string>
     <string name="no_files_associated">Non ci sono file associati a questo codice</string>
     <string name="settings_points_string">⋮</string>

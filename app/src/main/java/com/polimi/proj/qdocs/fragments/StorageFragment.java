@@ -1,7 +1,6 @@
 package com.polimi.proj.qdocs.fragments;
 
 import android.Manifest;
-import android.animation.Animator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,7 +61,6 @@ import com.polimi.proj.qdocs.support.StorageAdapter;
 import com.polimi.proj.qdocs.support.StorageElement;
 import com.polimi.proj.qdocs.support.Utility;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -86,6 +83,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private static final int AUD_PRV = 2;
     private static final int FILE_PRV = 3;
 
+    private String currentPath = "";
+
     private FirebaseHelper fbHelper;
     private OnInputListener onInputListener;
 
@@ -93,7 +92,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private StorageAdapter myStorageAdapter;
     private RecyclerView storageView;
 
-    private RelativeLayout titlebar;
     private ImageView getBackDirectoryButton;
     private TextView directoryPathText;
 
@@ -133,7 +131,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         fbHelper = new FirebaseHelper();
 
-        titlebar = view.findViewById(R.id.titlebar);
+        RelativeLayout titlebar = view.findViewById(R.id.titlebar);
         directoryPathText = titlebar.findViewById(R.id.title);
         directoryPathText.setText(getString(R.string.storage));
         getBackDirectoryButton = titlebar.findViewById(R.id.get_back_directory);
@@ -591,7 +589,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     /**
      * Deletes a single directory, deleting all its sub-elements
-     * @param path name of the directory to remove, or deep path of directories
+     * @param path name of the directory to remove, or deep currentPath of directories
      */
     private void deletePersonalDirectory(final String path) {
         Log.d(TAG, "Deleting directory: " + path);
@@ -664,14 +662,14 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             storageElements.clear();
             addElement(emptyElement);
             addElement(emptyElement.duplicate());
-            //TODO: change directory text
-            String pastText = directoryPathText.getText().toString();
-            directoryPathText.setText(pastText.substring(0, pastText.lastIndexOf(">")));
+            currentPath = currentPath.substring(0, currentPath.lastIndexOf(">"));
+            directoryPathText.setText(currentPath.substring(currentPath.lastIndexOf(">")+1));
             notifyAdapter();
             setupFirebaseStorageListener();
             if (fbHelper.isAtRoot()) {
                 //make get back button invisible
                 getBackDirectoryButton.setVisibility(View.INVISIBLE);
+                directoryPathText.setText(context.getString(R.string.storage));
             }
 
             // update the storage adapter
@@ -700,9 +698,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         addElement(emptyElement.duplicate());
         notifyAdapter();
         setupFirebaseStorageListener();
-        //TODO: change directory text
-        String path = directoryPathText.getText().toString() + ">" + directoryName;
-        directoryPathText.setText(path);
+        currentPath = currentPath + ">" + directoryName;
+        directoryPathText.setText(directoryName);
     }
 
     @Override

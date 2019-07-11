@@ -6,9 +6,9 @@
 
     <ImageView
         android:id="@+id/get_back_directory"
-        android:layout_width="25dp"
+        android:layout_width="20dp"
         android:layout_height="match_parent"
-        android:layout_marginStart="7dp"
+        android:layout_marginStart="10dp"
         android:src="@drawable/ic_get_back_directory_24dp"
         android:layout_toStartOf="@id/title"
         android:visibility="invisible"
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:textAlignment="center"
-        android:layout_marginEnd="50dp"
+        android:layout_marginEnd="80dp"
         android:layout_marginTop="10dp"
         android:layout_centerHorizontal="true"
         android:textSize="@dimen/big_text_size"
