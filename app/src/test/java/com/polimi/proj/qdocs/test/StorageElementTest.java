@@ -1,8 +1,8 @@
 package com.polimi.proj.qdocs.test;
 
-import com.polimi.proj.qdocs.support.MyDirectory;
-import com.polimi.proj.qdocs.support.MyFile;
-import com.polimi.proj.qdocs.support.StorageElement;
+import com.polimi.proj.qdocs.model.MyDirectory;
+import com.polimi.proj.qdocs.model.MyFile;
+import com.polimi.proj.qdocs.model.StorageElement;
 
 import org.junit.After;
 import org.junit.Before;

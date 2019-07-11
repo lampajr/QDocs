@@ -12,9 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.polimi.proj.qdocs.R;
-import com.polimi.proj.qdocs.support.MyDirectory;
-import com.polimi.proj.qdocs.support.MyFile;
-import com.polimi.proj.qdocs.support.StorageElement;
+import com.polimi.proj.qdocs.model.MyDirectory;
+import com.polimi.proj.qdocs.model.MyFile;
+import com.polimi.proj.qdocs.model.StorageElement;
 
 import java.text.DateFormat;
 import java.util.Date;

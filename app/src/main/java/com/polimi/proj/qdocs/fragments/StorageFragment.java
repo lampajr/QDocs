@@ -54,11 +54,11 @@ import com.polimi.proj.qdocs.dialogs.BottomSheetMenu;
 import com.polimi.proj.qdocs.listeners.OnYesListener;
 import com.polimi.proj.qdocs.support.DividerDecorator;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
-import com.polimi.proj.qdocs.support.MyDirectory;
-import com.polimi.proj.qdocs.support.MyFile;
+import com.polimi.proj.qdocs.model.MyDirectory;
+import com.polimi.proj.qdocs.model.MyFile;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.StorageAdapter;
-import com.polimi.proj.qdocs.support.StorageElement;
+import com.polimi.proj.qdocs.model.StorageElement;
 import com.polimi.proj.qdocs.support.Utility;
 
 import org.apache.commons.lang3.StringUtils;
@@ -69,7 +69,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.polimi.proj.qdocs.support.MyFile.emptyElement;
+import static com.polimi.proj.qdocs.model.MyFile.emptyElement;
 
 
 /**

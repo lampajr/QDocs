@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.polimi.proj.qdocs.R;
-import com.polimi.proj.qdocs.support.MyFile;
+import com.polimi.proj.qdocs.model.MyFile;
 import com.polimi.proj.qdocs.support.PathResolver;
 import com.polimi.proj.qdocs.support.Utility;
 

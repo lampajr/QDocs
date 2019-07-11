@@ -33,8 +33,8 @@ import com.polimi.proj.qdocs.activities.LoginActivity;
 import com.polimi.proj.qdocs.activities.MainActivity;
 import com.polimi.proj.qdocs.dialogs.AboutDialog;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
-import com.polimi.proj.qdocs.support.MyFile;
-import com.polimi.proj.qdocs.support.StorageElement;
+import com.polimi.proj.qdocs.model.MyFile;
+import com.polimi.proj.qdocs.model.StorageElement;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

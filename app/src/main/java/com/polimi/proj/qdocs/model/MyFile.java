@@ -1,4 +1,4 @@
-package com.polimi.proj.qdocs.support;
+package com.polimi.proj.qdocs.model;
 
 import androidx.annotation.NonNull;
 
@@ -8,8 +8,20 @@ import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.storage.StorageReference;
 
 /**
- * @author Andrea Lamparelli
- * @author Pietro Chittò
+ * Copyright 2018-2019 Lamparelli Andrea & Chittò Pietro
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  *
  * Stores all the information about a single file
  * loaded from the Firebase Realtime Database
@@ -28,13 +40,13 @@ import com.google.firebase.storage.StorageReference;
 @IgnoreExtraProperties
 public class MyFile extends StorageElement{
 
-    static final String KEY = "key";
-    static final String FILENAME = "filename";
-    static final String CONTENT_TYPE = "contentType";
-    static final String SIZE = "size";
-    static final String TIME = "time";
-    static final String LAST_ACCESS = "lastAccess";
-    static final String OFFLINE = "offline";
+    public static final String KEY = "key";
+    public static final String FILENAME = "filename";
+    public static final String CONTENT_TYPE = "contentType";
+    public static final String SIZE = "size";
+    public static final String TIME = "time";
+    public static final String LAST_ACCESS = "lastAccess";
+    public static final String OFFLINE = "offline";
 
     public static final String EMPTY_ELEMENT = "empty_element_59834823";
     public static MyFile emptyElement = new MyFile(EMPTY_ELEMENT, "", "", "", "", 0L, false);
@@ -90,7 +102,7 @@ public class MyFile extends StorageElement{
         return lastAccess;
     }
 
-    boolean isOffline() {
+    public boolean isOffline() {
         return offline;
     }
 
