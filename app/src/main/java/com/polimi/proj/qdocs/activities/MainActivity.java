@@ -5,12 +5,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -66,14 +64,9 @@ public class MainActivity extends AppCompatActivity {
     private AHBottomNavigationAdapter navigationAdapter;
     private int prevFragmentIdx = -1;
 
-    private RelativeLayout.LayoutParams params;
-    private Toolbar toolbar;
-
     private ViewPager pager;
 
     private List<Fragment> fragments;
-
-    private FirebaseUser user;
 
     private int offlineCount = 0;
 
@@ -261,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
      * otherwise it starts with the last fragment used
      */
     private void initialize() {
-        user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         if (user == null) {
             // if the user is not yet authenticated

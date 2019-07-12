@@ -67,6 +67,7 @@ import java.util.Map;
  *
  * @see com.journeyapps.barcodescanner.BarcodeView
  */
+
 public class ScannerFragment extends Fragment {
     private static final String TAG = "SCANNER_ACTIVITY";
     private static final String ARG_INTENT = "param_intent";
