@@ -86,6 +86,7 @@
     <string name="english">English</string>
     <string name="italian">Italiano</string>
     <string name="language">Lingua</string>
+    <string name="search_string">cerca</string>
 
 
 </resources>

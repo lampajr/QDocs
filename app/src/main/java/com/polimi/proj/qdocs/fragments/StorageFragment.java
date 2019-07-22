@@ -9,10 +9,15 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -110,8 +115,11 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private OnInputListener onInputListener;
 
     private final List<StorageElement> storageElements = new ArrayList<>();
+    private List<StorageElement> searchList = new ArrayList<>();
     private StorageAdapter myStorageAdapter;
+    private StorageAdapter searchAdapter;
     private RecyclerView storageView;
+    private EditText searchBar;
 
     private ImageView getBackDirectoryButton;
     private TextView directoryPathText;
@@ -138,7 +146,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // retain this fragment
         setRetainInstance(true);
 
@@ -168,10 +175,16 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         setupSwipeRefreshListener();
 
+        searchBar = view.findViewById(R.id.search_view);
+        setupSearchBar();
+
         onInputListener = this;
 
         return view;
     }
+
+
+
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -272,6 +285,27 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         });
     }
 
+    private void setupSearchBar() {
+
+        searchBar.addTextChangedListener(
+                new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        updateDisplayList();
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+
+                    }
+                }
+        );
+    }
     /**
      * Setup the Swipe Refresh Listener of the recycler view
      */
@@ -444,6 +478,30 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 showDirectoryBottomSheetMenu(dir);
             }
         };
+
+        searchAdapter = new StorageAdapter(context, searchList, fbHelper.getStorageReference()) {
+
+            @Override
+            public void onFileClick(MyFile file) {
+                showFile(file);
+            }
+
+            @Override
+            public void onFileOptionClick(MyFile file) {
+                showFileSettingsMenu(file);
+            }
+
+            @Override
+            public void onDirectoryClick(MyDirectory dir) {
+                openDirectory(dir.getDirectoryName());
+                myStorageAdapter.updateStorageReference(fbHelper.getStorageReference());
+            }
+
+            @Override
+            public void onDirectoryOptionClick(MyDirectory dir) {
+                showDirectoryBottomSheetMenu(dir);
+            }
+        };
         // set the adapter for the elements
         storageView.setAdapter(myStorageAdapter);
     }
@@ -460,6 +518,39 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         else {
             Toast.makeText(context, context.getString(R.string.unable_to_find) + " " + filename, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void updateDisplayList() {
+        Log.d(TAG,"updating the list");
+        String userInput = searchBar.getText().toString().toLowerCase();
+        Log.d(TAG,"input: " + userInput);
+        searchList.clear();
+        Log.d(TAG,"files founded: " + storageElements.size());
+        Log.d(TAG,"display list: " + searchList.size() + "elements");
+
+        for(StorageElement element : storageElements){
+            if(element instanceof MyFile){
+                Log.d(TAG,"watching a file");
+                if(((MyFile) element).getFilename().toLowerCase().contains(userInput)){
+
+                    searchList.add(element);
+                    Log.d(TAG,"files founded: " + storageElements.size());
+                }
+            }
+            if(element instanceof MyDirectory) {
+                Log.d(TAG,"watching a directory");
+                if (((MyDirectory) element).getDirectoryName().toLowerCase().contains(userInput)) {
+
+                    searchList.add(element);
+                    Log.d(TAG, "files founded: " + storageElements.size());
+                }
+            }
+
+        }
+
+        storageView.setAdapter(searchAdapter);
+
+        notifyAdapter();
     }
 
     /**
@@ -676,6 +767,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * get back to the previous directory if any.
      */
     private void getBackDirectory() {
+        setStorageAdapter();
         if (!fbHelper.isAtRoot()) {
             Log.d(TAG, "Removing a directory level");
             fbHelper.backwardDatabaseDirectory();
@@ -708,6 +800,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * @param directoryName name of the folder to which move to
      */
     private void openDirectory(final String directoryName) {
+        setStorageAdapter();
         if (fbHelper.isAtRoot()) {
             getBackDirectoryButton.setVisibility(View.VISIBLE);
         }
@@ -763,6 +856,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * @param elem curr element to add
      */
     private void addElement(StorageElement elem) {
+        setStorageAdapter();
+
         if (elem instanceof MyFile &&
                 StorageElement.retrieveFileByName(((MyFile)elem).getFilename(), storageElements) != null) {
             // add file in the tail of list
@@ -823,5 +918,12 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             }
         });
         psm.show(((MainActivity)context).getSupportFragmentManager(), "directory_settings_" + dir.getDirectoryName());
+    }
+
+    private void setStorageAdapter(){
+        if (storageView.getAdapter() == myStorageAdapter)
+                return;
+        searchBar.setText("");
+        storageView.setAdapter(myStorageAdapter);
     }
 }
