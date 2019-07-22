@@ -1,4 +1,5 @@
 <resources>
+    <string name="app_name">QDocs</string>
     <string name="title_activity_login">Accedi</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Inserisci Email</string>
@@ -27,20 +28,20 @@
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="image_viewer_description">VISUALIZZATORE IMMAGINI</string>
-    <string name="no_operation">operazione non ancora implementata</string>
+    <string name="no_operation">operation not yet implemented</string>
     <string name="play_string">Play</string>
     <string name="pause_string">Pausa</string>
     <string name="file_already_stored">File già salvato</string>
     <string name="upload_new_file">Carica nuovo file</string>
-    <string name="pathname_chooser">selettore percorso del file</string>
-    <string name="delition_failed">Eliminzaione fallita!</string>
+    <string name="pathname_chooser">pathname chooser</string>
+    <string name="delition_failed">Eliminzaione fallita</string>
     <string name="already_at_root_level">Impossibile andare più indietro</string>
     <string name="no_files_associated">Non ci sono file associati a questo codice</string>
     <string name="settings_points_string">⋮</string>
     <string name="enter_email_string">Inserisci email</string>
     <string name="register_string">Registrati</string>
     <string name="empty_string" />
-    <string name="files_string">FILE</string>
+    <string name="files_string">FILES</string>
     <string name="scanner_string">SCANNER</string>
     <string name="save_file_string">Salva File</string>
     <string name="delete_file_string">Elimina File</string>
@@ -61,10 +62,10 @@
     <string name="qr_code_saved">QR code salvato con successo</string>
     <string name="qrcode_already_saved">Qr code già salvato!</string>
     <string name="go_back_directory_button_description">go-back directory button</string>
-    <string name="fileName_string">nome del file</string>
-    <string name="image_preview_description">Anteprima d\'immagine</string>
+    <string name="fileName_string">fileName</string>
+    <string name="image_preview_description">Image preview</string>
     <string name="root_string">home</string>
-    <string name="default_folder_string">mia_cartella</string>
+    <string name="default_folder_string">my_folder</string>
     <string name="confirm_upper_string">Conferma</string>
     <string name="cancel_upper_string">Annulla</string>
     <string name="yes_upper_string">SI</string>
@@ -72,44 +73,19 @@
     <string name="null_email">Inserisci email</string>
     <string name="null_password">Inserisci una password</string>
     <string name="option_string">Opzioni</string>
-    <string name="email_used_string">Email usata:</string>
-    <string name="display_name_string">Nome visualizzato:</string>
+    <string name="email_used_string">email usata</string>
+    <string name="display_name_string">display name</string>
     <string name="version">versione 1.0.0</string>
     <string name="total_space_used">Totale spazio usato:</string>
-    <string name="file_number_stored">File salvati:</string>
+    <string name="file_number_stored">file salvati:</string>
     <string name="offline">OFFLINE</string>
     <string name="home">HOME</string>
     <string name="storage">STORAGE</string>
-    <string name="recent">RECENTI</string>
-    <string name="about">Info</string>
-    <string name="english">Inglese</string>
+    <string name="recent"> RECENTI</string>
+    <string name="about">..About..</string>
+    <string name="english">English</string>
     <string name="italian">Italiano</string>
     <string name="language">Lingua</string>
-    <string name="local_file_deleted">File locale eliminato!</string>
-    <string name="downloading_file">File in download..</string>
-    <string name="error_download">Errore occorso durante lo scaricamento!</string>
-    <string name="unable_show_file">Impossibile aprire il file, estensione non riconosciuta!</string>
-    <string name="file_not_found">File non trovato!</string>
-    <string name="error_copying_file">Errore durante la copia del file!</string>
-    <string name="deletion_failed">Eliminazione fallita!</string>
-    <string name="error_removing_file">Errore durante l\'eliminazione del file</string>
-    <string name="dir_name_already_used">Nome cartella già utilizzato!</string>
-    <string name="creating_directory">Creazione cartella..</string>
-    <string name="uploading_file">Caricamento file..</string>
-    <string name="cannot_access_ext_storage">Accesso allo storage esterno negato!</string>
-    <string name="insert_folder_name_caps">INSERISCI NOME CARTELLA</string>
-    <string name="something_went_wrong">Qualcosa è andato storto :(</string>
-    <string name="unable_to_find">Impossibile trovare </string>
-    <string name="qdocs_logo">logo QDocsa</string>
-    <string name="license">LICENZA</string>
-    <string name="lamparelli_andrea_and_chitt_pietro">Lamparelli Andrea e Chittò Pietro</string>
-    <string name="licensed_under">Concesso sotto</string>
-    <string name="accessed">visitato il</string>
-    <string name="filename">Nome file:</string>
-    <string name="content_type">Formato:</string>
-    <string name="created_at">Creato il:</string>
-    <string name="last_access">Ultimo accesso:</string>
-    <string name="size">Dimensione:</string>
-    <string name="directory_name">Nome cartella:</string>
+
 
 </resources>
