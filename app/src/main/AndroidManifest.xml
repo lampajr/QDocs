@@ -74,6 +74,10 @@
             android:exported="false"
             android:stopWithTask="true" />
 
+        <uses-library android:name="android.test.runner"/>
+        <!-- <uses-library android:name="android.test.mock"/> -->
+
+
     </application>
 
 </manifest>

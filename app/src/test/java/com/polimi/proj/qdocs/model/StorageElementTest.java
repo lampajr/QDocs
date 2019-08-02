@@ -1,4 +1,4 @@
-package com.polimi.proj.qdocs.test;
+package com.polimi.proj.qdocs.model;
 
 import com.polimi.proj.qdocs.model.MyDirectory;
 import com.polimi.proj.qdocs.model.MyFile;
@@ -39,7 +39,12 @@ public class StorageElementTest {
 
     @After
     public void tearDown() throws Exception {
-
+        file1 = null;
+        file2 = null;
+        file3 = null;
+        directory2 = null;
+        directory1 = null;
+        elements = null;
     }
 
     @Test
