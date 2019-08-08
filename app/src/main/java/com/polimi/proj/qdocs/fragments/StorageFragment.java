@@ -386,11 +386,32 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         speedDialView.close();
         Log.d(TAG, "file to upload at uri: " + fileUri);
 
+        File cache = new File(parentActivity.getCacheDir().getAbsolutePath(), "documents");
+        if (cache.isDirectory()) {
+            for (File f: cache.listFiles()) {
+                if (f.delete()) {
+                    Log.d(TAG, "App cache cleared");
+                }
+            }
+
+        }
+
         try {
 
-            String child = Objects.requireNonNull(fileUri.getLastPathSegment());
-            String filteredChild = filterFilename(child, 1);
+            String p = PathResolver.getPathFromUri(context, fileUri);
+            String child;
 
+            if (p != null && !p.equals("")) {
+                Log.w(TAG, "path: " + p);
+                child = p.substring(p.lastIndexOf("/")+1);
+            }
+            else {
+                Log.w(TAG, "uri: " + fileUri);
+                child = Objects.requireNonNull(fileUri.getLastPathSegment());
+            }
+
+
+            String filteredChild = filterFilename(child, 1);
             child = (filteredChild != null) ? filteredChild : child;
 
             StorageReference fileRef = !pathname.equals("") ?
@@ -875,7 +896,6 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             return name;
         }
         else {
-
             if (num > 1) name = name.replace("(" + (num-1) + ")", "");
             String newName;
             if (name.contains(".")) {
