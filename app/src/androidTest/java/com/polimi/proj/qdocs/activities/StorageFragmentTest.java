@@ -12,7 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.intent.rule.IntentsTestRule;
 import androidx.test.rule.ActivityTestRule;
@@ -23,9 +25,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
+import com.polimi.proj.qdocs.activities.espressoAssertion.RecyclerViewItemCountAssertion;
 import com.polimi.proj.qdocs.fragments.StorageFragment;
+import com.polimi.proj.qdocs.support.FirebaseHelper;
+import com.polimi.proj.qdocs.support.Utility;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -62,6 +68,9 @@ public class StorageFragmentTest {
 
     private static FirebaseAuth mAuth;
     private static StorageReference storageRef;
+    private static final String KEY_METADATA = "key_metadata";
+    private static final String UID_METADATA = "uid_metadata";
+    private static FirebaseHelper fbHelper;
 
     @Rule
     public IntentsTestRule<MainActivity> mActivityTestRule = new IntentsTestRule<>(MainActivity.class);
@@ -94,6 +103,8 @@ public class StorageFragmentTest {
         sleep(2000);
         storageRef = FirebaseStorage.getInstance().getReference()
                 .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+
+        fbHelper = new FirebaseHelper();
     }
 
     /**
@@ -107,6 +118,8 @@ public class StorageFragmentTest {
             Log.d("TEST", "tester logged out");
         else
             Log.d("TEST", "logout fail");
+        storageRef = null;
+        fbHelper = null;
 
     }
 
@@ -130,24 +143,33 @@ public class StorageFragmentTest {
 
     @Test
     public void delete_file(){
-        File dir = mActivityTestRule.getActivity().getExternalCacheDir();
-        File file = new File(dir.getPath(), "picked_image.jpeg");
-        Uri uri = Uri.fromFile(file);
-        storageRef.child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).putFile(uri);
-        sleep(5000);
 
+        upload_file_on_fb();
 
+        int list_lenght = getCountFromRecyclerView(R.id.storage_view);
+
+        //click on the option of the picked_image file
         onView(allOf(withId(R.id.element_options),
                 isCompletelyDisplayed(),
-                withText("⋮"),
-                withParent(allOf(withId(R.id.elemnt_layout),
-                        withChild(allOf(withId(R.id.element_name),
-                                withText("picked_image.jpeg"),
-                                isCompletelyDisplayed()))))
-                )).perform(click());
+                withParent(allOf(withId(R.id.content),
+                        withChild(allOf(withId(R.id.element_info),
+                                withChild(allOf(withId(R.id.element_name),
+                                        withText("picked_image")))
+                                )))))).perform(click());
 
+        //click on delete file in the bottom sheet menu
+        onView(allOf(withId(R.id.delete_option),
+                isCompletelyDisplayed()))
+                .perform(click());
 
+        //click on yes in the dialog
+        onView(withId(R.id.yes_button)).perform(click());
 
+        sleep(5000);
+
+        //check the lenght of the ricycle view
+        onView(allOf(withId(R.id.storage_view), isCompletelyDisplayed()))
+                .check(new RecyclerViewItemCountAssertion((list_lenght - 1)));
     }
 
     private static void sleep(int millisecond){
@@ -206,6 +228,41 @@ public class StorageFragmentTest {
             e.printStackTrace();
         }
 
+    }
+
+    private void upload_file_on_fb(){
+        File dir = mActivityTestRule.getActivity().getExternalCacheDir();
+        File file = new File(dir.getPath(), "picked_image.jpeg");
+        Uri uri = Uri.fromFile(file);
+        Log.d("TEST", "file uri to delete: " + uri);
+
+        String contentType = "image/jpeg";
+
+        StorageMetadata metadata = new StorageMetadata.Builder()
+                .setContentType(contentType)
+                .setCustomMetadata(KEY_METADATA, Utility.generateCode())
+                .setCustomMetadata(UID_METADATA, fbHelper.getUserId())
+                .build();
+
+        storageRef.child(uri.getLastPathSegment()).putFile(uri, metadata);
+        sleep(10000);
+
+    }
+
+    public static int getCountFromRecyclerView(@IdRes int RecyclerViewId) {
+        final int[] COUNT = {0};
+        Matcher matcher = new TypeSafeMatcher<View>() {
+            @Override
+            protected boolean matchesSafely(View item) {
+                COUNT[0] = ((RecyclerView) item).getAdapter().getItemCount();
+                return true;
+            }
+            @Override
+            public void describeTo(Description description) {
+            }
+        };
+        onView(allOf(withId(RecyclerViewId),isDisplayed())).check(matches(matcher));
+        return COUNT[0];
     }
 
     private static Matcher<View> childAtPosition(

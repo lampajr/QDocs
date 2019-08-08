@@ -1,12 +1,19 @@
 package com.polimi.proj.qdocs.fragments;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -74,6 +81,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     private boolean ascending = true;
 
     private Context context;
+    private MainActivity parentActivity;
     private FirebaseHelper fbHelper;
 
     private RelativeLayout titlebar;
@@ -82,10 +90,13 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView storageView;
     private StorageAdapter myStorageAdapter;
+    private StorageAdapter searchAdapter;
     private BottomSheetMenu bsm;
     private SpeedDialView changeOrderButton;
+    private EditText searchBar;
 
     private List<StorageElement> files;
+    private List<StorageElement> searchList = new ArrayList<>();
 
     /**
      * Use this factory method to create a new instance of
@@ -112,6 +123,9 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         titleText = titlebar.findViewById(R.id.title);
         titleText.setText(getString(R.string.recent));
 
+        searchBar = view.findViewById(R.id.search_view);
+        setupSearchBar();
+
         changeOrderButton = view.findViewById(R.id.change_order_button);
         setupChangeOrderButton();
 
@@ -131,6 +145,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.context = context;
+        this.parentActivity = (MainActivity) context;
     }
 
     @Override
@@ -177,6 +192,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     /**
      * Setup the RecyclerView storing the most recent used files
      */
+    @SuppressLint("ClickableViewAccessibility")
     private void setupStorageView() {
         Log.d(TAG, "Setting up the storage view");
 
@@ -185,6 +201,18 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
 
         RecyclerView.ItemDecoration dividerItemDecoration = new DividerDecorator(ContextCompat.getDrawable(context, R.drawable.divider), 0);
         storageView.addItemDecoration(dividerItemDecoration);
+
+        storageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                View view = parentActivity.findViewById(R.id.main_frame);
+                InputMethodManager imm = (InputMethodManager) parentActivity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+                return false;
+            }
+        });
 
         myStorageAdapter = new StorageAdapter(context, files, FirebaseStorage.getInstance().getReference()) {
             @Override
@@ -207,6 +235,29 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
             @Override
             public void onDirectoryOptionClick(MyDirectory dir) {
                 // do nothing, no directories are showed in this list
+            }
+        };
+
+        searchAdapter = new StorageAdapter(context, searchList, fbHelper.getStorageReference()) {
+
+            @Override
+            public void onFileClick(MyFile file) {
+                showFile(file);
+            }
+
+            @Override
+            public void onFileOptionClick(MyFile file) {
+                showFileSettingsMenu(file);
+            }
+
+            @Override
+            public void onDirectoryClick(MyDirectory dir) {
+
+            }
+
+            @Override
+            public void onDirectoryOptionClick(MyDirectory dir) {
+
             }
         };
 
@@ -431,6 +482,61 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         Log.d(TAG, "Refreshing!");
         files.clear();
         setupFirebaseStorageListener(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
+    }
+
+    private void setupSearchBar() {
+
+        searchBar.addTextChangedListener(
+                new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        updateDisplayList();
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+
+                    }
+                }
+        );
+    }
+
+    private void updateDisplayList() {
+        Log.d(TAG,"updating the list");
+        String userInput = searchBar.getText().toString().toLowerCase();
+        Log.d(TAG,"input: " + userInput);
+        searchList.clear();
+        Log.d(TAG,"files founded: " + files.size());
+        Log.d(TAG,"display list: " + searchList.size() + "elements");
+
+        for(StorageElement element : files){
+            if(element instanceof MyFile){
+                Log.d(TAG,"watching a file");
+                if(((MyFile) element).getFilename().toLowerCase().contains(userInput)){
+
+                    searchList.add(element);
+                    Log.d(TAG,"files founded: " + files.size());
+                }
+            }
+            if(element instanceof MyDirectory) {
+                Log.d(TAG,"watching a directory");
+                if (((MyDirectory) element).getDirectoryName().toLowerCase().contains(userInput)) {
+
+                    searchList.add(element);
+                    Log.d(TAG, "files founded: " + files.size());
+                }
+            }
+
+        }
+
+        storageView.setAdapter(searchAdapter);
+
+        notifyAdapter();
     }
 
     private void notifyAdapter() {
