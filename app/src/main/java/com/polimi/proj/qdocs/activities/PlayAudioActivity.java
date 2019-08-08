@@ -1,5 +1,6 @@
 package com.polimi.proj.qdocs.activities;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -46,6 +47,7 @@ public class PlayAudioActivity extends AppCompatActivity {
 
     static final int DELETE_CODE = 100;
     private final String TAG = "AUDIO ACTIVITY";
+    private final String FILE_NAME = "fileName";
     private MediaPlayer mediaPlayer = null; //used for manage the audio file
     private double startTime = 0;
     private String fileName;
@@ -56,6 +58,7 @@ public class PlayAudioActivity extends AppCompatActivity {
     private boolean onlyOne = true;
     private Uri fileUri;
     private String mimeType;
+    private String extension = null;
     private TextView start_time_text;
     private TextView end_time_text;
 
@@ -172,6 +175,7 @@ public class PlayAudioActivity extends AppCompatActivity {
             fileUri = (Uri) bundle.get(DownloadFileService.RESULT_KEY_URI);
             mimeType = bundle.getString(DownloadFileService.RESULT_KEY_MIME_TYPE);
             fileName = bundle.getString(DownloadFileService.RESULT_KEY_FILENAME);
+            extension = bundle.getString(DownloadFileService.RESULT_KEY_EXTENSION);
         }
 
         Log.d(TAG, "file uri: " + fileUri);
@@ -202,6 +206,7 @@ public class PlayAudioActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("DefaultLocale")
     private void updateLabelTime(){
         start_time_text.setText(String.format("%d:%d",
                 TimeUnit.MILLISECONDS.toMinutes((long) startTime),
@@ -250,16 +255,11 @@ public class PlayAudioActivity extends AppCompatActivity {
         switch(id)
         {
             case R.id.delete_option:
-                ConfirmDialog d = new ConfirmDialog(this, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent data = new Intent();
-                        data.putExtra("fileName", fileName);
-                        setResult(DELETE_CODE,data);
-                        finish();
-
-                    }
-                });
+                Intent data = new Intent();
+                data.putExtra(FILE_NAME, fileName + "." + extension);
+                setResult(DELETE_CODE, data);
+                Log.d(TAG, "file deleted: " + fileName);
+                finish();
         }
         return false;
     }
