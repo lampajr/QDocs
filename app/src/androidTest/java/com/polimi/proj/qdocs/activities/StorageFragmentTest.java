@@ -6,18 +6,14 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
-import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.intent.rule.IntentsTestRule;
-import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,7 +25,6 @@ import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.activities.espressoAssertion.RecyclerViewItemCountAssertion;
-import com.polimi.proj.qdocs.fragments.StorageFragment;
 import com.polimi.proj.qdocs.support.FirebaseHelper;
 import com.polimi.proj.qdocs.support.Utility;
 
@@ -53,7 +48,6 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
-import static androidx.test.espresso.intent.matcher.IntentMatchers.hasData;
 import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withChild;
@@ -62,7 +56,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class StorageFragmentTest {
 
@@ -142,11 +135,26 @@ public class StorageFragmentTest {
     }
 
     @Test
+    public void add_image_two_times(){
+        intending(hasAction(Intent.ACTION_PICK)).respondWith(getImageResult());
+        onView(withId(R.id.upload_button)).check(matches(isDisplayed())).perform(click());
+        onView(withId(R.id.upload_image)).check(matches(isDisplayed())).perform(click());
+        sleep(5000);
+        onView(allOf(withText("picked_image"), isCompletelyDisplayed())).check(matches(isDisplayed()));
+        onView(withId(R.id.upload_button)).check(matches(isDisplayed())).perform(click());
+        onView(withId(R.id.upload_image)).check(matches(isDisplayed())).perform(click());
+        sleep(5000);
+        onView(allOf(withText("picked_image(1)"), isCompletelyDisplayed())).check(matches(isDisplayed()));
+        storageRef.child("picked_image.jpeg").delete();
+        storageRef.child("picked_image(1).jpeg").delete();
+    }
+
+    @Test
     public void delete_file(){
 
         upload_file_on_fb();
 
-        int list_lenght = getCountFromRecyclerView(R.id.storage_view);
+        int listLenght = getCountFromRecyclerView();
 
         //click on the option of the picked_image file
         onView(allOf(withId(R.id.element_options),
@@ -169,7 +177,39 @@ public class StorageFragmentTest {
 
         //check the lenght of the ricycle view
         onView(allOf(withId(R.id.storage_view), isCompletelyDisplayed()))
-                .check(new RecyclerViewItemCountAssertion((list_lenght - 1)));
+                .check(new RecyclerViewItemCountAssertion((listLenght - 1)));
+    }
+
+    @Test
+    public void abort_removal(){
+        upload_file_on_fb();
+
+        int listLenght = getCountFromRecyclerView();
+
+        //click on the option of the picked_image file
+        onView(allOf(withId(R.id.element_options),
+                isCompletelyDisplayed(),
+                withParent(allOf(withId(R.id.content),
+                        withChild(allOf(withId(R.id.element_info),
+                                withChild(allOf(withId(R.id.element_name),
+                                        withText("picked_image")))
+                        )))))).perform(click());
+
+        //click on delete file in the bottom sheet menu
+        onView(allOf(withId(R.id.delete_option),
+                isCompletelyDisplayed()))
+                .perform(click());
+
+        //click on yes in the dialog
+        onView(withId(R.id.no_button)).perform(click());
+
+        sleep(5000);
+
+        //check the lenght of the ricycle view
+        onView(allOf(withId(R.id.storage_view), isCompletelyDisplayed()))
+                .check(new RecyclerViewItemCountAssertion((listLenght)));
+
+        storageRef.child("picked_image.jpeg").delete();
     }
 
     private static void sleep(int millisecond){
@@ -200,6 +240,7 @@ public class StorageFragmentTest {
     private Instrumentation.ActivityResult getImageResult(){
         Intent resultData = new Intent();
         File dir = mActivityTestRule.getActivity().getExternalCacheDir();
+        assert dir != null;
         File file = new File(dir.getPath(), "picked_image.jpeg");
         Uri uri = Uri.fromFile(file);
         assertNotNull(uri);
@@ -214,9 +255,10 @@ public class StorageFragmentTest {
         Bitmap bm = BitmapFactory.decodeResource(mActivityTestRule.getActivity().getResources(), R.drawable.image_fragment_background);
         assertNotNull(bm);
         File dir = mActivityTestRule.getActivity().getExternalCacheDir();
+        assert dir != null;
         File file = new File(dir.getPath(), "picked_image.jpeg");
         Log.d("TEST", "image created at " + file.getAbsolutePath());
-        FileOutputStream outStream = null;
+        FileOutputStream outStream;
         try {
             outStream = new FileOutputStream(file);
             bm.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
@@ -232,6 +274,7 @@ public class StorageFragmentTest {
 
     private void upload_file_on_fb(){
         File dir = mActivityTestRule.getActivity().getExternalCacheDir();
+        assert dir != null;
         File file = new File(dir.getPath(), "picked_image.jpeg");
         Uri uri = Uri.fromFile(file);
         Log.d("TEST", "file uri to delete: " + uri);
@@ -244,24 +287,24 @@ public class StorageFragmentTest {
                 .setCustomMetadata(UID_METADATA, fbHelper.getUserId())
                 .build();
 
-        storageRef.child(uri.getLastPathSegment()).putFile(uri, metadata);
+        storageRef.child(Objects.requireNonNull(uri.getLastPathSegment())).putFile(uri, metadata);
         sleep(10000);
 
     }
 
-    public static int getCountFromRecyclerView(@IdRes int RecyclerViewId) {
+    private static int getCountFromRecyclerView() {
         final int[] COUNT = {0};
         Matcher matcher = new TypeSafeMatcher<View>() {
             @Override
             protected boolean matchesSafely(View item) {
-                COUNT[0] = ((RecyclerView) item).getAdapter().getItemCount();
+                COUNT[0] = Objects.requireNonNull(((RecyclerView) item).getAdapter()).getItemCount();
                 return true;
             }
             @Override
             public void describeTo(Description description) {
             }
         };
-        onView(allOf(withId(RecyclerViewId),isDisplayed())).check(matches(matcher));
+        onView(allOf(withId(R.id.storage_view),isDisplayed())).check(matches(matcher));
         return COUNT[0];
     }
 
