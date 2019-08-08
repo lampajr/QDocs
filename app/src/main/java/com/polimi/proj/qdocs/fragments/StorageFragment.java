@@ -1,11 +1,13 @@
 package com.polimi.proj.qdocs.fragments;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.inputmethodservice.Keyboard;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -14,9 +16,12 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethod;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -381,9 +386,16 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         speedDialView.close();
         Log.d(TAG, "file to upload at uri: " + fileUri);
 
+        String child = Objects.requireNonNull(fileUri.getLastPathSegment());
+        String filteredChild = filterFilename(child, 1);
+
+        Log.w(TAG, filteredChild);
+
+        child = (filteredChild != null) ? filteredChild : child;
+
+        Log.w(TAG, child);
+
         try {
-            String child = Objects.requireNonNull(fileUri.getLastPathSegment());
-            //TODO: check name of the file, for instance if it contains dot it cannot be uploaded
             StorageReference fileRef = !pathname.equals("") ?
                     fbHelper.getStorageReference().child(pathname).child(child)
                     : fbHelper.getStorageReference().child(child);
@@ -453,6 +465,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * initialize the List View that will show the list of all user's elements stored in the Firebase
      * Storage, it will add the listener on the items
      */
+    @SuppressLint("ClickableViewAccessibility")
     private void setupStorageView() {
         Log.d(TAG, "Creating filesList adapter");
 
@@ -461,6 +474,31 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
         RecyclerView.ItemDecoration dividerItemDecoration = new DividerDecorator(ContextCompat.getDrawable(context, R.drawable.divider));
         storageView.addItemDecoration(dividerItemDecoration);
+
+        /*
+        storageView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                speedDialView.close();
+                if ((scrollY - oldScrollY) != 0) {
+                    View view = parentActivity.findViewById(R.id.main_frame);
+                    InputMethodManager imm = (InputMethodManager) parentActivity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+            }
+        });*/
+
+        storageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                speedDialView.close();
+                View view = parentActivity.findViewById(R.id.main_frame);
+                InputMethodManager imm = (InputMethodManager) parentActivity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+                return false;
+            }
+        });
 
         myStorageAdapter = new StorageAdapter(context, storageElements, fbHelper.getStorageReference()) {
 
@@ -826,6 +864,33 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
     @Override
     public void onNameInserted(String name) {
         createDirectory(filterDirectoryName(name));
+    }
+
+    /**
+     * Checks whether there are other files with this name, if so it changes the current one
+     * @param name name to check
+     * @param num current copy number
+     * @return filtered name
+     */
+    private String filterFilename(String name, int num) {
+        String add = "(" + num + ")";
+        if (StorageElement.retrieveFileByName(name, storageElements) == null) {
+            return name;
+        }
+        else {
+
+            if (num > 1) name = name.replace("(" + (num-1) + ")", "");
+            String newName;
+            if (name.contains(".")) {
+                String prefix = name.split("\\.")[0];
+                String suffix = name.split("\\.")[1];
+                newName = prefix+add+"."+suffix;
+            }
+            else {
+                newName = name+add;
+            }
+            return filterFilename(newName, num+1);
+        }
     }
 
     /**
