@@ -6,7 +6,7 @@
     android:layout_marginBottom="@dimen/bottom_navigation_view_dim"
     >
 
-    <include layout="@layout/titlebar" android:id="@+id/titlebar"/>
+    <include layout="@layout/titlebar" android:id="@id/titlebar"/>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"

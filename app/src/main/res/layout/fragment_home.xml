@@ -7,7 +7,7 @@
     android:layout_marginBottom="@dimen/bottom_navigation_view_dim"
     android:id="@+id/main_layout">
 
-    <include layout="@layout/titlebar" android:id="@+id/titlebar"/>
+    <include layout="@layout/titlebar" android:id="@id/titlebar"/>
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profile_image"

@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -200,7 +201,8 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.w(TAG, "FILES " + requestCode);
+        Log.d(TAG, "FILES " + requestCode);
+        //Log.d(TAG, "request code: " + requestCode);
         if (requestCode == IMG_PRV || requestCode == AUD_PRV || requestCode == FILE_PRV) {
             Log.d(TAG, "Picked a file");
             if (resultCode == Activity.RESULT_OK) {
@@ -377,6 +379,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      */
     private void uploadFile(@NonNull final Uri fileUri, final String pathname, int progressTitleResId) {
         speedDialView.close();
+        Log.d(TAG, "file to upload at uri: " + fileUri);
 
         try {
             String child = Objects.requireNonNull(fileUri.getLastPathSegment());
@@ -386,7 +389,11 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                     : fbHelper.getStorageReference().child(child);
 
             // file information
-            final String contentType = context.getContentResolver().getType(fileUri);
+            String contentType = context.getContentResolver().getType(fileUri);
+
+            if (contentType == null)
+                contentType = "application/octet-stream";
+            //Log.d(TAG, "content type: " + contentType);
 
             StorageMetadata metadata = new StorageMetadata.Builder()
                     .setContentType(contentType)
