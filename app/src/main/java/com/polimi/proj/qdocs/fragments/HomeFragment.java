@@ -195,7 +195,7 @@ public class HomeFragment extends Fragment {
         for (DataSnapshot ds: dataSnapshot.getChildren()) {
             if (StorageElement.isFile(ds)) {
                 MyFile f = ds.getValue(MyFile.class);
-                if (f != null && !f.getFilename().equals(MainActivity.SECRET_FILE)) {
+                if (f != null && f.getFilename() != null && !f.getFilename().equals(MainActivity.SECRET_FILE)) {
                     // increase the number of stored files by one
                     storedFiles += 1;
 

@@ -386,16 +386,13 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         speedDialView.close();
         Log.d(TAG, "file to upload at uri: " + fileUri);
 
-        String child = Objects.requireNonNull(fileUri.getLastPathSegment());
-        String filteredChild = filterFilename(child, 1);
-
-        Log.w(TAG, filteredChild);
-
-        child = (filteredChild != null) ? filteredChild : child;
-
-        Log.w(TAG, child);
-
         try {
+
+            String child = Objects.requireNonNull(fileUri.getLastPathSegment());
+            String filteredChild = filterFilename(child, 1);
+
+            child = (filteredChild != null) ? filteredChild : child;
+
             StorageReference fileRef = !pathname.equals("") ?
                     fbHelper.getStorageReference().child(pathname).child(child)
                     : fbHelper.getStorageReference().child(child);
