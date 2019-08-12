@@ -42,6 +42,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Locale;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -150,6 +151,30 @@ public class HomeFragment extends Fragment {
         computeInfos();
 
         return view;
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        if (isVisibleToUser) {
+            setupProfileImage();
+        }
+    }
+
+    public void setupProfileImage() {
+        if (!parentActivity.isConnected())
+            profileImage.setImageDrawable(context.getDrawable(R.drawable.ic_001_account));
+        else {
+            final Uri photoUri = user.getPhotoUrl();
+            SetupProfileImageTask task = new SetupProfileImageTask();
+            task.setListener(new SetupProfileImageTask.Listener() {
+                @Override
+                public void onSuccess(Bitmap profileBitmap) {
+                    profileImage.setImageBitmap(profileBitmap);
+                }
+            });
+
+            task.execute(Objects.requireNonNull(photoUri).toString());
+        }
     }
 
     /**

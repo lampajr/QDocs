@@ -146,12 +146,13 @@ public class MainActivity extends AppCompatActivity {
                         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
                         isConnected = networkInfo.isConnected();
                         isWiFi = isConnected && networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
+                        ((HomeFragment)fragments.get(0)).setupProfileImage();
                     }
 
                     @Override
                     public void onLost(Network network) {
                         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-                        isConnected = networkInfo.isConnected();
+                        isConnected = networkInfo != null && networkInfo.isConnected();
                         isWiFi = isConnected && networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
 
                         if (!isConnected)

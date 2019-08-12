@@ -113,7 +113,7 @@ public class ShowFileReceiver extends ResultReceiver {
         else if (resultCode == DownloadFileService.DOWNLOAD_ERROR){
             Log.d(TAG, "Failure occurred during download");
             Toast.makeText(context, context.getString(R.string.error_download), Toast.LENGTH_SHORT).show();
-            if (progressBar.isShowing())
+            if (progressBar != null)
                 progressBar.dismiss();
         }
     }

@@ -178,10 +178,16 @@ public class DownloadFileService extends IntentService {
                     Log.d(TAG, "Failure occurred.");
                     sendError();
                 }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e(TAG, "Error occurred during download of " + pathname + " from FirebaseStorage");
+                    sendError();
+                }
             }).addOnCanceledListener(new OnCanceledListener() {
                 @Override
                 public void onCanceled() {
-                    Log.e(TAG, "Error occurred during download of " + pathname + " from FirebaseStorage");
+                    Log.e(TAG, "Download canceled of " + pathname + " from FirebaseStorage");
                     sendError();
                 }
             }).addOnProgressListener(new OnProgressListener<FileDownloadTask.TaskSnapshot>() {
