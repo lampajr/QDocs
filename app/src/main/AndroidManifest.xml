@@ -38,7 +38,8 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
-        </provider> <!-- MAIN ACTIVITY: LOGIN -->
+        </provider>
+        <!-- MAIN ACTIVITY: LOGIN -->
         <activity android:name=".activities.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

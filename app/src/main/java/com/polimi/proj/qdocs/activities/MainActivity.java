@@ -1,10 +1,16 @@
 package com.polimi.proj.qdocs.activities;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
+import android.net.NetworkRequest;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -70,10 +76,14 @@ public class MainActivity extends AppCompatActivity {
 
     private int offlineCount = 0;
 
+    private boolean isWiFi = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        setupConnectionListener();
 
         // get Pager
         pager = findViewById(R.id.main_frame);
@@ -123,6 +133,32 @@ public class MainActivity extends AppCompatActivity {
         else{
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    private void setupConnectionListener() {
+        NetworkRequest.Builder builder = new NetworkRequest.Builder();
+        final ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+
+        connectivityManager.registerNetworkCallback(
+                builder.build(),
+                new ConnectivityManager.NetworkCallback() {
+                    @Override
+                    public void onAvailable(Network network) {
+                        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+                        if (networkInfo.isConnected())
+                            isWiFi = networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
+                    }
+
+                    @Override
+                    public void onLost(Network network) {
+                        NetworkInfo networkInfo = connectivityManager.getNetworkInfo(network);
+                        isWiFi = !(networkInfo.getType() == ConnectivityManager.TYPE_WIFI);
+
+                        if (connectivityManager.getActiveNetworkInfo() == null || !connectivityManager.getActiveNetworkInfo().isConnected())
+                            Toast.makeText(MainActivity.this, getString(R.string.connection_lost), Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
     }
 
     /**
@@ -300,13 +336,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (!Utility.isNetworkAvailable(this)) {
-            // TODO: handle the case in which there is no connection
-            // TODO: use BroadcastReceiver
-        }
-        else{
-            initialize();
-        }
+        initialize();
     }
 
     @Override
@@ -357,6 +387,11 @@ public class MainActivity extends AppCompatActivity {
      */
     public boolean navigationBarIsHidden() {
         return navigationBar.isHidden();
+    }
+
+
+    public boolean isWiFiAvailable() {
+        return isWiFi;
     }
 
     /**

@@ -114,6 +114,7 @@
     <string name="size">Size:</string>
     <string name="directory_name">Directory Name:</string>
     <string name="search_string">search</string>
+    <string name="connection_lost">Connection lost</string>
 
 
 </resources>

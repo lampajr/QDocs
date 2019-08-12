@@ -275,9 +275,9 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
                 android.R.color.holo_orange_dark,
                 android.R.color.holo_blue_dark);
 
-        swipeRefreshLayout.post(new Runnable() {
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void run() {
+            public void onRefresh() {
                 setupFirebaseStorageListener(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
                 notifyAdapter();
             }

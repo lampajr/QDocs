@@ -82,11 +82,11 @@
     <string name="home">HOME</string>
     <string name="storage">STORAGE</string>
     <string name="recent"> RECENTI</string>
-    <string name="about">..About..</string>
+    <string name="about">Info</string>
     <string name="english">English</string>
     <string name="italian">Italiano</string>
     <string name="language">Lingua</string>
     <string name="search_string">cerca</string>
-
+    <string name="connection_lost">Connession Persa</string>
 
 </resources>
