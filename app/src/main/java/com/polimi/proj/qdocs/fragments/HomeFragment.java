@@ -161,9 +161,9 @@ public class HomeFragment extends Fragment {
     }
 
     public void setupProfileImage() {
-        if (!parentActivity.isConnected())
+        if (parentActivity != null && !parentActivity.isConnected())
             profileImage.setImageDrawable(context.getDrawable(R.drawable.ic_001_account));
-        else {
+        else if (user != null && profileImage != null){
             final Uri photoUri = user.getPhotoUrl();
             SetupProfileImageTask task = new SetupProfileImageTask();
             task.setListener(new SetupProfileImageTask.Listener() {
