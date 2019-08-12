@@ -88,5 +88,6 @@
     <string name="language">Lingua</string>
     <string name="search_string">cerca</string>
     <string name="connection_lost">Connession Persa</string>
+    <string name="you_are_not_connected">Non sei connesso!</string>
 
 </resources>

@@ -1,7 +1,6 @@
 package com.polimi.proj.qdocs.activities;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -31,7 +30,6 @@ import com.polimi.proj.qdocs.fragments.OfflineFilesFragment;
 import com.polimi.proj.qdocs.fragments.RecentFilesFragment;
 import com.polimi.proj.qdocs.fragments.ScannerFragment;
 import com.polimi.proj.qdocs.fragments.StorageFragment;
-import com.polimi.proj.qdocs.support.Utility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     private int offlineCount = 0;
 
     private boolean isWiFi = false;
+    private boolean isConnected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,16 +144,17 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onAvailable(Network network) {
                         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-                        if (networkInfo.isConnected())
-                            isWiFi = networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
+                        isConnected = networkInfo.isConnected();
+                        isWiFi = isConnected && networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
                     }
 
                     @Override
                     public void onLost(Network network) {
-                        NetworkInfo networkInfo = connectivityManager.getNetworkInfo(network);
-                        isWiFi = !(networkInfo.getType() == ConnectivityManager.TYPE_WIFI);
+                        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+                        isConnected = networkInfo.isConnected();
+                        isWiFi = isConnected && networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
 
-                        if (connectivityManager.getActiveNetworkInfo() == null || !connectivityManager.getActiveNetworkInfo().isConnected())
+                        if (!isConnected)
                             Toast.makeText(MainActivity.this, getString(R.string.connection_lost), Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -392,6 +392,10 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean isWiFiAvailable() {
         return isWiFi;
+    }
+
+    public boolean isConnected() {
+        return isConnected;
     }
 
     /**

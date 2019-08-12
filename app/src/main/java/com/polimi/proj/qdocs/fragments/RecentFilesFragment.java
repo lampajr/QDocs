@@ -413,19 +413,24 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      * @param file file to save
      */
     private void saveFile(final MyFile file) {
-        Log.d(TAG, "Saving file: " + file.getFilename());
+        if (parentActivity.isConnected()) {
+            Log.d(TAG, "Saving file: " + file.getFilename());
 
-        if (bsm != null)
-            bsm.dismiss();
+            if (bsm != null)
+                bsm.dismiss();
 
-        fbHelper.updateLastAccessAttribute(file.getKey());
-        fbHelper.madeOfflineFile(file.getKey());
-        //fbHelper.updateLastAccessAttribute(StorageElement.retrieveFileByName(file.getFilename(), files).getKey());
-        //fbHelper.madeOfflineFile(StorageElement.retrieveFileByName(file.getFilename(), files).getKey());
+            fbHelper.updateLastAccessAttribute(file.getKey());
+            fbHelper.madeOfflineFile(file.getKey());
+            //fbHelper.updateLastAccessAttribute(StorageElement.retrieveFileByName(file.getFilename(), files).getKey());
+            //fbHelper.madeOfflineFile(StorageElement.retrieveFileByName(file.getFilename(), files).getKey());
 
-        Utility.startSaveFileService(context,
-                fbHelper.getCurrentPath(file.getDbReference()) + "/" + file.getFilename(),
-                file.getContentType());
+            Utility.startSaveFileService(context,
+                    fbHelper.getCurrentPath(file.getDbReference()) + "/" + file.getFilename(),
+                    file.getContentType());
+        }
+        else {
+            Toast.makeText(context, getString(R.string.you_are_not_connected), Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**

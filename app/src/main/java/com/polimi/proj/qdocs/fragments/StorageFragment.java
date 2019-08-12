@@ -384,98 +384,101 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      */
     private void uploadFile(@NonNull final Uri fileUri, final String pathname, int progressTitleResId) {
         speedDialView.close();
-        Log.d(TAG, "file to upload at uri: " + fileUri);
+        if (parentActivity.isConnected()) {
+            Log.d(TAG, "file to upload at uri: " + fileUri);
 
-        File cache = new File(parentActivity.getCacheDir().getAbsolutePath(), "documents");
-        if (cache.isDirectory()) {
-            for (File f: cache.listFiles()) {
-                if (f.delete()) {
-                    Log.d(TAG, "App cache cleared");
+            File cache = new File(parentActivity.getCacheDir().getAbsolutePath(), "documents");
+            if (cache.isDirectory()) {
+                for (File f : cache.listFiles()) {
+                    if (f.delete()) {
+                        Log.d(TAG, "App cache cleared");
+                    }
                 }
+
             }
 
-        }
+            try {
 
-        try {
+                String p = PathResolver.getPathFromUri(context, fileUri);
+                String child;
 
-            String p = PathResolver.getPathFromUri(context, fileUri);
-            String child;
-
-            if (p != null && !p.equals("")) {
-                Log.w(TAG, "path: " + p);
-                child = p.substring(p.lastIndexOf("/")+1);
-            }
-            else {
-                Log.w(TAG, "uri: " + fileUri);
-                child = Objects.requireNonNull(fileUri.getLastPathSegment());
-            }
-
-
-            String filteredChild = filterFilename(child, 1);
-            child = (filteredChild != null) ? filteredChild : child;
-
-            StorageReference fileRef = !pathname.equals("") ?
-                    fbHelper.getStorageReference().child(pathname).child(child)
-                    : fbHelper.getStorageReference().child(child);
-
-            // file information
-            String contentType = context.getContentResolver().getType(fileUri);
-
-            if (contentType == null)
-                contentType = "application/octet-stream";
-            //Log.d(TAG, "content type: " + contentType);
-
-            StorageMetadata metadata = new StorageMetadata.Builder()
-                    .setContentType(contentType)
-                    .setCustomMetadata(KEY_METADATA, Utility.generateCode())
-                    .setCustomMetadata(UID_METADATA, fbHelper.getUserId())
-                    .build();
-
-            final UploadTask uploadTask = fileRef.putFile(fileUri, metadata);
-
-            final ProgressBarDialog progressDialog = new ProgressBarDialog(context,
-                    null, context.getString(progressTitleResId));
-            progressDialog.show();
-
-            Log.d(TAG, "starting uploading");
-            // Register observers to listen for when the download is done or if it fails
-            parentActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    uploadTask.addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            Log.e(TAG, exception.toString());
-                        }
-                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Log.d(TAG, "Upload complete");
-                            progressDialog.setProgress(100);
-                        }
-                    }).addOnCanceledListener(new OnCanceledListener() {
-                        @Override
-                        public void onCanceled() {
-                            Log.e(TAG, "Upload canceled");
-                        }
-                    }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
-                            Log.d(TAG, "Upload paused");
-                        }
-                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                            final int progress = (int) ((100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
-                            Log.d(TAG, "PROGRESS -> " + progress);
-                            progressDialog.setProgress(progress);
-                        }
-                    });
+                if (p != null && !p.equals("")) {
+                    Log.w(TAG, "path: " + p);
+                    child = p.substring(p.lastIndexOf("/") + 1);
+                } else {
+                    Log.w(TAG, "uri: " + fileUri);
+                    child = Objects.requireNonNull(fileUri.getLastPathSegment());
                 }
-            });
+
+
+                String filteredChild = filterFilename(child, 1);
+                child = (filteredChild != null) ? filteredChild : child;
+
+                StorageReference fileRef = !pathname.equals("") ?
+                        fbHelper.getStorageReference().child(pathname).child(child)
+                        : fbHelper.getStorageReference().child(child);
+
+                // file information
+                String contentType = context.getContentResolver().getType(fileUri);
+
+                if (contentType == null)
+                    contentType = "application/octet-stream";
+                //Log.d(TAG, "content type: " + contentType);
+
+                StorageMetadata metadata = new StorageMetadata.Builder()
+                        .setContentType(contentType)
+                        .setCustomMetadata(KEY_METADATA, Utility.generateCode())
+                        .setCustomMetadata(UID_METADATA, fbHelper.getUserId())
+                        .build();
+
+                final UploadTask uploadTask = fileRef.putFile(fileUri, metadata);
+
+                final ProgressBarDialog progressDialog = new ProgressBarDialog(context,
+                        null, context.getString(progressTitleResId));
+                progressDialog.show();
+
+                Log.d(TAG, "starting uploading");
+                // Register observers to listen for when the download is done or if it fails
+                parentActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        uploadTask.addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                Log.e(TAG, exception.toString());
+                            }
+                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                Log.d(TAG, "Upload complete");
+                                progressDialog.setProgress(100);
+                            }
+                        }).addOnCanceledListener(new OnCanceledListener() {
+                            @Override
+                            public void onCanceled() {
+                                Log.e(TAG, "Upload canceled");
+                            }
+                        }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+                                Log.d(TAG, "Upload paused");
+                            }
+                        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                                final int progress = (int) ((100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
+                                Log.d(TAG, "PROGRESS -> " + progress);
+                                progressDialog.setProgress(progress);
+                            }
+                        });
+                    }
+                });
+            } catch (NullPointerException ex) {
+                Toast.makeText(context, context.getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+            }
         }
-        catch (NullPointerException ex) {
-            Toast.makeText(context, context.getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+        else {
+            Toast.makeText(context, getString(R.string.you_are_not_connected), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -721,15 +724,20 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
      * @param file file to save locally
      */
     private void saveFile(MyFile file) {
-        Log.d(TAG, "Saving file: " + file.getFilename());
-        if (bsm != null)
-            bsm.dismiss();
-        fbHelper.updateLastAccessAttribute(file.getKey());
-        fbHelper.madeOfflineFile(file.getKey());
+        if (parentActivity.isConnected()) {
+            Log.d(TAG, "Saving file: " + file.getFilename());
+            if (bsm != null)
+                bsm.dismiss();
+            fbHelper.updateLastAccessAttribute(file.getKey());
+            fbHelper.madeOfflineFile(file.getKey());
 
-        Utility.startSaveFileService(context,
-                fbHelper.getCurrentPath(fbHelper.getDatabaseReference()) + "/" + file.getFilename(),
-                file.getContentType());
+            Utility.startSaveFileService(context,
+                    fbHelper.getCurrentPath(fbHelper.getDatabaseReference()) + "/" + file.getFilename(),
+                    file.getContentType());
+        }
+        else {
+            Toast.makeText(context, getString(R.string.you_are_not_connected), Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
