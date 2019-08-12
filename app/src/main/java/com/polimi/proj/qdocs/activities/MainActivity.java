@@ -146,7 +146,8 @@ public class MainActivity extends AppCompatActivity {
                         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
                         isConnected = networkInfo.isConnected();
                         isWiFi = isConnected && networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
-                        ((HomeFragment)fragments.get(0)).setupProfileImage();
+                        if (fragments.size() != 0)
+                            ((HomeFragment)fragments.get(0)).setupProfileImage();
                     }
 
                     @Override
