@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.view.Gravity;
 
 import com.crowdfire.cfalertdialog.CFAlertDialog;
+import com.polimi.proj.qdocs.R;
 
 /**
  * Copyright 2018-2019 Lamparelli Andrea & Chittò Pietro
@@ -34,7 +35,7 @@ public class ConfirmDialog {
                 .setTextColor(1)
                 .setTextGravity(Gravity.CENTER_HORIZONTAL)
                 .setMessage("\n\n")
-                .addButton("CONFIRM", Color.parseColor("#B5B5BE"),
+                .addButton(context.getString(R.string.confirm), Color.parseColor("#B5B5BE"),
                         Color.parseColor("#575E5D"),
                         CFAlertDialog.CFAlertActionStyle.POSITIVE,
                         CFAlertDialog.CFAlertActionAlignment.CENTER,

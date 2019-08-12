@@ -47,12 +47,16 @@ public class FirebaseHelper {
     private static final String BASE_REFERENCE = "documents";
     public static final String TAG = "FIREBASE_HELPER";
 
+    public static final int TIMEOUT = 2000;
+
     private FirebaseUser user;
     private StorageReference storageReference;
     private DatabaseReference databaseReference;
 
     public FirebaseHelper() {
         user = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseStorage.getInstance().setMaxUploadRetryTimeMillis(TIMEOUT);
+        FirebaseStorage.getInstance().setMaxDownloadRetryTimeMillis(TIMEOUT);
         storageReference = FirebaseStorage.getInstance().getReference().child(user.getUid());
         databaseReference = FirebaseDatabase.getInstance().getReference()
                 .child(BASE_REFERENCE)

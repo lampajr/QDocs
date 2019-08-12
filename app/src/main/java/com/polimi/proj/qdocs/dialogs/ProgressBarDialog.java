@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -35,13 +37,14 @@ import java.util.Objects;
 public class ProgressBarDialog extends Dialog {
 
     private RoundCornerProgressBar progressBar;
+    private Button cancelButton;
     private float max = 100;
     private String title;
 
     public ProgressBarDialog(@NonNull Context context,
-                             @Nullable DialogInterface.OnCancelListener cancelListener,
+                             @Nullable View.OnClickListener cancelListener,
                              String title) {
-        super(context, false, cancelListener);
+        super(context, false, null);
 
         this.title = title;
 
@@ -51,8 +54,17 @@ public class ProgressBarDialog extends Dialog {
         TextView textView = findViewById(R.id.title_text);
         textView.setText(title);
 
+        cancelButton = findViewById(R.id.cancel_button);
+        cancelButton.setOnClickListener(cancelListener);
+
         progressBar = findViewById(R.id.progress_bar);
         progressBar.setMax(max);
+    }
+
+    public void makeCancelVisible() {
+        cancelButton.setVisibility(View.VISIBLE);
+        cancelButton.setFocusable(true);
+        cancelButton.setClickable(true);
     }
 
     public void setProgress(float value) {

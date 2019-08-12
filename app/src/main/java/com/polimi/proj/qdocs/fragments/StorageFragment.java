@@ -434,7 +434,13 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                 final UploadTask uploadTask = fileRef.putFile(fileUri, metadata);
 
                 final ProgressBarDialog progressDialog = new ProgressBarDialog(context,
-                        null, context.getString(progressTitleResId));
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                uploadTask.cancel();
+                            }
+                        }, context.getString(progressTitleResId));
+                progressDialog.makeCancelVisible();
                 progressDialog.show();
 
                 Log.d(TAG, "starting uploading");
@@ -446,6 +452,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                             @Override
                             public void onFailure(@NonNull Exception exception) {
                                 Log.e(TAG, exception.toString());
+                                progressDialog.dismiss();
                             }
                         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
@@ -457,6 +464,7 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
                             @Override
                             public void onCanceled() {
                                 Log.e(TAG, "Upload canceled");
+                                progressDialog.dismiss();
                             }
                         }).addOnPausedListener(new OnPausedListener<UploadTask.TaskSnapshot>() {
                             @Override

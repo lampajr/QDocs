@@ -116,6 +116,7 @@
     <string name="search_string">search</string>
     <string name="connection_lost">Connection lost</string>
     <string name="you_are_not_connected">You are not connected!</string>
+    <string name="confirm">CONFIRM</string>
 
 
 </resources>
