@@ -59,8 +59,6 @@ public class RegistrationActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         labelError = findViewById(R.id.label_error);
 
-        //TODO: implement get back button toward login
-
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
