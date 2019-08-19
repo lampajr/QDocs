@@ -89,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d(TAG, "Go to registration");
                 final Intent reg = new Intent(LoginActivity.this, RegistrationActivity.class);
-                reg.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
+                //reg.setFlags(Intent. FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(reg);
             }
         });

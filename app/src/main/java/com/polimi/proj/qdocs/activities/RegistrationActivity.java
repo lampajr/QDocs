@@ -73,50 +73,52 @@ public class RegistrationActivity extends AppCompatActivity {
 
                 }
                 else {
-                    mAuth.createUserWithEmailAndPassword(emailText.getText().toString(), passwordText.getText().toString())
-                            .addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        // Sign in success, update UI with the signed-in user's information
-                                        Log.d(TAG, "createUserWithEmail:success");
-                                        FirebaseUser user = mAuth.getCurrentUser();
-
-                                        Intent login = new Intent(RegistrationActivity.this, LoginActivity.class);
-                                        login.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                        startActivity(login);
-
-                                    } else {
-                                        try {
-                                            throw task.getException();
-                                        } catch (FirebaseAuthWeakPasswordException e) {
-
-                                            labelError.setText(getString(R.string.invalid_password_registration));
-
-                                        } catch (FirebaseAuthInvalidCredentialsException e) {
-
-                                            labelError.setText(getString(R.string.error_invalid_email));
-
-                                        } catch (FirebaseAuthUserCollisionException e) {
-
-                                            labelError.setText(getString(R.string.email_already_used));
-
-                                        } catch (Exception e) {
-                                            Toast.makeText(RegistrationActivity.this, "An error is occurred",
-                                                    Toast.LENGTH_LONG).show();
-                                            Log.e(TAG, e.getMessage());
-                                        }
-                                        // If sign in fails, display a message to the user.
-                                        Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                    }
-
-                                    // ...
-                                }
-                            });
+                   register();
                 }
             }
         });
+    }
 
+    private void register() {
+        mAuth.createUserWithEmailAndPassword(emailText.getText().toString(), passwordText.getText().toString())
+                .addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "createUserWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
 
+                            Intent main = new Intent(RegistrationActivity.this, MainActivity.class);
+                            main.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(main);
+
+                        } else {
+                            try {
+                                throw task.getException();
+                            } catch (FirebaseAuthWeakPasswordException e) {
+
+                                labelError.setText(getString(R.string.invalid_password_registration));
+
+                            } catch (FirebaseAuthInvalidCredentialsException e) {
+
+                                labelError.setText(getString(R.string.error_invalid_email));
+
+                            } catch (FirebaseAuthUserCollisionException e) {
+
+                                labelError.setText(getString(R.string.email_already_used));
+
+                            } catch (Exception e) {
+                                Toast.makeText(RegistrationActivity.this, "An error is occurred",
+                                        Toast.LENGTH_LONG).show();
+                                Log.e(TAG, e.getMessage());
+                            }
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                        }
+
+                        // ...
+                    }
+                });
     }
 }
