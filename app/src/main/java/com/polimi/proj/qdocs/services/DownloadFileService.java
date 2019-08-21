@@ -17,7 +17,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnPausedListener;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.polimi.proj.qdocs.R;
@@ -107,7 +106,7 @@ public class DownloadFileService extends IntentService {
             if (ACTION_DOWNLOAD_TMP_FILE.equals(action)) {
                 final String filename = intent.getStringExtra(EXTRA_PARAM_FILENAME);
                 final String contentType = intent.getStringExtra(EXTRA_PARAM_CONTENT);
-                downloadTmpFile(filename, contentType);
+                createTmpFile(filename, contentType);
             } else {
                 Log.e(TAG, "Action CODE wrong, get: " + action);
             }
@@ -118,7 +117,7 @@ public class DownloadFileService extends IntentService {
      * Create a temporary file in the internal directory
      * @param pathname name of the file
      */
-    private void downloadTmpFile(final String pathname, final String contentType) {
+    private void createTmpFile(final String pathname, final String contentType) {
         Log.w(TAG, pathname);
         String[] pathElements = pathname.split("/");
         String[] elements = pathElements[pathElements.length-1].split("\\.");

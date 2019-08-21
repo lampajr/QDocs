@@ -82,24 +82,7 @@ public class ShowFileReceiver extends ResultReceiver {
     @Override
     protected void onReceiveResult(int resultCode, Bundle resultData) {
         if ((resultCode == DownloadFileService.DOWNLOAD_OK || resultCode == DownloadFileService.ALREADY_STORED) && resultData != null) {
-            // all goes well
-            Log.d(TAG, "Results received from DownloadFileService: OK");
-            Uri fileUri = (Uri) resultData.get(DownloadFileService.RESULT_KEY_URI);
-            Log.d(TAG, "URI received: " + (fileUri != null ? fileUri.toString() : null));
-            String filename = resultData.getString(DownloadFileService.RESULT_KEY_FILENAME);
-            Log.d(TAG, "FILENAME received: " + filename);
-            String mimeType = resultData.getString(DownloadFileService.RESULT_KEY_MIME_TYPE);
-            Log.d(TAG, "MIME TYPE received: " + mimeType);
-            String extension = resultData.getString(DownloadFileService.RESULT_KEY_EXTENSION);
-            Log.d(TAG, "EXTENSION received: " + extension);
-
-
-            if (mimeType != null) {
-                Utility.showFile(context, fileUri, filename, mimeType, extension);
-            }
-            else {
-                Toast.makeText(context, context.getString(R.string.unable_show_file), Toast.LENGTH_SHORT).show();
-            }
+            showFile(resultData);
         }
         else if (resultCode == DownloadFileService.START_DOWNLOAD && resultData != null) {
             progressBar = new ProgressBarDialog(context, null,
@@ -115,6 +98,27 @@ public class ShowFileReceiver extends ResultReceiver {
             Toast.makeText(context, context.getString(R.string.error_download), Toast.LENGTH_SHORT).show();
             if (progressBar != null)
                 progressBar.dismiss();
+        }
+    }
+
+    private void showFile(Bundle resultData) {
+        // all goes well
+        Log.d(TAG, "Results received from DownloadFileService: OK");
+        Uri fileUri = (Uri) resultData.get(DownloadFileService.RESULT_KEY_URI);
+        Log.d(TAG, "URI received: " + (fileUri != null ? fileUri.toString() : null));
+        String filename = resultData.getString(DownloadFileService.RESULT_KEY_FILENAME);
+        Log.d(TAG, "FILENAME received: " + filename);
+        String mimeType = resultData.getString(DownloadFileService.RESULT_KEY_MIME_TYPE);
+        Log.d(TAG, "MIME TYPE received: " + mimeType);
+        String extension = resultData.getString(DownloadFileService.RESULT_KEY_EXTENSION);
+        Log.d(TAG, "EXTENSION received: " + extension);
+
+
+        if (mimeType != null) {
+            Utility.showFile(context, fileUri, filename, mimeType, extension);
+        }
+        else {
+            Toast.makeText(context, context.getString(R.string.unable_show_file), Toast.LENGTH_SHORT).show();
         }
     }
 }
