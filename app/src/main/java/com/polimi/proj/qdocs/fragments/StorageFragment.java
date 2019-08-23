@@ -667,14 +667,15 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Log.d(TAG, "onChildChanged");
-                if (StorageElement.isFile(dataSnapshot)) {
+                // TODO: I don't know why this isn't working
+                /*if (StorageElement.isFile(dataSnapshot)) {
                     // update the file
                     MyFile f = dataSnapshot.getValue(MyFile.class);
                     MyFile prevFile = StorageElement.retrieveFileByKey(f.getKey(), storageElements);
                     int idx = storageElements.indexOf(prevFile);
                     addElement(f, idx);
                     storageElements.remove(prevFile);
-                }
+                }*/
             }
 
             @Override
