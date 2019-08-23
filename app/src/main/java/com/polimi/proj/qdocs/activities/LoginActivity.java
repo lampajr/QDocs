@@ -243,27 +243,6 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
-    public static void logout(){
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        mAuth.signOut();
-
-        if (AccessToken.getCurrentAccessToken() == null) {
-            return; // already logged out
-        }
-
-        new GraphRequest(AccessToken.getCurrentAccessToken(), "/me/permissions/", null, HttpMethod.DELETE, new GraphRequest
-                .Callback() {
-            @Override
-            public void onCompleted(GraphResponse graphResponse) {
-
-                LoginManager.getInstance().logOut();
-
-            }
-        }).executeAsync();
-
-    }
-
-
     private class CredentialLogin{
         CredentialLogin(){
             if(emailView.getText() == null || passwordView.getText()  == null) {

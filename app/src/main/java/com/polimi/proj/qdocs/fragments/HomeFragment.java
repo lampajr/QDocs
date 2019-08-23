@@ -291,7 +291,7 @@ public class HomeFragment extends Fragment {
         logoutOption.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LoginActivity.logout();
+                new FirebaseHelper().logout();
                 startLoginActivity();
             }
         });
