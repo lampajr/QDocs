@@ -168,25 +168,27 @@ public class HomeFragment extends Fragment {
     }
 
     public void setupProfileImage() {
-        if (parentActivity != null && !parentActivity.isConnected())
-            profileImage.setImageDrawable(context.getDrawable(R.drawable.ic_001_account_24dp));
-        else if (user != null && profileImage != null){
-            final Uri photoUri = user.getPhotoUrl();
-            SetupProfileImageTask task = new SetupProfileImageTask();
-            task.setListener(new SetupProfileImageTask.Listener() {
-                @Override
-                public void onSuccess(Bitmap profileBitmap) {
-                    if (profileBitmap != null)
-                        profileImage.setImageBitmap(profileBitmap);
-                    else profileImage.setImageDrawable(context.getDrawable(R.drawable.ic_001_account_24dp));
-                }
-            });
-
-            if (photoUri != null) {
-                task.execute(photoUri.toString());
-            }
-            else {
+        if (profileImage != null && profileImage.getDrawable() == null) {
+            if (parentActivity != null && !parentActivity.isConnected())
                 profileImage.setImageDrawable(context.getDrawable(R.drawable.ic_001_account_24dp));
+            else if (user != null && profileImage != null) {
+                final Uri photoUri = user.getPhotoUrl();
+                SetupProfileImageTask task = new SetupProfileImageTask();
+                task.setListener(new SetupProfileImageTask.Listener() {
+                    @Override
+                    public void onSuccess(Bitmap profileBitmap) {
+                        if (profileBitmap != null)
+                            profileImage.setImageBitmap(profileBitmap);
+                        else
+                            profileImage.setImageDrawable(context.getDrawable(R.drawable.ic_001_account_24dp));
+                    }
+                });
+
+                if (photoUri != null) {
+                    task.execute(photoUri.toString());
+                } else {
+                    profileImage.setImageDrawable(context.getDrawable(R.drawable.ic_001_account_24dp));
+                }
             }
         }
     }
