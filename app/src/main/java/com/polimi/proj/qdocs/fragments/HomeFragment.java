@@ -351,7 +351,7 @@ public class HomeFragment extends Fragment {
             task.execute(photoUri.toString());
         }
         else {
-            profileImage.setImageDrawable(context.getDrawable(R.drawable.ic_001_account));
+            profileImage.setImageDrawable(context.getDrawable(R.drawable.ic_001_account_24dp));
         }
 
         if (Objects.equals(user.getDisplayName(), ""))
