@@ -176,7 +176,9 @@ public class HomeFragment extends Fragment {
             task.setListener(new SetupProfileImageTask.Listener() {
                 @Override
                 public void onSuccess(Bitmap profileBitmap) {
-                    profileImage.setImageBitmap(profileBitmap);
+                    if (profileBitmap != null)
+                        profileImage.setImageBitmap(profileBitmap);
+                    else profileImage.setImageDrawable(context.getDrawable(R.drawable.ic_001_account_24dp));
                 }
             });
 
@@ -455,7 +457,7 @@ public class HomeFragment extends Fragment {
                     }
                 }
             }
-            return getRoundedCornerBitmap(Objects.requireNonNull(bm), 24);
+            return bm != null ? getRoundedCornerBitmap(bm, 24) : null;
         }
 
         /**
