@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:background="@drawable/yellow_orange_gradient_bckgrnd"
-    android:alpha="0.9">
+    android:alpha="0.9"
+    android:paddingTop="50dp">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="150dp"
