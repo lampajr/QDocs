@@ -95,15 +95,7 @@
         android:layout_alignParentBottom="true"
         android:paddingBottom="10dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:textSize="@dimen/home_option_height"
-            android:textColor="@color/colorOnBackground"
-            android:textStyle="bold"
-            android:text="@string/option_string"/>
+
 
         <include layout="@layout/divider" />
 
