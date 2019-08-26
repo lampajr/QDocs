@@ -19,6 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -73,7 +74,7 @@ public class HomeFragment extends Fragment {
     private FirebaseUser user;
     private FirebaseHelper fbHelper;
 
-    private CircleImageView profileImage;
+    private AppCompatImageView profileImage;
     private TextView displayName, personalEmail;
     private TextView logoutOption, aboutOption;
 
@@ -173,7 +174,12 @@ public class HomeFragment extends Fragment {
                 }
             });
 
-            task.execute(Objects.requireNonNull(photoUri).toString());
+            if (photoUri != null) {
+                task.execute(photoUri.toString());
+            }
+            else {
+                profileImage.setImageDrawable(context.getDrawable(R.drawable.ic_001_account));
+            }
         }
     }
 
@@ -348,7 +354,9 @@ public class HomeFragment extends Fragment {
             profileImage.setImageDrawable(context.getDrawable(R.drawable.ic_001_account));
         }
 
-        displayName.setText(user.getDisplayName());
+        if (Objects.equals(user.getDisplayName(), ""))
+            displayName.setText("--");
+        else displayName.setText(user.getDisplayName());
         personalEmail.setText(user.getEmail());
     }
 
