@@ -14,7 +14,9 @@
         android:layout_height="100dp"
         android:id="@+id/profile_image"
         android:layout_below="@id/titlebar"
+        android:background="@drawable/back"
         android:backgroundTint="@color/transparent_white"
+        android:src="@drawable/ic_001_account_24dp"
         android:layout_marginTop="@dimen/personal_page_dim"
         android:layout_marginBottom="@dimen/personal_page_dim"
         android:layout_centerHorizontal="true"/>
