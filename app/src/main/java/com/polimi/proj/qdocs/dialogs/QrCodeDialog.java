@@ -9,11 +9,14 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.print.PrintHelper;
 
 import com.polimi.proj.qdocs.R;
 import com.polimi.proj.qdocs.model.MyFile;
@@ -49,7 +52,8 @@ public class QrCodeDialog extends Dialog {
     private final static String TAG = "QR_CODE_DIALOG";
 
     private ImageView qrCodeImg;
-    private ImageView saveImg;
+    private Button saveBtn, printBtn;
+    private EditText nameText;
     private MyFile file;
     private Bitmap qrCodeBitmap;
     private Context context;
@@ -64,25 +68,36 @@ public class QrCodeDialog extends Dialog {
         this.context = context;
         this.file = file;
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        saveImg = findViewById(R.id.save_button);
+        saveBtn = findViewById(R.id.save_btn);
+        printBtn = findViewById(R.id.print_btn);
         qrCodeImg = findViewById(R.id.qrcode_image);
+        nameText = findViewById(R.id.name_text);
+        createQrBitmap();
         setupDialog();
+    }
+
+    /**
+     * Generate the Bitmap object from the code
+     */
+    private void createQrBitmap() {
+        qrCodeBitmap = Utility.generateQrCode(file.getKey());
+        if (qrCodeBitmap == null) {
+            Log.e(TAG, "Error generating qr code: bitmap is null");
+            throw new RuntimeException("Error generating qr code: bitmap is null");
+        }
     }
 
     /**
      * Setup QR code dialog
      */
     private void setupDialog() {
-        qrCodeBitmap = Utility.generateQrCode(file.getKey());
-        if (qrCodeBitmap == null) {
-            Log.e(TAG, "Error generating qr code: bitmap is null");
-            return;
-        }
+        String name = file.getFilename().split("\\.")[0];
+        nameText.setText(name);
         qrCodeImg.setImageBitmap(qrCodeBitmap);
-        saveImg.setOnClickListener(new View.OnClickListener() {
+        saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String filename = file.getFilename().split("\\.")[0] + ".png";
+                String filename = nameText.getText().toString() + ".png";
                 File dst = new File(PathResolver.getPublicDocStorageDir(context).getAbsolutePath(),
                         context.getString(R.string.qrcode_string) + "-" + filename);
                 try {
@@ -108,7 +123,29 @@ public class QrCodeDialog extends Dialog {
                 }
             }
         });
+
+        printBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doPhotoPrint();
+            }
+        });
     }
+
+    /**
+     * Open the PrintManager in order to allow user to print the qrcode
+     */
+    private void doPhotoPrint() {
+        PrintHelper photoPrinter = new PrintHelper(context);
+        photoPrinter.setScaleMode(PrintHelper.SCALE_MODE_FIT);
+        photoPrinter.printBitmap(file.getFilename() + " - print", qrCodeBitmap, new PrintHelper.OnPrintFinishCallback() {
+            @Override
+            public void onFinish() {
+                dismiss();
+            }
+        });
+    }
+
 
     /**
      * Async task that is in charge to compress the qr code bitmap into a png format and
@@ -118,7 +155,6 @@ public class QrCodeDialog extends Dialog {
         private final static String TAG = "SAVE_QR_CODE_TASK";
         final static int  FILE_CREATED = 0, FILE_ALREADY_EXIST = 1, ERROR = -1;
 
-        private int quality = 100;
         private File dst;
         
         SaveQRCodeTask(Bitmap qrCode, File dst) {
@@ -136,6 +172,7 @@ public class QrCodeDialog extends Dialog {
         protected Integer doInBackground(Bitmap... qrCodes) {
             if (!dst.exists()) {
                 try (FileOutputStream out = new FileOutputStream(dst)){
+                    int quality = 100;
                     qrCodes[0].compress(Bitmap.CompressFormat.PNG, quality, out);
                     return FILE_CREATED;
                 }
