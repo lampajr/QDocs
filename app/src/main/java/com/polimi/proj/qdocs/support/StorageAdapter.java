@@ -198,7 +198,7 @@ public abstract class StorageAdapter extends RecyclerView.Adapter<StorageAdapter
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     Log.d(TAG, "preview image loaded successfully");
-                                    Glide.with(context).load(uri).into(elementImage);
+                                    Glide.with(context.getApplicationContext()).load(uri).into(elementImage);
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override

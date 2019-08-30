@@ -129,7 +129,7 @@ public class StorageFragmentTest {
         //intending(hasAction(Intent.ACTION_CHOOSER)).respondWith(getImageResult());
         onView(withId(R.id.upload_button)).check(matches(isDisplayed())).perform(click());
         onView(withId(R.id.upload_image)).check(matches(isDisplayed())).perform(click());
-        sleep(5000);
+        sleep(8000);
         onView(allOf(withText("picked_image"), isCompletelyDisplayed())).check(matches(isDisplayed()));
         storageRef.child("picked_image.jpeg").delete();
     }
