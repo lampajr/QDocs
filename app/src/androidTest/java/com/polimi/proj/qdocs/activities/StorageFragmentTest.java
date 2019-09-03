@@ -149,6 +149,7 @@ public class StorageFragmentTest {
         storageRef.child("picked_image(1).jpeg").delete();
     }
 
+
     @Test
     public void delete_file(){
 
@@ -179,6 +180,7 @@ public class StorageFragmentTest {
         onView(allOf(withId(R.id.storage_view), isCompletelyDisplayed()))
                 .check(new RecyclerViewItemCountAssertion((listLenght - 1)));
     }
+
 
     @Test
     public void abort_removal(){
