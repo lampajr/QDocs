@@ -155,7 +155,7 @@ public class StorageFragmentTest {
 
         upload_file_on_fb();
 
-        int listLenght = getCountFromRecyclerView();
+        int listLength = getCountFromRecyclerView();
 
         //click on the option of the picked_image file
         onView(allOf(withId(R.id.element_options),
@@ -176,9 +176,9 @@ public class StorageFragmentTest {
 
         sleep(5000);
 
-        //check the lenght of the ricycle view
+        //check the length of the recycler view
         onView(allOf(withId(R.id.storage_view), isCompletelyDisplayed()))
-                .check(new RecyclerViewItemCountAssertion((listLenght - 1)));
+                .check(new RecyclerViewItemCountAssertion((listLength - 1)));
     }
 
 
@@ -186,7 +186,7 @@ public class StorageFragmentTest {
     public void abort_removal(){
         upload_file_on_fb();
 
-        int listLenght = getCountFromRecyclerView();
+        int listLength = getCountFromRecyclerView();
 
         //click on the option of the picked_image file
         onView(allOf(withId(R.id.element_options),
@@ -209,7 +209,7 @@ public class StorageFragmentTest {
 
         //check the lenght of the ricycle view
         onView(allOf(withId(R.id.storage_view), isCompletelyDisplayed()))
-                .check(new RecyclerViewItemCountAssertion((listLenght)));
+                .check(new RecyclerViewItemCountAssertion((listLength)));
 
         storageRef.child("picked_image.jpeg").delete();
     }
