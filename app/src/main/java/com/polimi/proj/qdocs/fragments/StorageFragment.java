@@ -602,28 +602,32 @@ public class StorageFragment extends Fragment implements SwipeRefreshLayout.OnRe
         Log.d(TAG,"files founded: " + storageElements.size());
         Log.d(TAG,"display list: " + searchList.size() + "elements");
 
-        for(StorageElement element : storageElements){
-            if(element instanceof MyFile){
-                Log.d(TAG,"watching a file");
-                if(((MyFile) element).getFilename().toLowerCase().contains(userInput)){
+        if (!userInput.equals("")) {
+            for (StorageElement element : storageElements) {
+                if (element instanceof MyFile) {
+                    Log.d(TAG, "watching a file");
+                    if (((MyFile) element).getFilename().toLowerCase().contains(userInput)) {
 
-                    searchList.add(element);
-                    Log.d(TAG,"files founded: " + storageElements.size());
+                        searchList.add(element);
+                        Log.d(TAG, "files founded: " + storageElements.size());
+                    }
                 }
-            }
-            if(element instanceof MyDirectory) {
-                Log.d(TAG,"watching a directory");
-                if (((MyDirectory) element).getDirectoryName().toLowerCase().contains(userInput)) {
+                if (element instanceof MyDirectory) {
+                    Log.d(TAG, "watching a directory");
+                    if (((MyDirectory) element).getDirectoryName().toLowerCase().contains(userInput)) {
 
-                    searchList.add(element);
-                    Log.d(TAG, "files founded: " + storageElements.size());
+                        searchList.add(element);
+                        Log.d(TAG, "files founded: " + storageElements.size());
+                    }
                 }
+
             }
 
+            storageView.setAdapter(searchAdapter);
         }
-
-        storageView.setAdapter(searchAdapter);
-
+        else {
+            storageView.setAdapter(myStorageAdapter);
+        }
         notifyAdapter();
     }
 
