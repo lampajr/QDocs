@@ -2,6 +2,7 @@ package com.polimi.proj.qdocs.fragments;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -137,7 +138,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
         if (myStorageAdapter != null) {
             if (isVisibleToUser) {
                 Log.d(TAG, "Resumed");
-                loadLocalFiles();
+                loadLocalFiles(false);
                 ((MainActivity)context).resetNotification(1);
             } else {
                 Log.d(TAG, "Paused");
@@ -198,7 +199,7 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
         swipeRefreshLayout.post(new Runnable() {
             @Override
             public void run() {
-                loadLocalFiles();
+                loadLocalFiles(true);
                 notifyAdapter();
             }
         });
@@ -235,40 +236,8 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
         fsm.show(((MainActivity)context).getSupportFragmentManager(), "file_settings_" + file.getFilename());
     }
 
-    private void loadLocalFiles() {
-        Log.d(TAG, "Loading local files..");
-
-        files.clear();
-
-        File baseDirectory = PathResolver.getPublicDocStorageDir(context);
-        File[] localFiles = baseDirectory.listFiles();
-
-        if (localFiles != null && localFiles.length != 0) {
-            for (File f : localFiles) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    try {
-                        Path path = Paths.get(f.getAbsolutePath());
-                        BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
-                        String filename = f.getName();
-                        if (filename.equals(MainActivity.SECRET_FILE)) {
-                            continue;
-                        }
-                        String size = Files.size(path) + "";
-                        Long lastAccess = attrs.lastAccessTime().toMillis();
-                        String contentType = Files.probeContentType(path);
-                        String savedAt = attrs.lastModifiedTime() + "";
-
-                        if (StorageElement.retrieveFileByName(filename, files) == null) {
-                            files.add(new MyFile(filename, contentType, null, size, savedAt, lastAccess, true));
-                            notifyAdapter();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-        swipeRefreshLayout.setRefreshing(false);
+    private void loadLocalFiles(boolean refresh) {
+        new LoadFilesTask(refresh).execute();
     }
 
     /**
@@ -345,8 +314,8 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
 
     @Override
     public void onRefresh() {
-        files.clear();
-        loadLocalFiles();
+        //files.clear();
+        loadLocalFiles(true);
     }
 
     /**
@@ -361,6 +330,116 @@ public class OfflineFilesFragment extends Fragment implements SwipeRefreshLayout
         else {
             Log.w(TAG, "File to delete not found!");
             Toast.makeText(context, context.getString(R.string.error_removing_file), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class LoadFilesTask extends AsyncTask<Void, Void, Void> {
+
+        private List<StorageElement> newList;
+        private Boolean refresh;
+
+        LoadFilesTask(Boolean refresh) {
+            this.newList = new ArrayList<>();
+            this.refresh = refresh;
+        }
+
+        /**
+         * Override this method to perform a computation on a background thread. The
+         * specified parameters are the parameters passed to {@link #execute}
+         * by the caller of this task.
+         * <p>
+         * This method can call {@link #publishProgress} to publish updates
+         * on the UI thread.
+         *
+         * @param voids The parameters of the task.
+         * @return A result, defined by the subclass of this task.
+         * @see #onPreExecute()
+         * @see #onPostExecute
+         * @see #publishProgress
+         */
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Log.d(TAG, "Loading local files..");
+
+            File baseDirectory = PathResolver.getPublicDocStorageDir(context);
+            File[] localFiles = baseDirectory.listFiles();
+
+            if (localFiles != null && localFiles.length != 0) {
+                for (File f : localFiles) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        try {
+                            Path path = Paths.get(f.getAbsolutePath());
+                            BasicFileAttributes attrs = Files.readAttributes(path, BasicFileAttributes.class);
+                            String filename = f.getName();
+                            if (filename.equals(MainActivity.SECRET_FILE)) {
+                                continue;
+                            }
+                            String size = Files.size(path) + "";
+                            Long lastAccess = attrs.lastAccessTime().toMillis();
+                            String contentType = Files.probeContentType(path);
+                            String savedAt = attrs.lastModifiedTime() + "";
+
+                            if (StorageElement.retrieveFileByName(filename, newList) == null) {
+                                newList.add(new MyFile(filename, contentType, null, size, savedAt, lastAccess, true));
+                                //notifyAdapter();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if (refresh) {
+                files.clear();
+                files.addAll(newList);
+                notifyAdapter();
+            }
+            else {
+                if (checkDifference()) notifyAdapter();
+            }
+
+            swipeRefreshLayout.setRefreshing(false);
+        }
+
+        private boolean checkDifference() {
+            boolean diff = false;
+            for (StorageElement f1 : files) {
+                boolean check = false;
+                MyFile file1 = (MyFile) f1;
+                for (StorageElement f2: newList) {
+                    MyFile file2 = (MyFile) f2;
+                    if (file1.getFilename().equals(file2.getFilename())) {
+                        check = true;
+                        break;
+                    }
+                }
+                if (!check) {
+                    files.remove(f1);
+                    diff = true;
+                }
+            }
+
+            for (StorageElement f1 : newList) {
+                boolean check = false;
+                MyFile file1 = (MyFile) f1;
+                for (StorageElement f2: files) {
+                    MyFile file2 = (MyFile) f2;
+                    if (file1.getFilename().equals(file2.getFilename())) {
+                        check = true;
+                        break;
+                    }
+                }
+                if (!check) {
+                    files.add(f1);
+                    diff = true;
+                }
+            }
+            return diff;
         }
     }
 }

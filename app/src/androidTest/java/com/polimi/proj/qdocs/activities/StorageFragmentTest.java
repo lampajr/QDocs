@@ -266,8 +266,6 @@ public class StorageFragmentTest {
             bm.compress(Bitmap.CompressFormat.JPEG, 100, outStream);
             outStream.flush();
             outStream.close();
-        } catch (FileNotFoundException e){
-            e.printStackTrace();
         } catch (IOException e){
             e.printStackTrace();
         }
