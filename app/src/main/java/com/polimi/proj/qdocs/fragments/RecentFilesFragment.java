@@ -332,6 +332,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
      */
     private void setupFirebaseStorageListener(final DatabaseReference ref, final StorageReference storageReference) {
         swipeRefreshLayout.setRefreshing(true);
+        Log.e(TAG, "MAMMA");
 
         ref.addChildEventListener(new ChildEventListener() {
             @Override
@@ -466,7 +467,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
     }
 
     /**
-     * Show a new dialog containg all the stored information about the storage element
+     * Show a new dialog containing all stored information about the storage element
      * @param element StorageElement for which provide infos
      */
     private void showInfos(StorageElement element) {
@@ -487,6 +488,7 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         Log.d(TAG, "Refreshing!");
         files.clear();
         setupFirebaseStorageListener(fbHelper.getDatabaseReference(), fbHelper.getStorageReference());
+        notifyAdapter();
     }
 
     private void setupSearchBar() {
@@ -519,28 +521,33 @@ public class RecentFilesFragment extends Fragment implements SwipeRefreshLayout.
         Log.d(TAG,"files founded: " + files.size());
         Log.d(TAG,"display list: " + searchList.size() + "elements");
 
-        for(StorageElement element : files){
-            if(element instanceof MyFile){
-                Log.d(TAG,"watching a file");
-                if(((MyFile) element).getFilename().toLowerCase().contains(userInput)){
-
-                    searchList.add(element);
-                    Log.d(TAG,"files founded: " + files.size());
-                }
-            }
-            if(element instanceof MyDirectory) {
-                Log.d(TAG,"watching a directory");
-                if (((MyDirectory) element).getDirectoryName().toLowerCase().contains(userInput)) {
-
-                    searchList.add(element);
-                    Log.d(TAG, "files founded: " + files.size());
-                }
-            }
-
+        if (userInput.equals("")) {
+            storageView.setAdapter(myStorageAdapter);
         }
+        else {
+            for(StorageElement element : files){
+                if(element instanceof MyFile){
+                    Log.d(TAG,"watching a file");
+                    if(((MyFile) element).getFilename().toLowerCase().contains(userInput)){
 
-        storageView.setAdapter(searchAdapter);
+                        searchList.add(element);
+                        Log.d(TAG,"files founded: " + files.size());
+                    }
+                }
+                /*
+                if(element instanceof MyDirectory) {
+                    Log.d(TAG,"watching a directory");
+                    if (((MyDirectory) element).getDirectoryName().toLowerCase().contains(userInput)) {
 
+                        searchList.add(element);
+                        Log.d(TAG, "files founded: " + files.size());
+                    }
+                }*/
+
+            }
+
+            storageView.setAdapter(searchAdapter);
+        }
         notifyAdapter();
     }
 
