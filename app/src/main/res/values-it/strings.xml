@@ -77,18 +77,46 @@
     <string name="display_name_string">display name</string>
     <string name="version">versione 1.0.0</string>
     <string name="total_space_used">Totale spazio usato:</string>
-    <string name="file_number_stored">file salvati:</string>
+    <string name="file_number_stored">File salvati:</string>
     <string name="offline">OFFLINE</string>
     <string name="home">HOME</string>
     <string name="storage">STORAGE</string>
     <string name="recent"> RECENTI</string>
     <string name="about">Info</string>
-    <string name="english">English</string>
+    <string name="english">Inglese</string>
     <string name="italian">Italiano</string>
     <string name="language">Lingua</string>
     <string name="search_string">cerca</string>
     <string name="connection_lost">Connession Persa</string>
     <string name="you_are_not_connected">Non sei connesso!</string>
     <string name="confirm">CONFERMA</string>
+
+    <string name="local_file_deleted">File locale cancellato!</string>
+    <string name="downloading_file">File in download..</string>
+    <string name="error_download">Errore occorso durante il download!</string>
+    <string name="unable_show_file">Impossibile aprire il file, formato non riconosciuto!</string>
+    <string name="file_not_found">File non trovato!</string>
+    <string name="error_copying_file">Errore durante la copia!</string>
+    <string name="deletion_failed">Cancellazione fallita!</string>
+    <string name="error_removing_file">Errore eliminazione file</string>
+    <string name="dir_name_already_used">Nome cartella già usato!!</string>
+    <string name="creating_directory">Creando nuova cartella..</string>
+    <string name="uploading_file">File in caricamento..</string>
+    <string name="cannot_access_ext_storage">Permessi storafe esterno negati!</string>
+    <string name="insert_folder_name_caps">INSERISCI NOME CARTELLA</string>
+    <string name="something_went_wrong">qualcosa è andato storto :(</string>
+    <string name="unable_to_find">Impossibile trovare</string>
+    <string name="qdocs_logo">logo QDocs</string>
+    <string name="license">LICENZA</string>
+    <string name="lamparelli_andrea_and_chitt_pietro">Lamparelli Andrea e Chittò Pietro</string>
+    <string name="copyright_2018_2019" translatable="false">Copyright 2018&#8211;2019</string>
+    <string name="licensed_under">Sotto licenza</string>
+    <string name="accessed">acceduto</string>
+    <string name="filename">Filename:</string>
+    <string name="content_type">Estensione:</string>
+    <string name="created_at">Creato il:</string>
+    <string name="last_access">Ultimo accesso:</string>
+    <string name="size">Dimensione:</string>
+    <string name="directory_name">Nome Cartella:</string>
 
 </resources>
